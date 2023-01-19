@@ -1,0 +1,223 @@
+.theme-generator(@name; @theme-color; @pure-color: null;) {
+  body.theme-@{name} {
+    & when (iscolor(@pure-color)) {
+      --theme-color: @pure-color;
+    }
+    & when not (iscolor(@pure-color)) {
+      & when (iscolor(@theme-color)) {
+        --theme-color: @theme-color;
+      }
+    }
+  }
+  .bg-theme-@{name} {
+    background: @theme-color;
+  }
+  .site-container--theme-@{name} {
+    // 整体侧栏颜色
+    .aside-nav-menu {
+      background: @theme-color;
+    }
+    .nav-menu--horizon {
+      & when (iscolor(@pure-color)) {
+        background: @theme-color;
+      }
+      & when not (iscolor(@pure-color)) {
+        & when (iscolor(@theme-color)) {
+          background-color: Lighten(@theme-color, 8%);
+        }
+      }
+      .menu__logo {
+        box-shadow: 1px 0px 4px 0px rgba(0, 0, 0, 0.2);
+      }
+    }
+    // logo背景色
+    .menu__logo {
+      height: @menu-view-bar-height;
+      // background: @logo-property;
+      cursor: pointer;
+      & when (iscolor(@pure-color)) {
+        // background-color: Lighten(@pure-color, 8%);
+      }
+      & when not (iscolor(@pure-color)) {
+        & when (iscolor(@theme-color)) {
+          background-color: Lighten(@theme-color, 8%);
+        }
+      }
+    }
+    &.site-container--menu-close,
+    &.site-container--menu-horizon {
+      .menu__logo {
+        // background: @logo-property-sm;
+        & when (iscolor(@pure-color)) {
+          // background-color: Lighten(@pure-color, 8%);
+        }
+        & when not (iscolor(@pure-color)) {
+          & when (iscolor(@theme-color)) {
+            background-color: Lighten(@theme-color, 8%);
+          }
+        }
+      }
+    }
+    // 设置鼠标当前hover列的颜色
+    .nav-menu__item {
+      &.is-pop {
+        &:hover {
+          color: #fff;
+        }
+      }
+      &:hover {
+        & when not (iscolor(@pure-color)) {
+          & when (iscolor(@theme-color)) {
+            background-color: Darken(@theme-color, 1%);
+            & > .bg-submenu__title {
+              color: #fff;
+            }
+          }
+        }
+        & when (iscolor(@pure-color)) {
+          background-color: Darken(@pure-color, 1%);
+          & > .bg-submenu__title {
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    // 用户操作栏
+    .app-act {
+      .user-act:hover {
+        & when (iscolor(@pure-color)) {
+          background-color: fade(@pure-color, 8%);
+        }
+        & when not (iscolor(@pure-color)) {
+          & when (iscolor(@theme-color)) {
+            background-color: fade(@theme-color, 20%);
+          }
+        }
+      }
+      &__link:hover {
+        & when (iscolor(@pure-color)) {
+          background-color: fade(@pure-color, 8%);
+        }
+        & when not (iscolor(@pure-color)) {
+          & when (iscolor(@theme-color)) {
+            background-color: fade(@theme-color, 20%);
+          }
+        }
+      }
+
+      &--invert {
+        .user-act:hover {
+          & when (iscolor(@pure-color)) {
+            background-color: darken(@pure-color, 8%);
+          }
+          & when not (iscolor(@pure-color)) {
+            & when (iscolor(@theme-color)) {
+              background-color: darken(@theme-color, 8%);
+            }
+          }
+        }
+        .app-act__link:hover {
+          & when (iscolor(@pure-color)) {
+            background-color: darken(@pure-color, 8%);
+          }
+          & when not (iscolor(@pure-color)) {
+            & when (iscolor(@theme-color)) {
+              background-color: darken(@theme-color, 8%);
+            }
+          }
+        }
+      }
+    }
+  }
+  body.theme-@{name}
+    .nav-menu__submenu--pop
+    .nav-menu__item:not(.nav-menu__item--has-child) {
+    & when (iscolor(@pure-color)) {
+      // color: Lighten(@pure-color, 10%);
+      color: @pure-color;
+      .hightlight {
+        .setHightLight();
+      }
+    }
+    & when not (iscolor(@pure-color)) {
+      & when (iscolor(@theme-color)) {
+        color: Lighten(@theme-color, 10%);
+        .hightlight {
+          .setHightLight();
+        }
+      }
+    }
+    &:hover {
+      .help-icon {
+        display: block;
+      }
+      & when (iscolor(@pure-color)) {
+        background-color: fade(@pure-color, 12);
+      }
+      & when not (iscolor(@pure-color)) {
+        & when (iscolor(@theme-color)) {
+          background-color: fade(@theme-color, 12);
+        }
+      }
+    }
+  }
+  // body.theme-@{name}
+  //   .nav-menu__submenu--pop
+  //   .nav-menu__item:not(.nav-menu__item--has-child)
+  //   > .nav-menu__title {
+  //   & when (iscolor(@pure-color)) {
+  //     color: @pure-color;
+  //   }
+  //   & when not (iscolor(@pure-color)) {
+  //     & when (iscolor(@theme-color)) {
+  //       color: @theme-color;
+  //     }
+  //   }
+  //   &:hover {
+  //     & when (iscolor(@pure-color)) {
+  //       background-color: fade(@pure-color, 12);
+  //     }
+  //     & when not (iscolor(@pure-color)) {
+  //       & when (iscolor(@theme-color)) {
+  //         background-color: fade(@theme-color, 12);
+  //       }
+  //     }
+  //   }
+  // }
+}
+
+// Basic theme
+.theme-generator(default, #0070b2);
+.theme-generator(primary, #3f6ad8);
+.theme-generator(gray, #6c757d);
+.theme-generator(red, #c0415f);
+.theme-generator(eggplant, #794c8a);
+
+// Gradient theme
+.theme-generator(
+  grow-early,
+  linear-gradient(to top, #0ba360 0%, #3cba92 100%),
+  #3cba92
+);
+.theme-generator(
+  plum-plate,
+  linear-gradient(135deg, #667eea 0%, #764ba2 100%),
+  #667eea
+);
+.theme-generator(
+  midnight-bloom,
+  linear-gradient(-20deg, #2b5876 0%, #4e4376 100%),
+  #2b5876
+);
+.theme-generator(
+  night-sky,
+  linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%),
+  #1e3c72
+);
+.theme-generator(
+  slick-carbon,
+  linear-gradient(to bottom, #323232 0%, #3f3f3f 40%, #1c1c1c 150%),
+  #323232
+);
+.theme-generator(royal, linear-gradient(to right, #141e30, #243b55), #141e30);

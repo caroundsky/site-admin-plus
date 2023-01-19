@@ -1,0 +1,317 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('../fonts/icomoon.eot?gj0n4l');
+  src: url('../fonts/icomoon.eot?gj0n4l#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon.ttf?gj0n4l') format('truetype'),
+    url('../fonts/icomoon.woff?gj0n4l') format('woff'),
+    url('../fonts/icomoon.svg?gj0n4l#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+[class^='icbg-'],
+[class*=' icbg-'] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icbg-workflow:before {
+  content: '\e901';
+}
+.icbg-menu:before {
+  content: '\e902';
+}
+.icbg-module:before {
+  content: '\e903';
+}
+.icbg-test:before {
+  content: '\e904';
+}
+.icbg-node:before {
+  content: '\e905';
+}
+.icbg-systemconfig:before {
+  content: '\e906';
+}
+.icbg-function:before {
+  content: '\e907';
+}
+.icbg-message:before {
+  content: '\e908';
+}
+.icbg-authorsys:before {
+  content: '\e909';
+}
+.icbg-timingtask:before {
+  content: '\e90a';
+}
+.icbg-docnumallocation:before {
+  content: '\e90b';
+}
+.icbg-dataconfig:before {
+  content: '\e90c';
+}
+.icbg-log:before {
+  content: '\e90d';
+}
+.icbg-personnel:before {
+  content: '\e90e';
+}
+.icbg-staff:before {
+  content: '\e90f';
+}
+.icbg-recruitment:before {
+  content: '\e910';
+}
+.icbg-kpi:before {
+  content: '\e911';
+}
+.icbg-basicconfig:before {
+  content: '\e912';
+}
+.icbg-training:before {
+  content: '\e913';
+}
+.icbg-logmonitorsys:before {
+  content: '\e914';
+}
+.icbg-trackmatch:before {
+  content: '\e915';
+}
+.icbg-exception:before {
+  content: '\e916';
+}
+.icbg-ordertrack:before {
+  content: '\e917';
+}
+.icbg-otherplatform:before {
+  content: '\e918';
+}
+.icbg-lazadalinio:before {
+  content: '\e919';
+}
+.icbg-cd:before {
+  content: '\e91a';
+}
+.icbg-pm:before {
+  content: '\e91b';
+}
+.icbg-myproject:before {
+  content: '\e91c';
+}
+.icbg-myproject1:before {
+  content: '\e91d';
+}
+.icbg-dataanalysis:before {
+  content: '\e91e';
+}
+.icbg-businessreport:before {
+  content: '\e91f';
+}
+.icbg-bi:before {
+  content: '\e920';
+}
+.icbg-libreport:before {
+  content: '\e921';
+}
+.icbg-customcomplaint:before {
+  content: '\e922';
+}
+.icbg-ae:before {
+  content: '\e923';
+}
+.icbg-aekpi:before {
+  content: '\e924';
+}
+.icbg-aecreatekpi:before {
+  content: '\e925';
+}
+.icbg-detailtemplate:before {
+  content: '\e926';
+}
+.icbg-customersys:before {
+  content: '\e927';
+}
+.icbg-mailmanagement:before {
+  content: '\e928';
+}
+.icbg-servicemanag:before {
+  content: '\e929';
+}
+.icbg-reportsys:before {
+  content: '\e92a';
+}
+.icbg-wis:before {
+  content: '\e900';
+}
+.icbg-warehouseledger:before {
+  content: '\e92c';
+}
+.icbg-wish:before {
+  content: '\e92d';
+}
+.icbg-wishonsale:before {
+  content: '\e92e';
+}
+.icbg-financialsys:before {
+  content: '\e92f';
+}
+.icbg-basicinfo:before {
+  content: '\e930';
+}
+.icbg-financialtreatment:before {
+  content: '\e931';
+}
+.icbg-fixedassets:before {
+  content: '\e932';
+}
+.icbg-financialstatement:before {
+  content: '\e93a';
+}
+.icbg-legalsys:before {
+  content: '\e93b';
+}
+.icbg-anyapplication:before {
+  content: '\e93c';
+}
+.icbg-tnterpurchase:before {
+  content: '\e93d';
+}
+.icbg-attendance:before {
+  content: '\e93e';
+}
+.icbg-compliancesys:before {
+  content: '\e93f';
+}
+.icbg-logadvance:before {
+  content: '\e940';
+}
+.icbg-logreimbursement:before {
+  content: '\e941';
+}
+.icbg-reimburse:before {
+  content: '\e933';
+}
+.icbg-responsibility:before {
+  content: '\e944';
+}
+.icbg-supplychain:before {
+  content: '\e92b';
+}
+.icbg-wishproducts:before {
+  content: '\e945';
+}
+.icbg-supplieraccount:before {
+  content: '\e947';
+}
+.icbg-unsalable:before {
+  content: '\e948';
+}
+.icbg-ebay:before {
+  content: '\e949';
+}
+.icbg-reportform:before {
+  content: '\e94a';
+}
+.icbg-toolassistance:before {
+  content: '\e94c';
+}
+.icbg-credential:before {
+  content: '\e94d';
+}
+.icbg-deliverydoc:before {
+  content: '\e94e';
+}
+.icbg-docsys:before {
+  content: '\e934';
+}
+.icbg-shipdocconfig:before {
+  content: '\e956';
+}
+.icbg-billentries:before {
+  content: '\e957';
+}
+.icbg-storecredit:before {
+  content: '\e958';
+}
+.icbg-shipdocorder:before {
+  content: '\e935';
+}
+.icbg-deliveryvoucher:before {
+  content: '\e95b';
+}
+.icbg-shipdocimport:before {
+  content: '\e95c';
+}
+.icbg-joom:before {
+  content: '\e95d';
+}
+.icbg-joomorder:before {
+  content: '\e936';
+}
+.icbg-amazon:before {
+  content: '\e937';
+}
+.icbg-fba:before {
+  content: '\e969';
+}
+.icbg-emailmanagement:before {
+  content: '\e96a';
+}
+.icbg-bg:before {
+  content: '\e946';
+}
+.icbg-unsoldgoods:before {
+  content: '\e938';
+}
+.icbg-activity:before {
+  content: '\e96d';
+}
+.icbg-discount:before {
+  content: '\e96e';
+}
+.icbg-shortagestatistics:before {
+  content: '\e96f';
+}
+.icbg-walmart:before {
+  content: '\e970';
+}
+.icbg-infrastructure:before {
+  content: '\e971';
+}
+.icbg-sop:before {
+  content: '\e972';
+}
+.icbg-sopmanagement:before {
+  content: '\e96c';
+}
+.icbg-newchic:before {
+  content: '\e939';
+}
+
+@font-face {
+  font-family: 'iconfont';
+  src: url('data:application/x-font-woff;charset=utf-8;base64,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')
+    format('woff');
+}
+
+.iconfont {
+  font-family: 'iconfont' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-xietonglogo1:before {
+  content: '\e663';
+}

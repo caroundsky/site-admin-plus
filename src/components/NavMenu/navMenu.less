@@ -1,0 +1,468 @@
+.bg-menu {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+
+  // 菜单li标签，控制外层样式
+  .bg-submenu {
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    list-style: none;
+    cursor: pointer;
+
+    // 打开
+    &.is-opened {
+      background: rgba(255, 255, 255, 0.15) !important;
+
+      & > .bg-submenu__title {
+        & > i:last-child {
+          transform: rotateZ(180deg);
+        }
+
+        &.set-dot::before,
+        &.set-dot::after {
+          display: none;
+        }
+      }
+
+      .bg-submenu__collapse-title .bg-submenu__title {
+        &.set-dot::before,
+        &.set-dot::after {
+          display: none;
+        }
+      }
+    }
+
+    &.is-pop {
+      .bg-submenu__title-arrow {
+        transform: rotateZ(-90deg);
+      }
+    }
+
+    // 文案
+    &__title {
+      position: relative;
+      padding: 0 11px 0 18px;
+      font-size: 14px;
+      height: @sidebar-item-height;
+      line-height: @sidebar-item-height;
+
+      &-icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 0.6em;
+        min-width: 14px;
+        min-height: 14px;
+      }
+
+      &-txt {
+        display: inline-block;
+        width: 85%;
+        width: calc(100% - 34px);
+        line-height: 1.2;
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        // 高亮
+        .hightlight {
+          .setHightLight();
+        }
+      }
+
+      &-arrow {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        font-size: 12px;
+        margin-top: -5px;
+        transition: transform 0.3s;
+      }
+
+      // 提示dot
+      &.set-dot {
+        &::before {
+          content: '';
+          position: absolute;
+          z-index: 20;
+          right: 7px;
+          top: 5px;
+          width: 6px;
+          height: 6px;
+          background: #fff;
+          border-radius: 50%;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          z-index: 20;
+          right: 2px;
+          top: 0px;
+          width: 16px;
+          height: 16px;
+          background: #fff;
+          border-radius: 50%;
+          animation: wave 2s ease infinite;
+        }
+      }
+
+      // 新menu提示
+      &.is-new .bg-submenu__title-txt::before {
+        content: 'N';
+        position: absolute;
+        top: 12px;
+        left: 1px;
+        width: 15px;
+        font-weight: bold;
+        color: red;
+      }
+    }
+  }
+
+  // 菜单li标签，控制内部样式细节
+  .nav-menu__item {
+    &-lv1 {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+      &:first-child {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+      }
+    }
+
+    &-lv2 {
+      .bg-submenu__title {
+        padding-left: 30px;
+      }
+    }
+
+    &:not(.nav-menu__item-lv1) {
+      .set-dot {
+        &:after {
+          right: initial;
+          top: 5px;
+          left: 6px;
+        }
+
+        &:before {
+          right: initial;
+          top: 10px;
+          left: 11px;
+        }
+      }
+
+      .is-new .bg-submenu__title-txt::before {
+        top: 4px;
+        left: 10px;
+      }
+    }
+  }
+}
+
+// close缩小侧边栏
+.bg-nav-menu--close {
+  .nav-menu__item-lv2 .bg-submenu__title {
+    padding-left: 18px;
+  }
+
+  .bg-submenu__title-txt {
+    // transition: opacity ease 0.2s;
+    // opacity: 0;
+  }
+
+  .bg-submenu__title-arrow {
+    display: none;
+  }
+
+  .nav-menu__item:not(.nav-menu__item-lv1) {
+    .is-new .bg-submenu__title-txt::before {
+      top: 4px;
+      left: 3px;
+    }
+  }
+}
+
+// pop层级折叠结构样式
+.is-flat-menu {
+  list-style: none;
+  cursor: pointer;
+}
+
+.nav-menu__submenu--pop {
+  box-sizing: border-box;
+  padding: 10px 10px 8px 10px;
+  border-radius: 3px;
+
+  .nav-menu__item {
+    user-select: none;
+    list-style: none;
+    font-size: 12px;
+    line-height: 2;
+
+    & > span {
+      padding-left: 16px;
+    }
+
+    & > .bg-menu {
+      padding-left: 12px;
+    }
+  }
+
+  .bg-submenu__title-txt {
+    box-sizing: border-box;
+    position: relative;
+    overflow: initial;
+    display: inline-block;
+    width: 100%;
+    line-height: 2;
+
+    & > span {
+      display: inline-block;
+      // width: 100%;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &.is-new::before {
+      content: 'N';
+      position: absolute;
+      line-height: 1;
+      top: 4px;
+      left: 3px;
+      font-weight: bold;
+      color: red;
+    }
+  }
+
+  &__container {
+    min-width: 240px;
+  }
+
+  &__depart {
+    width: 220px;
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  &__title {
+    margin: 2px 0 6px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #d9d9d9;
+    font-size: 12px;
+    font-weight: normal;
+    color: #333;
+  }
+
+  &__next {
+    padding: 0;
+    border-radius: 3px;
+
+    &-wrap {
+      display: flex;
+    }
+
+    .virtual-node {
+      position: fixed;
+      //top: -99999px;
+      //left: -99999px;
+      left: -99999999px;
+      top: -99999999px;
+    }
+
+    &-content {
+      padding: 14px;
+    }
+
+    &-scroller {
+      overflow: auto;
+    }
+
+    &-sidebar {
+      padding: 14px 0;
+      // min-height: 100%;
+      border-right: solid 1px rgb(236, 245, 255);
+      min-width: 150px;
+
+      &-item {
+        display: flex;
+        align-items: center;
+        padding: 0 23px 0 30px;
+        height: 30px;
+        font-size: 12px;
+        box-sizing: border-box;
+        justify-content: space-between;
+
+        .el-icon-arrow-right {
+          margin-left: 2px;
+        }
+
+        &-current {
+          background-color: rgb(245, 247, 250);
+          color: rgb(0, 138, 219);
+        }
+      }
+    }
+  }
+
+  .help-icon {
+    float: right;
+    line-height: 2;
+    margin-right: 5px;
+    display: none;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hightlight {
+    .setHightLight();
+  }
+
+  &-horizon {
+    margin-top: 0 !important;
+  }
+
+  &__horizon {
+    min-width: auto;
+
+    .help-icon {
+      position: absolute;
+      right: 0;
+      top: 1px;
+    }
+  }
+}
+
+.bg-nav-menu--horizon {
+  display: inline-block;
+  vertical-align: middle;
+  height: @horizon-menu-height;
+  max-width: calc(100% - 50px - 324px);
+  overflow: hidden;
+
+  .bg-submenu {
+    border: 0;
+    display: inline-block;
+    vertical-align: middle;
+    color: rgba(255, 255, 255, 0.9);
+
+    &:first-child {
+      border-top: 0;
+    }
+
+    &__title {
+      padding: 0 10px;
+
+      &-icon,
+      &-arrow {
+        display: none;
+      }
+
+      &-txt {
+        width: auto;
+      }
+    }
+  }
+
+  .nav-menu__item {
+    &-lv1 {
+      &:hover {
+        background: #fff !important;
+
+        & > .bg-submenu__title {
+          color: #4d4d4d;
+        }
+      }
+
+      &.is-pop:hover {
+        color: #4d4d4d;
+      }
+    }
+  }
+}
+
+// 深色主题使用浅色文字
+.bg-nav-menu--light-text {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+// 浅色主题使用深色文字
+.bg-nav-menu--dark-text {
+  color: rgba(0, 0, 0, 0.6);
+
+  .nav-menu__title:hover {
+    // background: rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+// transition
+.bg-menu--collapse {
+  transition: height 0.4s;
+}
+
+.bg-pop {
+  &-enter-active,
+  &-leave-active {
+    transition: transform 0.4s ease, opacity 0.3s;
+  }
+
+  &-enter,
+  &-leave-to {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+}
+
+.bg-pop-horizon {
+  // &-enter-active,
+  // &-leave-active {
+  //   transition: transform 0.4s ease, opacity 0.3s;
+  // }
+  &-enter-active {
+    transition: transform 0.4s ease, opacity 0.3s;
+  }
+
+  &-leave-active {
+    transition: transform 0.3s ease, opacity 0.2s;
+  }
+
+  &-enter,
+  &-leave-to {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+.bg-pop-content-next {
+  &-enter-active {
+    transition: opacity 0.2s;
+  }
+
+  &-leave-active {
+    transition: opacity 0.2s;
+  }
+
+  &-enter,
+  &-leave-to {
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+  from {
+    transform: scale(0);
+    border-radius: 12px;
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
