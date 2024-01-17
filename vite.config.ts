@@ -4,10 +4,11 @@ import path from 'path'
 import vue from '@vitejs/plugin-vue2'
 import vueJsx from '@vitejs/plugin-vue2-jsx'
 import svgLoader from 'vite-svg-loader'
-// import { createStyleImportPlugin } from 'vite-plugin-style-import'
 
+// import { createStyleImportPlugin } from 'vite-plugin-style-import'
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [
     vue(),
     vueJsx({
@@ -67,6 +68,12 @@ export default defineConfig({
     },
   },
 
+  define: {
+    'process.env': {
+      NODE_ENV: process.env.NODE_ENV,
+    },
+  },
+
   build: {
     rollupOptions: {
       external: ['vue', 'vuex', 'vue-smooth-dnd'],
@@ -75,7 +82,8 @@ export default defineConfig({
     outDir: 'lib',
     lib: {
       entry: './src/main.ts',
-      name: 'index',
+      // entry: './index.html',
+      name: 'lemonAdmin',
       fileName: 'index',
       formats: ['es'],
     },

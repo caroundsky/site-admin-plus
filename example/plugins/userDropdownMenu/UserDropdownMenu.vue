@@ -44,7 +44,7 @@ export default Vue.extend({
     // 更新菜单
     async updateMenu() {
       let Msg = Message({
-        message: '菜单更新中21',
+        message: '菜单更新中',
         duration: 0,
       })
       try {

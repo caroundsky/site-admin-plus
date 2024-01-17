@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
-  strict: import.meta.env.NODE_ENV !== 'production',
+  strict: import.meta.env.MODE !== 'production',
 })
 
 export default store

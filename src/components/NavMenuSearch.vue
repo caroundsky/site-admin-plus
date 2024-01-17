@@ -47,8 +47,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { namespace } from 'vuex-class'
 import { NavMenuItem, MenuView } from '~/types/interfaces'
 import highlight from '@/utils/highlight'
-// @ts-ignore
-import { tranformToPinyin } from '@/utils/filterPinyin/ChineseToPinyin_1_0.js'
+import { tranformToPinyin } from '~/src/utils/filterPinyin/ChineseToPinyin_1_0.cjs'
 
 const AppModule = namespace('app')
 const MenuModule = namespace('menu')

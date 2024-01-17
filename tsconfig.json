@@ -5,7 +5,7 @@
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -29,7 +29,6 @@
     "example/**/*.ts",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "lib/*.mjs"
   ],
   "exclude": ["node_modules"]
 }

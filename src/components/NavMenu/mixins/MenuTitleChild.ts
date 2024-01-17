@@ -1,7 +1,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { NavMenuItem } from '~/types/interfaces'
 
-@Component
+@Component({ name: 'MenuTitleChild' })
 export default class MenuTitleChild extends Vue {
   @Prop({ required: true })
   public menu!: NavMenuItem

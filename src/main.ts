@@ -74,7 +74,7 @@ export function create(rawInputOptions: RawInputOptions) {
   let rootStore = rawInputOptions.store
   if (!rootStore) {
     rootStore = new Vuex.Store({
-      strict: import.meta.env.NODE_ENV !== 'production',
+      strict: import.meta.env.MODE !== 'production',
     })
   }
   rootStore.registerModule('app', AppModule)

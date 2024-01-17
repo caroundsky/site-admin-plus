@@ -9,7 +9,7 @@ import getMainDomain from '@/utils/getMainDomain'
 import MenuData from './mock/menu'
 
 import { create } from '~/src/main'
-// import { create } from '../lib/index.mjs'
+// import { create } from '~/lib'
 import '../lib/style.css'
 
 import userDropdownMenuPlugin from './plugins/userDropdownMenu'

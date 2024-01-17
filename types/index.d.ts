@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { Store, Module } from 'vuex'
-import bus from '../src/bus'
+import bus, { BusConfig } from '../src/bus'
 import * as tools from '@/tools'
 
 export interface PluginCtx {
@@ -25,3 +25,12 @@ export interface PluginHasStore extends PluginBase {
 export type Plugin = PluginBase | PluginHasStore
 
 export type PluginFunction = (ctx: PluginCtx) => Plugin | void
+
+export type CreateOptions = {
+  config: BusConfig
+  store: Store<any>
+  plugins: Plugin[]
+}
+
+declare const create: (options?: CreateOptions) => any
+export default create

@@ -12,4 +12,9 @@ declare module 'nprogress'
 declare module 'vuex-map-fields'
 declare module 'vue-smooth-dnd'
 
-declare module '*.svg'
+// declare module 'vuex' {
+//   export * from 'vuex/types/index.d.ts'
+//   export * from 'vuex/types/helpers.d.ts'
+//   export * from 'vuex/types/logger.d.ts'
+//   export * from 'vuex/types/vue.d.ts'
+// }

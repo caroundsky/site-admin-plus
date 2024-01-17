@@ -1,7 +1,6 @@
 <script lang="tsx">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import bus from '@/bus'
-import { random } from 'lodash'
 
 @Component({
   name: 'PluginSlot',
@@ -10,11 +9,16 @@ import { random } from 'lodash'
       functional: true,
       render: (h: any, ctx: any) => {
         let { vnodes } = ctx.props
-        return typeof vnodes === 'object' ? (
-          <div key={random()}>{vnodes}</div>
-        ) : (
-          <span key={key}>{vnodes}</span>
-        )
+        if (import.meta.env.MODE === 'production') {
+          return typeof vnodes === 'object' ? vnodes : <span>{vnodes}</span>
+        } else {
+          const key = new Date().getTime()
+          return typeof vnodes === 'object' ? (
+            <div key={key}>{vnodes}</div>
+          ) : (
+            <span key={key}>{vnodes}</span>
+          )
+        }
       },
     },
   },

@@ -6,8 +6,8 @@ module.exports = {
   },
   extends: ['plugin:vue/essential', '@vue/prettier', '@vue/typescript'],
   rules: {
-    'no-console': import.meta.env.NODE_ENV === 'production' ? 'error' : 'warn',
-    'no-debugger': import.meta.env.NODE_ENV === 'production' ? 'error' : 'warn',
+    'no-console': import.meta.env.MODE === 'production' ? 'error' : 'warn',
+    'no-debugger': import.meta.env.MODE === 'production' ? 'error' : 'warn',
     'no-empty': ['error', { allowEmptyCatch: true }],
   },
   parserOptions: {
