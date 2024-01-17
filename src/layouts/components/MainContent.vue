@@ -6,7 +6,7 @@
     :class="[
       'main-content',
       { 'stop-event': menuTabTouch },
-      { 'move-in-area': menuTabMoveInArea }
+      { 'move-in-area': menuTabMoveInArea },
     ]"
   >
     <div
@@ -32,13 +32,16 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { namespace } from 'vuex-class'
 import { MenuView } from '~/types/interfaces'
 
-import { xorBy, intersectionBy } from 'lodash'
+import xorBy from 'lodash/xorBy'
+import intersectionBy from 'lodash/intersectionBy'
 import { reflashIframe } from '@/utils/tools'
 
 const MenuViewsModule = namespace('menuViews')
 const AppModule = namespace('app')
 
-@Component
+@Component({
+  name: 'MainContent',
+})
 export default class MainContent extends Vue {
   @AppModule.State('menuTabTouch')
   public menuTabTouch!: boolean

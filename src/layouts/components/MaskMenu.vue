@@ -76,7 +76,6 @@ export default class MaskMenu extends Vue {
    */
   @Watch('isInited')
   handleAppInit(val: boolean) {
-    console.log(val)
     if (val) {
       this.filterMenuData = this.menuData.filter((item) => item.show)
       console.log('this.filterMenuData', this.filterMenuData)

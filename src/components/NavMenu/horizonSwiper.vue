@@ -4,11 +4,13 @@ import { namespace } from 'vuex-class'
 
 import { NavMenuItem } from '~/types/interfaces'
 
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
 const AppModule = namespace('app')
 
-@Component
+@Component({
+  name: 'horizonSwiper',
+})
 export default class horizonSwiper extends Vue {
   @InjectReactive('rootMenu') rootMenu!: any
 
@@ -95,8 +97,8 @@ export default class horizonSwiper extends Vue {
         class: 'horizon-swiper-container',
         style: {
           width: `${this.calcWidth}px`,
-          transform: `translateX(${this.translateX}px)`
-        }
+          transform: `translateX(${this.translateX}px)`,
+        },
       },
       this.$slots.default
     )

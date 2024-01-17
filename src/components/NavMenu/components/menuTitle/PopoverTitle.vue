@@ -3,7 +3,9 @@ import { Component, Mixins } from 'vue-property-decorator'
 
 import MenuTitleChild from '@/components/NavMenu/mixins/MenuTitleChild'
 
-@Component
+@Component({
+  name: 'PopoverTitle',
+})
 export default class PopoverTitle extends Mixins(MenuTitleChild) {
   render() {
     const { replaceHtml, menu } = this

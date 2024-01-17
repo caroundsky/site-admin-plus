@@ -25,14 +25,12 @@ import isPlainObject from 'lodash/isPlainObject'
 import { hasOwn } from '@/utils/tools'
 import bus from '@/bus'
 
-// @ts-ignore
 import _logoImg from '@/assets/logo.png'
-// @ts-ignore
 import _logosmallImg from '@/assets/logo-sm.png'
 
-// const AppModule = namespace('app')
-
-@Component
+@Component({
+  name: 'Logo',
+})
 export default class Logo extends Vue {
   @Prop({ type: Boolean, default: false })
   small!: boolean

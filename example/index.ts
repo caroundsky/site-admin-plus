@@ -2,23 +2,25 @@ import Vue from 'vue'
 import localforage from 'localforage'
 import App from './app.vue'
 import store from './store'
-import i18n from '@/i18n'
+// import i18n from '@/i18n'
+import i18n from './plugins/i18n/main'
 import getMainDomain from '@/utils/getMainDomain'
-// import router from './router'
 
 import MenuData from './mock/menu'
 
-import { create } from '@/index'
+import { create } from '~/src/main'
+// import { create } from '../lib/index.mjs'
+import '../lib/style.css'
+
 import userDropdownMenuPlugin from './plugins/userDropdownMenu'
 import netTestBtnPlugin from './plugins/netTestBtn'
 import themesPlugin from './plugins/themes'
 import favMenuBarPlugin from './plugins/favMenuBar'
 import contextMenu from './plugins/contextMenu'
 import MaskMenu from './plugins/maskMenu'
+import I18n from './plugins/i18n'
 
-// @ts-ignore
 import _logo from './logo.png'
-// @ts-ignore
 import _logoSmall from './logo-sm.png'
 
 Vue.config.productionTip = false
@@ -38,6 +40,7 @@ const app = create({
     favMenuBarPlugin(),
     contextMenu(),
     MaskMenu(),
+    I18n(),
   ],
   config: {
     logo: {
@@ -85,6 +88,8 @@ app.$on('logout', async () => {
 })
 
 Vue.component('SiteContainer', app.component)
+Vue.prototype.$tools = app.$tools
+window.$tools = { ...app.$tools }
 
 new Vue({
   render: (h) => h(App),

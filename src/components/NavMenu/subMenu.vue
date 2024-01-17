@@ -52,6 +52,7 @@ function splitColumn(
 }
 
 @Component({
+  name: 'SubMenu',
   components: {
     BgCollapseTransition,
   },

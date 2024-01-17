@@ -18,7 +18,7 @@ import MenuItem from './menuItem.vue'
 import horizonSwiper from './horizonSwiper.vue'
 import menuTitle from './components/menuTitle/index.vue'
 
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import highlight from '@/utils/highlight'
 import { TRIGGLE_ASIDE } from '@/constants'
 
@@ -37,6 +37,7 @@ const DEFAULT_POPOVER_HEIGHT_RATIO = 0.8
 const DEFAULT_POPOVER_COLUMN_MAX_WIDTH = 220
 
 @Component({
+  name: 'NavMenu',
   components: {
     SubMenu,
     MenuItem,

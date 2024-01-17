@@ -1,4 +1,4 @@
-import Vue, { VueConstructor } from 'vue'
+import Vue, { DefineComponent } from 'vue'
 import Vuex, { Store } from 'vuex'
 import Fragment from 'vue-fragment'
 import isFunction from 'lodash/isFunction'
@@ -11,7 +11,7 @@ import MenuViewsModule from '@/store/menuViews'
 
 /* Styles */
 import 'normalize.css'
-import 'font-awesome/css/font-awesome.css'
+// import 'font-awesome/css/font-awesome.css'
 import '@/import-element-ui'
 import '@/styles/index.less'
 
@@ -37,7 +37,7 @@ Vue.component('PluginSlot', PluginSlot)
 Vue.use(Fragment.Plugin)
 
 export interface AppInstance {
-  component: VueConstructor<Vue>
+  component: DefineComponent<any>
   $store: Store<any>
   $on: Vue['$on']
   $emit: Vue['$emit']
@@ -74,7 +74,7 @@ export function create(rawInputOptions: RawInputOptions) {
   let rootStore = rawInputOptions.store
   if (!rootStore) {
     rootStore = new Vuex.Store({
-      strict: process.env.NODE_ENV !== 'production',
+      strict: import.meta.env.NODE_ENV !== 'production',
     })
   }
   rootStore.registerModule('app', AppModule)

@@ -21,9 +21,8 @@ import {
   Message,
   Button,
   Notification,
-  Loading
+  Loading,
 } from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.use(Scrollbar)
 Vue.use(Dialog)

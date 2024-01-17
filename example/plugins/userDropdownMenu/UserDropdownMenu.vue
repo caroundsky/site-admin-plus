@@ -1,15 +1,15 @@
 <template>
   <fragment>
     <el-dropdown-item @click.native="setLocale('zh-CN')">
-      <ChinaIcon />
+      <ChinaIcon class="icon" />
       简体中文
     </el-dropdown-item>
     <el-dropdown-item @click.native="setLocale('en-US')">
-      <AmericaIcon />
+      <AmericaIcon class="icon" />
       English
     </el-dropdown-item>
     <el-dropdown-item @click.native="updateMenu">
-      <UpdateIcon />
+      <UpdateIcon class="icon" />
       {{ $t('更新菜单') }}
     </el-dropdown-item>
   </fragment>
@@ -25,7 +25,7 @@ import UpdateIcon from './svg-icons/update.svg'
 import MenuData from '../../mock/menu'
 
 export default Vue.extend({
-  name: 'UserDropdownMenu',
+  name: 'user-dropdown',
 
   inject: ['bus'],
 
@@ -39,12 +39,12 @@ export default Vue.extend({
 
   methods: {
     setLocale(local: string) {
-      this.$store.dispatch('app/setLocale', local)
+      this.$store.dispatch('i18n/setLocale', local)
     },
     // 更新菜单
     async updateMenu() {
       let Msg = Message({
-        message: '菜单更新中',
+        message: '菜单更新中21',
         duration: 0,
       })
       try {

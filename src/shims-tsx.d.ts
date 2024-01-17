@@ -10,7 +10,7 @@ declare global {
     }
   }
   interface Window {
-    $siteContainer: any
+    $tools: any
     tab: any
     newsInstantMessaging: any
     instantMessaging_Search: any
@@ -19,7 +19,7 @@ declare global {
 
 declare module 'vue/types/vue' {
   interface Vue {
-    $siteContainer: any
+    $tools: any
     $contextmenu: any
     $dialogServe: any
     $appConfig: any

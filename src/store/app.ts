@@ -1,6 +1,4 @@
 import { MutationTree, ActionTree, Module } from 'vuex'
-import Cookie from 'js-cookie'
-import i18n from '@/i18n'
 import bus from '@/bus'
 
 interface State {
@@ -13,14 +11,6 @@ interface State {
   menuKey: number
   menuTabTouch: boolean
   menuTabMoveInArea: boolean
-  locale: string
-}
-
-const validLocale = ['zh-CN', 'en-US']
-
-const getLocale = () => {
-  const cookieLocal = (Cookie.get('Culture') || '').replace('lang=', '')
-  return cookieLocal || 'zh-CN'
 }
 
 const state: State = {
@@ -33,7 +23,6 @@ const state: State = {
   menuKey: 0, // 菜单键，用于更新菜单
   menuTabTouch: false, // Tab菜单按住时，用于拖拽显示iframe遮罩以及删除当前tab栏目
   menuTabMoveInArea: false, // 菜单拖拽时，菜单在指定区域内，用于拖拽显示iframe遮罩
-  locale: getLocale(),
 }
 
 const mutations: MutationTree<State> = {
@@ -65,10 +54,6 @@ const mutations: MutationTree<State> = {
   },
   UPDATE_MENU_KEY(state) {
     state.menuKey++
-  },
-  SET_LOCALE(state, locale: string) {
-    state.locale = locale
-    i18n.locale = locale
   },
   SET_MENU_TAB_TOUCH(state, val) {
     state.menuTabTouch = val
@@ -107,11 +92,6 @@ const actions: ActionTree<State, any> = {
   },
   toggleMaskMenu({ commit }) {
     commit('TOGGLE_MASK_MENU')
-  },
-  setLocale({ commit }, local: any) {
-    if (validLocale.includes(local)) {
-      commit('SET_LOCALE', local)
-    }
   },
   updateMenuKey({ commit }) {
     commit('UPDATE_MENU_KEY')

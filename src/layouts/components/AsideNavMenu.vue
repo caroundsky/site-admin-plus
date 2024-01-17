@@ -42,6 +42,7 @@ import bus from '@/bus'
 const AppModule = namespace('app')
 
 @Component({
+  name: 'AsideNavMenu',
   components: {
     NavMenuSearch,
     NavMenu,

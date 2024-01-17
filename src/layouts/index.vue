@@ -54,6 +54,7 @@ import MainContent from '@/layouts/components/MainContent.vue'
 const AppModule = namespace('app')
 
 @Component({
+  name: 'MainContainer',
   components: {
     AsideNavMenu,
     HorizonNavMenu,

@@ -21,9 +21,11 @@
           <span class="name">{{ username }}</span>
         </span>
         <el-dropdown-menu slot="dropdown" class="user-act__popover">
-          <PluginSlot name="user-dropdown" />
+          <div>
+            <PluginSlot name="user-dropdown" />
+          </div>
           <el-dropdown-item @click.native="logOut">
-            <LogoutIcon />
+            <LogoutIcon class="icon" />
             {{ $t('退出登录') }}
           </el-dropdown-item>
         </el-dropdown-menu>
@@ -62,12 +64,13 @@ import { namespace } from 'vuex-class'
 
 import bus from '@/bus'
 import LogoutIcon from '@/assets/svg-icons/logout.svg'
+import defaultAvatar from '@/assets/default-avatar.jpg'
 
-const defaultAvatar = require('@/assets/default-avatar.jpg')
 const AppModule = namespace('app')
 const MenuViewsModule = namespace('menuViews')
 
 @Component({
+  name: 'AppActionBar',
   components: {
     LogoutIcon,
   },

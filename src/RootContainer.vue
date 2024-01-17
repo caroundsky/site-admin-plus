@@ -10,6 +10,7 @@ import '@/assets/icbg/css/icbg-font.css'
 const AppModule = namespace('app')
 
 @Component({
+  name: 'RootContainer',
   provide: {
     bus,
   },

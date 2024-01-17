@@ -44,7 +44,9 @@ import highlight from '@/utils/highlight'
 
 import bus from '@/bus'
 
-@Component
+@Component({
+  name: 'MenuItem',
+})
 export default class MenuItem extends Mixins(Emitter, MenuMixin) {
   @Prop({ default: 1 })
   public level!: number

@@ -35,6 +35,7 @@ import Logo from '@/components/Logo.vue'
 import bus from '@/bus'
 
 @Component({
+  name: 'HorizonNavMenu',
   components: {
     NavMenuSearch,
     NavMenu,

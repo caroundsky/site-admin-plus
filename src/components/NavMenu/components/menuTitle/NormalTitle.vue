@@ -3,7 +3,9 @@ import { Component, Mixins } from 'vue-property-decorator'
 
 import MenuTitleChild from '@/components/NavMenu/mixins/MenuTitleChild'
 
-@Component
+@Component({
+  name: 'NormalTitle',
+})
 export default class NormalTitle extends Mixins(MenuTitleChild) {
   render() {
     const { menu, ifReplace, replaceHtml, hasChildren } = this
@@ -13,7 +15,7 @@ export default class NormalTitle extends Mixins(MenuTitleChild) {
         class={[
           'bg-submenu__title',
           { 'set-dot': ifReplace },
-          { 'is-new': menu.isNew }
+          { 'is-new': menu.isNew },
         ]}
         title={this.asideMenuOpen ? menu.text : ''}
       >

@@ -57,6 +57,8 @@ const MenuViewsModule = namespace('menuViews')
 const pinyin = new tranformToPinyin()
 
 @Component({
+  name: 'NavMenuSearch',
+
   methods: {
     highlight,
   },

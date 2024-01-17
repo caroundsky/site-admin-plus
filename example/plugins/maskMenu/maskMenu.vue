@@ -51,6 +51,7 @@ interface navMenuMode {
 @Component({
   directives: { Clickoutside },
   inject: ['bus'],
+  name: 'MaskMenu',
 })
 export default class MaskMenu extends Vue {
   @AppModule.State('isInited')

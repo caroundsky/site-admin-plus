@@ -12,13 +12,14 @@ import applyDrag from '@/utils/applyDrag'
 
 import { MenuView } from '~/types/interfaces'
 
-import { sortBy } from 'lodash'
+import sortBy from 'lodash/sortBy'
 import bus from '@/bus'
 
 const MenuViewsModule = namespace('menuViews')
 const AppModule = namespace('app')
 
 @Component({
+  name: 'MenuViews',
   components: {
     ScrollPane,
     Container,

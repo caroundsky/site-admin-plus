@@ -1,9 +1,23 @@
 <script lang="tsx">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import bus from '@/bus'
+import { random } from 'lodash'
 
 @Component({
-  abstract: true,
+  name: 'PluginSlot',
+  components: {
+    VNodes: {
+      functional: true,
+      render: (h: any, ctx: any) => {
+        let { vnodes } = ctx.props
+        return typeof vnodes === 'object' ? (
+          <div key={random()}>{vnodes}</div>
+        ) : (
+          <span key={key}>{vnodes}</span>
+        )
+      },
+    },
+  },
 })
 export default class PluginSlot extends Vue {
   @Prop()
@@ -25,8 +39,12 @@ export default class PluginSlot extends Vue {
     }
   }
 
-  render() {
+  get renderComponents() {
     return this.renderPluginSlot(this.pluginSlots)
+  }
+
+  render() {
+    return <VNodes vnodes={this.renderComponents} />
   }
 }
 </script>

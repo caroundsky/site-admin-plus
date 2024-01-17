@@ -32,6 +32,7 @@ import MenuViews from './MenuViews.vue'
 const AppModule = namespace('app')
 
 @Component({
+  name: 'MenuViewBar',
   components: {
     HambergerArrow,
     AppActionBar,

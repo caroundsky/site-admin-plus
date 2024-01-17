@@ -7,7 +7,8 @@ import NormalTitle from './NormalTitle.vue'
 import PopoverTitle from './PopoverTitle.vue'
 
 @Component({
-  components: { NormalTitle, PopoverTitle }
+  name: 'MenuTitle',
+  components: { NormalTitle, PopoverTitle },
 })
 export default class MenuTitle extends Vue {
   @InjectReactive('rootMenu') rootMenu: any
@@ -49,7 +50,7 @@ export default class MenuTitle extends Vue {
       asideMenuOpen,
       hasChildren,
       level,
-      popoverLevel
+      popoverLevel,
     } = this
 
     const props = {
@@ -58,8 +59,8 @@ export default class MenuTitle extends Vue {
         replaceHtml,
         ifReplace,
         asideMenuOpen,
-        hasChildren
-      }
+        hasChildren,
+      },
     }
 
     return level <= popoverLevel ? (

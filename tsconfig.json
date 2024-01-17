@@ -13,12 +13,12 @@
     "sourceMap": true,
     "suppressImplicitAnyIndexErrors": true,
     "baseUrl": ".",
-    "types": ["webpack-env", "jest"],
     "paths": {
       "~/*": ["./*"],
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "useDefineForClassFields": false
   },
   "include": [
     "src/**/*.ts",
@@ -28,7 +28,8 @@
     "example/**/*.ts",
     "example/**/*.ts",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
+    "lib/*.mjs"
   ],
   "exclude": ["node_modules"]
 }
