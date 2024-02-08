@@ -32,5 +32,4 @@ export type CreateOptions = {
   plugins: Plugin[]
 }
 
-declare const create: (options?: CreateOptions) => any
-export default create
+export declare const create: (options?: CreateOptions) => any

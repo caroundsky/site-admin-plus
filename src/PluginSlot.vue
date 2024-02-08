@@ -9,16 +9,11 @@ import bus from '@/bus'
       functional: true,
       render: (h: any, ctx: any) => {
         let { vnodes } = ctx.props
-        if (import.meta.env.MODE === 'production') {
-          return typeof vnodes === 'object' ? vnodes : <span>{vnodes}</span>
-        } else {
-          const key = new Date().getTime()
-          return typeof vnodes === 'object' ? (
-            <div key={key}>{vnodes}</div>
-          ) : (
-            <span key={key}>{vnodes}</span>
-          )
-        }
+        let key = new Date().getTime()
+        setTimeout(() => {
+          vnodes.key = key
+        }, 0)
+        return typeof vnodes === 'object' ? vnodes : <span>{vnodes}</span>
       },
     },
   },

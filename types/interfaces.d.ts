@@ -14,7 +14,7 @@ export interface NavMenuItem {
   // pid: string | number | null
 
   /** 子菜单 */
-  children: NavMenuItem[]
+  children?: NavMenuItem[]
 
   /** 菜单文字 */
   text: string
@@ -23,25 +23,22 @@ export interface NavMenuItem {
   href: string
 
   /** 末级菜单时是否显示帮助按钮 */
-  help: boolean
+  help?: boolean
 
   /** 帮助地址 */
-  helpUrl: string
+  helpUrl?: string
 
   /** 菜单图标 */
   icon: string
 
   /** 是否显示新菜单标识 */
-  isNew: boolean
+  isNew?: boolean
 
   /** 是否新窗口打开 */
-  isNewWindow: boolean
+  isNewWindow?: boolean
 
   /** TODO: 是否显示菜单 */
   show: boolean
-
-  /** 是否 OA 菜单 */
-  isOa: boolean
 
   /** 是否叶子菜单节点 - 扁平化处理后新增 */
   isLeaf?: boolean
