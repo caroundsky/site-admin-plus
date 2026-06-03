@@ -19,8 +19,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+<script setup lang="ts">
+import { computed } from 'vue'
 import isPlainObject from 'lodash/isPlainObject'
 import { hasOwn } from '@/utils/tools'
 import bus from '@/bus'
@@ -28,42 +28,47 @@ import bus from '@/bus'
 import _logoImg from '@/assets/logo.png'
 import _logosmallImg from '@/assets/logo-sm.png'
 
-@Component({
-  name: 'Logo',
+interface Props {
+  small?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  small: false,
 })
-export default class Logo extends Vue {
-  @Prop({ type: Boolean, default: false })
-  small!: boolean
 
-  get normalizedLogo() {
-    const normalized: any = {
-      type: '',
-      normal: '',
-      small: '',
-    }
-    const logo = bus.config?.logo
-    if (isPlainObject(logo)) {
-      if (logo.type === 'img') {
-        normalized.type = 'img'
-        normalized.normal = hasOwn(logo, 'normal') ? logo.normal : _logoImg
-        normalized.small = hasOwn(logo, 'small') ? logo.small : _logosmallImg
-      } else {
-        normalized.normal = hasOwn(logo, 'normal') ? logo.normal : ''
-        normalized.small = hasOwn(logo, 'small') ? logo.small : ''
-      }
+const normalizedLogo = computed(() => {
+  const normalized: {
+    type: string
+    normal: string
+    small: string
+  } = {
+    type: '',
+    normal: '',
+    small: '',
+  }
+  const logo = bus.config?.logo as any
+  if (isPlainObject(logo)) {
+    if (logo.type === 'img') {
+      normalized.type = 'img'
+      normalized.normal = hasOwn(logo, 'normal') ? logo.normal : _logoImg
+      normalized.small = hasOwn(logo, 'small') ? logo.small : _logosmallImg
     } else {
-      normalized.type = 'text'
-      normalized.normal = normalized.small = logo || ''
+      normalized.normal = hasOwn(logo, 'normal') ? logo.normal : ''
+      normalized.small = hasOwn(logo, 'small') ? logo.small : ''
     }
-    return normalized
+  } else {
+    normalized.type = 'text'
+    normalized.normal = normalized.small = logo || ''
   }
-  get logo() {
-    return this.small ? this.normalizedLogo.small : this.normalizedLogo.normal
-  }
+  return normalized
+})
 
-  handleClick() {
-    bus.$emit('logoClick')
-  }
+const logo = computed(() => {
+  return props.small ? normalizedLogo.value.small : normalizedLogo.value.normal
+})
+
+const handleClick = () => {
+  bus.emit('logoClick')
 }
 </script>
 

@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree, Module } from 'vuex'
+import { defineStore } from 'pinia'
 import Cookie from 'js-cookie'
 import i18n from './main'
 
@@ -13,28 +13,19 @@ const getLocale = () => {
   return cookieLocal || 'zh-CN'
 }
 
-const state = {
-  locale: getLocale(),
-}
+export const useI18nStore = defineStore('i18n', {
+  state: (): State => ({
+    locale: getLocale(),
+  }),
 
-const mutations: MutationTree<State> = {
-  SET_LOCALE(state, locale: string) {
-    state.locale = locale
-    i18n.locale = locale
+  actions: {
+    setLocale(locale: string) {
+      if (validLocale.includes(locale)) {
+        this.locale = locale
+        i18n.global.locale.value = locale as any
+      }
+    },
   },
-}
+})
 
-const actions: ActionTree<State, any> = {
-  setLocale({ commit }, local: any) {
-    if (validLocale.includes(local)) {
-      commit('SET_LOCALE', local)
-    }
-  },
-}
-
-const storeModule: Module<State, any> = {
-  state,
-  mutations,
-  actions,
-}
-export default storeModule
+export default useI18nStore

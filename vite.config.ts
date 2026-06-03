@@ -1,35 +1,14 @@
 import { defineConfig } from 'vite'
 import path from 'path'
 
-import vue from '@vitejs/plugin-vue2'
-import vueJsx from '@vitejs/plugin-vue2-jsx'
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import svgLoader from 'vite-svg-loader'
 
-// import { createStyleImportPlugin } from 'vite-plugin-style-import'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [
-    vue(),
-    vueJsx({
-      babelPlugins: [
-        ['@babel/plugin-proposal-decorators', { legacy: true }],
-        ['@babel/plugin-proposal-class-properties'],
-      ],
-    }),
-    svgLoader(),
-    // createStyleImportPlugin({
-    //   libs: [
-    //     {
-    //       libraryName: 'element-ui',
-    //       esModule: false,
-    //       resolveStyle: (name: string) => {
-    //         return `element-ui/lib/theme-chalk/${name}.css`
-    //       },
-    //     },
-    //   ],
-    // }),
-  ],
+  plugins: [vue(), vueJsx(), svgLoader()],
 
   resolve: {
     alias: {
@@ -60,7 +39,7 @@ export default defineConfig({
       '/proxy': {
         target: 'http://proxy.cn',
         changeOrigin: true,
-        rewrite: (path) => path.replace('/proxy', ''),
+        rewrite: (url) => url.replace('/proxy', ''),
       },
     },
     headers: {
@@ -76,13 +55,12 @@ export default defineConfig({
 
   build: {
     rollupOptions: {
-      external: ['vue', 'vuex', 'vue-smooth-dnd'],
+      external: ['vue', 'pinia', 'vue-draggable-plus', 'element-plus'],
     },
     sourcemap: true,
     outDir: 'lib',
     lib: {
       entry: './src/main.ts',
-      // entry: './index.html',
       name: 'lemonAdmin',
       fileName: 'index',
       formats: ['es'],

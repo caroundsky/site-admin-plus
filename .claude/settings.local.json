@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(yarn install *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(yarn serve *)",
+      "Bash(yarn lint *)",
+      "Bash(yarn build *)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s http://localhost:8083/example/index.ts)",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}

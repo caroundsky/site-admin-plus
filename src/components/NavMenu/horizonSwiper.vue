@@ -1,184 +1,136 @@
-<script lang="tsx">
-import { Vue, Component, Watch, InjectReactive } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
-
-import { NavMenuItem } from '~/types/interfaces'
-
+<script lang="tsx" setup>
+import { ref, watch, inject, onMounted } from 'vue'
 import debounce from 'lodash/debounce'
 
-const AppModule = namespace('app')
+interface Props {
+  horizon?: boolean
+}
 
-@Component({
-  name: 'horizonSwiper',
+defineProps<Props>()
+
+const rootMenu = inject<any>('rootMenu')
+
+const swiper = ref<HTMLElement | null>(null)
+const calcWidth = ref(0)
+const swiperWidth = ref(0)
+const translateX = ref(0)
+const swiperIndex = ref(0)
+const swiperIndexMax = ref(1)
+const slideNextHide = ref(false)
+const slidePrevHide = ref(false)
+
+watch(swiperIndex, (index) => {
+  slideNextHide.value = index === swiperIndexMax.value && index !== 0
 })
-export default class horizonSwiper extends Vue {
-  @InjectReactive('rootMenu') rootMenu!: any
 
-  @AppModule.State('isInited')
-  public AppInited!: boolean
+watch(swiperIndexMax, (max) => {
+  if (max === 0 && swiperIndex.value === 0) {
+    slideNextHide.value = true
+  }
+  if (max > swiperIndex.value) {
+    slideNextHide.value = false
+  }
+})
 
-  @AppModule.State('isAsideMenu')
-  public isAsideMenu!: boolean
+watch(translateX, (val) => {
+  slidePrevHide.value = val === 0
+})
 
-  get swiper() {
-    return this.$refs.swiper
+const update = () => {
+  const horizonOperat = document.getElementById('horizon-operat')
+  if (!horizonOperat) return
+
+  const horizonOperatW = horizonOperat.getBoundingClientRect().width
+  swiperWidth.value = window.innerWidth - horizonOperatW - 50
+
+  if (!swiper.value) return
+
+  const swiperItems = swiper.value.getElementsByClassName('nav-menu__item-lv1')
+
+  let width = 0
+  for (const ele of swiperItems) {
+    width += (ele as HTMLElement).getBoundingClientRect().width
+  }
+  calcWidth.value = width
+
+  const result = Math.ceil(
+    (calcWidth.value - swiperWidth.value + 60 - 15) / 200,
+  )
+  swiperIndexMax.value = result < 0 ? 0 : result
+}
+
+const slidePrev = () => {
+  if (slidePrevHide.value) return
+  swiperIndex.value > 0 ? swiperIndex.value-- : 0
+  translateX.value = -200 * swiperIndex.value
+}
+
+const slideNext = () => {
+  if (slideNextHide.value) return
+  swiperIndex.value >= 0 ? swiperIndex.value++ : 0
+  calcSwiperIndex(false)
+}
+
+const calcSwiperIndex = (checkZero: boolean = true) => {
+  if (swiperIndex.value >= swiperIndexMax.value) {
+    swiperIndex.value = swiperIndexMax.value
+    translateX.value = -(calcWidth.value - (swiperWidth.value - 60))
+  } else {
+    translateX.value = -200 * swiperIndex.value
   }
 
-  public calcWidth: number = 0
-  public swiperWidth: number = 0
-  public translateX: number = 0
-  public swiperIndex: number = 0
-  public swiperIndexMax: number = 1
-
-  public slideNextHide: boolean = false
-  public slidePrevHide: boolean = false
-
-  @Watch('rootMenu.navMenuMode', { deep: true })
-  async handle(menu: NavMenuItem[]) {
-    if (!this.rootMenu.isAsideMenu) {
-      await this.$nextTick()
-      this.update()
-      this.calcSwiperIndex()
-
-      if (this.swiperIndexMax < 0) {
-        this.swiperIndexMax = 0
-        this.swiperIndex = 0
-      }
-    }
-  }
-
-  @Watch('rootMenu.isAsideMenu')
-  handleIsAsideMenu(val: boolean) {
-    if (!val) {
-      this.update()
-      this.calcSwiperIndex()
-    }
-  }
-
-  @Watch('swiperIndex', { immediate: true })
-  handleIndex(index: number) {
-    this.slideNextHide = index === this.swiperIndexMax && index !== 0
-  }
-
-  @Watch('swiperIndexMax')
-  handleMax(max: number) {
-    if (max === 0 && this.swiperIndex === 0) {
-      this.slideNextHide = true
-    }
-    if (max > this.swiperIndex) {
-      this.slideNextHide = false
-    }
-  }
-
-  @Watch('translateX', { immediate: true })
-  handleTranslateX(val: number) {
-    this.slidePrevHide = val === 0
-  }
-
-  render(h: any) {
-    const prevBtn = (
-      <div
-        class="horizon-swiper-btn icon-prev el-icon-caret-left"
-        style={{ opacity: this.slidePrevHide ? 0 : 1 }}
-        on-click={this.slidePrev}
-      />
-    )
-    const nextBtn = (
-      <div
-        class="horizon-swiper-btn icon-next el-icon-caret-right"
-        style={{ opacity: this.slideNextHide ? 0 : 1 }}
-        on-click={this.slideNext}
-      />
-    )
-    const Item = h(
-      'div',
-      {
-        ref: 'swiper',
-        class: 'horizon-swiper-container',
-        style: {
-          width: `${this.calcWidth}px`,
-          transform: `translateX(${this.translateX}px)`,
-        },
-      },
-      this.$slots.default
-    )
-    const warp = <div class="horizon-swiper-warp">{Item}</div>
-
-    const nodes = [prevBtn, warp, nextBtn]
-    return h(
-      'div',
-      { class: 'horizon-swiper', style: { width: `${this.swiperWidth}px` } },
-      nodes
-    )
-  }
-
-  update() {
-    let horizonOperatW = (document as any)
-      .getElementById('horizon-operat')
-      .getBoundingClientRect().width
-    this.swiperWidth = window.innerWidth - horizonOperatW - 50
-
-    const swiper = this.swiper as HTMLElement
-    const swiperItems = swiper.getElementsByClassName('nav-menu__item-lv1')
-
-    let calcWidth = 0
-    for (const ele of swiperItems) {
-      calcWidth += ele.getBoundingClientRect().width
-    }
-    this.calcWidth = calcWidth
-
-    // 60 -> 两个按钮的宽度
-    // 100 -> 缓冲区域
-    let result = Math.ceil((this.calcWidth - this.swiperWidth + 60 - 15) / 200)
-
-    this.swiperIndexMax = result < 0 ? 0 : result
-  }
-
-  slidePrev() {
-    if (this.slidePrevHide) return
-
-    this.swiperIndex > 0 ? this.swiperIndex-- : 0
-    this.translateX = -200 * this.swiperIndex
-  }
-
-  slideNext() {
-    if (this.slideNextHide) return
-
-    this.swiperIndex >= 0 ? this.swiperIndex++ : 0
-
-    this.calcSwiperIndex(false)
-  }
-
-  calcSwiperIndex(checkZero: boolean = true) {
-    if (this.swiperIndex >= this.swiperIndexMax) {
-      this.swiperIndex = this.swiperIndexMax
-      this.translateX = -(this.calcWidth - (this.swiperWidth - 60))
-    } else {
-      this.translateX = -200 * this.swiperIndex
-    }
-
-    if (!checkZero) return
-    if (this.swiperIndexMax === 0 && this.swiperIndex === 0) {
-      this.slidePrevHide = true
-      this.slideNextHide = true
-      this.translateX = 0
-    }
-  }
-
-  mounted() {
-    this.update()
-    window.addEventListener(
-      'resize',
-      debounce(() => {
-        if (!this.rootMenu.isAsideMenu) {
-          this.update()
-          this.calcSwiperIndex()
-        }
-      }, 200)
-    )
+  if (!checkZero) return
+  if (swiperIndexMax.value === 0 && swiperIndex.value === 0) {
+    slidePrevHide.value = true
+    slideNextHide.value = true
+    translateX.value = 0
   }
 }
+
+onMounted(() => {
+  update()
+  window.addEventListener(
+    'resize',
+    debounce(() => {
+      if (rootMenu?.value && !rootMenu.value.isAsideMenu) {
+        update()
+        calcSwiperIndex()
+      }
+    }, 200),
+  )
+})
 </script>
+
+<template>
+  <div class="horizon-swiper" :style="{ width: `${swiperWidth}px` }">
+    <div
+      class="horizon-swiper-btn icon-prev"
+      :style="{ opacity: slidePrevHide ? 0 : 1 }"
+      @click="slidePrev"
+    >
+      <el-icon><ArrowLeft /></el-icon>
+    </div>
+    <div class="horizon-swiper-warp">
+      <div
+        ref="swiper"
+        class="horizon-swiper-container"
+        :style="{
+          width: `${calcWidth}px`,
+          transform: `translateX(${translateX}px)`,
+        }"
+      >
+        <slot />
+      </div>
+    </div>
+    <div
+      class="horizon-swiper-btn icon-next"
+      :style="{ opacity: slideNextHide ? 0 : 1 }"
+      @click="slideNext"
+    >
+      <el-icon><ArrowRight /></el-icon>
+    </div>
+  </div>
+</template>
 
 <style lang="less" scoped>
 .horizon-swiper {

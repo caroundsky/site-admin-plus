@@ -1,14 +1,13 @@
-import Vue from 'vue'
-import { Store, Module } from 'vuex'
-import bus, { BusConfig } from '../src/bus'
+import type { Pinia } from 'pinia'
+import type bus from '../src/bus'
 import * as tools from '@/tools'
 
 export interface PluginCtx {
   $tools: typeof tools
   $bus: typeof bus
-  $store: Store<any>
-  $on: Vue['$on']
-  $emit: Vue['$emit']
+  $store: Pinia
+  $on: typeof bus.on
+  $emit: typeof bus.emit
 }
 
 export interface PluginBase {
@@ -19,17 +18,14 @@ export interface PluginBase {
 
 export interface PluginHasStore extends PluginBase {
   name: string
-  storeModule: Module<any, any>
+  storeModule: any // Pinia store definition
 }
 
-export type Plugin = PluginBase | PluginHasStore
+export type Plugin = PluginBase | PluginHasStore | ((ctx: PluginCtx) => Plugin | void)
 
 export type PluginFunction = (ctx: PluginCtx) => Plugin | void
 
 export type CreateOptions = {
-  config: BusConfig
-  store: Store<any>
+  config: import('../src/bus').BusConfig
   plugins: Plugin[]
 }
-
-export declare const create: (options?: CreateOptions) => any

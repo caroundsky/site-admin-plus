@@ -18,7 +18,7 @@
     >
       <iframe
         :src="view.href"
-        :ref="view.id"
+        :ref="setIframeRef(view.id)"
         :name="view.id"
         frameborder="0"
         @load="iframeLoad(view)"
@@ -27,75 +27,76 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
-import { MenuView } from '~/types/interfaces'
+<script setup lang="ts">
+import { ref, watch, computed } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { useMenuViewsStore } from '@/stores/menuViews'
+import type { MenuView } from '~/types/interfaces'
 
 import xorBy from 'lodash/xorBy'
 import intersectionBy from 'lodash/intersectionBy'
 import { reflashIframe } from '@/utils/tools'
 
-const MenuViewsModule = namespace('menuViews')
-const AppModule = namespace('app')
+const appStore = useAppStore()
+const menuViewsStore = useMenuViewsStore()
 
-@Component({
-  name: 'MainContent',
-})
-export default class MainContent extends Vue {
-  @AppModule.State('menuTabTouch')
-  public menuTabTouch!: boolean
+const menuTabTouch = computed(() => appStore.menuTabTouch)
+const menuTabMoveInArea = computed(() => appStore.menuTabMoveInArea)
+const menuViews = computed(() => menuViewsStore.views)
+const activeId = computed(() => menuViewsStore.activeId)
+const refreshId = computed(() => menuViewsStore.refreshId)
 
-  @AppModule.State('menuTabMoveInArea')
-  public menuTabMoveInArea!: boolean
+const iframeList = ref<MenuView[]>([])
+const iframeRefs = ref<Record<string, HTMLIFrameElement>>({})
 
-  @MenuViewsModule.State('views')
-  public menuViews!: MenuView[]
+// 设置 iframe ref 的函数
+const setIframeRef = (id: string) => (el: HTMLIFrameElement | null) => {
+  if (el) {
+    iframeRefs.value[id] = el
+  }
+}
 
-  @MenuViewsModule.State('activeId')
-  public activeId!: MenuView
-
-  @MenuViewsModule.State('refreshId')
-  public refreshId!: MenuView['id']
-
-  public iframeList: MenuView[] = []
-
-  /**
-   * 生成iframe数据源，不使用tab源，因为tab源排序后会导致数据刷新
-   */
-  @Watch('menuViews', { immediate: true })
-  handleMenuViews(view: MenuView[]) {
-    const menuKeysLength = this.iframeList.length
-    const viewLength = view.length
+/**
+ * 生成iframe数据源，不使用tab源，因为tab源排序后会导致数据刷新
+ */
+watch(
+  menuViews,
+  (views) => {
+    const menuKeysLength = iframeList.value.length
+    const viewLength = views.length
     if (menuKeysLength !== viewLength) {
       if (viewLength > menuKeysLength) {
         // 有新增，取差集
-        this.iframeList.push(...xorBy(view, this.iframeList, 'id'))
+        iframeList.value.push(...xorBy(views, iframeList.value, 'id'))
       } else {
         // 有删除，取交集
-        this.iframeList = intersectionBy(this.iframeList, view, 'id')
+        iframeList.value = intersectionBy(iframeList.value, views, 'id')
       }
     }
-  }
+  },
+  { immediate: true },
+)
 
-  // 刷新
-  @Watch('refreshId')
-  async handleRefreshId(viewId: MenuView['id']) {
-    if (viewId) {
-      const targetIframe = (this as any).$refs[viewId][0]
+// 刷新
+watch(refreshId, (viewId) => {
+  if (viewId) {
+    const targetIframe = iframeRefs.value[viewId]
+    if (targetIframe) {
       reflashIframe(targetIframe)
     }
   }
+})
 
-  iframeLoad(view: MenuView) {
-    try {
-      const iframeWindow = window.frames[view.id]
-      if (!iframeWindow) return
+const iframeLoad = (view: MenuView) => {
+  try {
+    const iframeWindow = window.frames[view.id]
+    if (!iframeWindow) return
 
-      iframeWindow.document.body.addEventListener('click', () => {
-        iframeWindow.parent.document.body.click()
-      })
-    } catch (e) {}
+    iframeWindow.document.body.addEventListener('click', () => {
+      iframeWindow.parent.document.body.click()
+    })
+  } catch (_e) {
+    // 跨域情况下可能会报错
   }
 }
 </script>

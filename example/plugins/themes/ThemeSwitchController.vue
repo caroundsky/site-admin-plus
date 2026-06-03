@@ -15,28 +15,19 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import { Theme } from './types'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useThemesStore } from './storeModule'
+import type { Theme } from './types'
 
-export default Vue.extend({
-  name: 'ThemeSwitchController',
+const themesStore = useThemesStore()
 
-  computed: {
-    allThemes() {
-      return this.$store.state.themes.allThemes
-    },
-    currentTheme() {
-      return this.$store.state.themes.currentTheme
-    },
-  },
+const allThemes = computed(() => themesStore.allThemes)
+const currentTheme = computed(() => themesStore.currentTheme)
 
-  methods: {
-    changeTheme(theme: Theme) {
-      this.$store.dispatch('themes/changeTheme', theme.name)
-    },
-  },
-})
+const changeTheme = (theme: Theme) => {
+  themesStore.changeTheme(theme.name)
+}
 </script>
 
 <style lang="less" scoped>

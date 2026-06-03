@@ -1,48 +1,32 @@
-import { GetterTree, MutationTree, ActionTree, Module } from 'vuex'
-import { getField, updateField } from 'vuex-map-fields'
+import { defineStore } from 'pinia'
+
+interface UserInfo {
+  userId: string
+  oaId: string
+  username: string
+  employeeName: string
+  avatar: string
+  email: string
+}
 
 interface State {
-  userInfo:
-    | {
-        userId: string
-        oaId: string
-        username: string
-        employeeName: string
-        avatar: string
-        email: string
-      }
-    | {}
+  userInfo: UserInfo | {}
 }
 
-const state: State = {
-  userInfo: {},
-}
+export const useUserStore = defineStore('user', {
+  state: (): State => ({
+    userInfo: {},
+  }),
 
-const getters: GetterTree<State, any> = {
-  getField,
-  userInfo(state) {
-    return state.userInfo
+  getters: {
+    getUserInfo: (state) => state.userInfo,
   },
-}
 
-const mutations: MutationTree<State> = {
-  updateField,
-  SET_USER_INFO(state, payload) {
-    state.userInfo = payload
+  actions: {
+    initUserInfo(userInfo: UserInfo) {
+      this.userInfo = userInfo
+    },
   },
-}
+})
 
-const actions: ActionTree<State, any> = {
-  async initUserInfo({ commit }, userInfo) {
-    commit('SET_USER_INFO', userInfo)
-  },
-}
-
-const storeModule: Module<State, any> = {
-  state,
-  getters,
-  mutations,
-  actions,
-}
-
-export default storeModule
+export default useUserStore

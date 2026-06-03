@@ -1,14 +1,24 @@
-import Vue, { VNode } from 'vue'
+/// <reference types="vite/client" />
+
+import type { VNode, ComponentPublicInstance } from 'vue'
+
 declare global {
   namespace JSX {
-    // tslint:disable no-empty-interface
     interface Element extends VNode {}
-    // tslint:disable no-empty-interface
-    interface ElementClass extends Vue {}
+    interface ElementClass extends ComponentPublicInstance {
+      $props: Record<string, any>
+    }
     interface IntrinsicElements {
       [elem: string]: any
     }
+    interface ElementAttributesProperty {
+      $props: {}
+    }
+    interface ElementChildrenAttribute {
+      children: {}
+    }
   }
+
   interface Window {
     $tools: any
     tab: any
@@ -17,20 +27,18 @@ declare global {
   }
 }
 
-declare module 'vue/types/vue' {
-  interface Vue {
+// Vue 3 全局属性声明
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
     $tools: any
     $contextmenu: any
     $dialogServe: any
     $appConfig: any
-    bus: any
+    $message: typeof import('element-plus').ElMessage
+    $msgbox: typeof import('element-plus').ElMessageBox
+    $notify: typeof import('element-plus').ElNotification
+    $loading: typeof import('element-plus').ElLoading.service
   }
 }
 
-declare module 'vue/types/options' {
-  interface ComponentOptions<V extends Vue> {
-    [propName: string]: any
-
-    ref?: string
-  }
-}
+export {}

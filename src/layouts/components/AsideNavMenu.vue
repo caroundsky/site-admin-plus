@@ -21,50 +21,38 @@
 
     <!-- 菜单列表 -->
     <div class="aside-nav-menu__main">
-      <elScrollbar class="scroller">
+      <el-scrollbar class="scroller">
         <NavMenu
           :popover-level="popoverLevel"
           :unique-opened="navMenuConfig.uniqueOpened"
         />
-      </elScrollbar>
+      </el-scrollbar>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAppStore } from '@/stores/app'
 import NavMenuSearch from '@/components/NavMenuSearch.vue'
 import NavMenu from '@/components/NavMenu/index.vue'
 import Logo from '@/components/Logo.vue'
 import bus from '@/bus'
 
-const AppModule = namespace('app')
+const appStore = useAppStore()
 
-@Component({
-  name: 'AsideNavMenu',
-  components: {
-    NavMenuSearch,
-    NavMenu,
-    Logo,
-  },
+const menuOpen = computed(() => appStore.isAsideMenuOpen)
+
+const navMenuConfig = computed(() => {
+  return bus.config.navMenu || {}
 })
-export default class AsideNavMenu extends Vue {
-  @AppModule.State('isAsideMenuOpen')
-  public menuOpen!: boolean
 
-  get navMenuConfig() {
-    return bus.config.navMenu || {}
+const popoverLevel = computed(() => {
+  if (menuOpen.value) {
+    return navMenuConfig.value.popoverLevel
   }
-
-  get popoverLevel() {
-    if (this.menuOpen) {
-      return this.navMenuConfig.popoverLevel
-    }
-
-    return 1
-  }
-}
+  return 1
+})
 </script>
 
 <style lang="less">
@@ -75,7 +63,9 @@ export default class AsideNavMenu extends Vue {
   flex-direction: column;
   color: @sidebar-text-color;
   background-color: @sidebar-background-color;
-  transition: width 0.2s, background 0.2s;
+  transition:
+    width 0.2s,
+    background 0.2s;
 
   a {
     color: @sidebar-text-color;
@@ -92,7 +82,7 @@ export default class AsideNavMenu extends Vue {
   }
 }
 
-// element-ui overwrite
+// element-plus overwrite
 .scroller {
   height: 100%;
   & > div {

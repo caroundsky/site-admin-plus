@@ -1,31 +1,33 @@
-<script lang="tsx">
-import { Component, Mixins } from 'vue-property-decorator'
+<script lang="tsx" setup>
+import type { NavMenuItem } from '~/types/interfaces'
 
-import MenuTitleChild from '@/components/NavMenu/mixins/MenuTitleChild'
+interface Props {
+  menu: NavMenuItem
+  replaceHtml?: string
+  ifReplace?: boolean
+  hasChildren?: boolean
+}
 
-@Component({
-  name: 'PopoverTitle',
+withDefaults(defineProps<Props>(), {
+  replaceHtml: '',
+  ifReplace: false,
+  hasChildren: false,
 })
-export default class PopoverTitle extends Mixins(MenuTitleChild) {
-  render() {
-    const { replaceHtml, menu } = this
-    return (
-      <span class={['bg-submenu__title-txt', { 'is-new': menu.isNew }]}>
-        <span domPropsInnerHTML={replaceHtml} />
-        {menu.help && menu.helpUrl && (
-          <i
-            class="help-icon fa fa-question-circle-o"
-            title="帮助"
-            on-click={(e: Event) => this.helpDocument(e, menu.helpUrl)}
-          />
-        )}
-      </span>
-    )
-  }
-  // 跳转到帮助中心文档
-  helpDocument(e: Event, url: string) {
-    e.stopPropagation()
-    window.open(url)
-  }
+
+const helpDocument = (e: Event, url: string) => {
+  e.stopPropagation()
+  window.open(url)
 }
 </script>
+
+<template>
+  <span :class="['bg-submenu__title-txt', { 'is-new': menu.isNew }]">
+    <span v-html="replaceHtml" />
+    <i
+      v-if="menu.help && menu.helpUrl"
+      class="help-icon fa fa-question-circle-o"
+      title="帮助"
+      @click="(e: Event) => helpDocument(e, menu.helpUrl)"
+    />
+  </span>
+</template>

@@ -1,17 +1,17 @@
-import { Plugin } from '~/types'
-import storeModule from './storeModule'
+import type { Plugin } from '~/types'
+import { useFavMenuStore } from './storeModule'
 import FavMenuBar from './FavMenuBar.vue'
 
 export default function (): Plugin {
   return {
     name: 'favMenu',
-    storeModule,
     slots: {
       'main-footer': FavMenuBar,
     },
-    effects: ({ $store, $on }) => {
+    effects({ $on }) {
       $on('appMounted', () => {
-        $store.dispatch('favMenu/initFavMenu')
+        const favMenuStore = useFavMenuStore()
+        favMenuStore.initFavMenu()
       })
     },
   }

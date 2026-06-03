@@ -22,40 +22,21 @@
   </FlexContainer>
 </template>
 
-<script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAppStore } from '@/stores/app'
 import HambergerArrow from '@/components/HambergerArrow.vue'
 import AppActionBar from '@/layouts/components/AppActionBar.vue'
 import MenuViews from './MenuViews.vue'
 
-const AppModule = namespace('app')
+const appStore = useAppStore()
 
-@Component({
-  name: 'MenuViewBar',
-  components: {
-    HambergerArrow,
-    AppActionBar,
-    MenuViews,
-  },
-})
-export default class MenuViewBar extends Vue {
-  @AppModule.State('isAsideMenu')
-  public isAsideMenu!: boolean
+const isAsideMenu = computed(() => appStore.isAsideMenu)
+const isAsideMenuOpen = computed(() => appStore.isAsideMenuOpen)
 
-  @AppModule.State('isAsideMenuOpen')
-  public isAsideMenuOpen!: boolean
-
-  @AppModule.Action('toggleSideMenu')
-  public toggleSideMenu!: () => void
-
-  @AppModule.Action('userSet')
-  public userSet!: () => void
-
-  sidebarClick() {
-    this.userSet()
-    this.toggleSideMenu()
-  }
+const sidebarClick = () => {
+  appStore.userSet()
+  appStore.toggleSideMenu()
 }
 </script>
 

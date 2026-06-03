@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
-import Vue from 'vue'
 import { isPlainObject } from 'is-what'
+import { isVNode as vueIsVNode } from 'vue'
 
 export function sleep(time: number) {
   return new Promise((resolve) => {
@@ -54,24 +54,17 @@ export function queryDom(el: HTMLElement, queryClass: string) {
   return el
 }
 
-export const on = (function () {
-  // @ts-ignore
-  if (document.addEventListener) {
-    return function (element: HTMLElement, event: any, handler: any) {
-      if (element && event && handler) {
-        element.addEventListener(event, handler, false)
-      }
-    }
-  } else {
-    return function (element: any, event: any, handler: Function) {
-      if (element && event && handler) {
-        element.attachEvent('on' + event, handler)
-      }
-    }
+export const on = function (
+  element: HTMLElement | Document,
+  event: string,
+  handler: EventListener,
+) {
+  if (element && event && handler) {
+    element.addEventListener(event, handler, false)
   }
-})()
+}
 
-export function removeCookie(name: string | Array<string>) {
+export function removeCookie(name: string | string[]) {
   if (typeof name === 'string') {
     Cookies.remove(name)
   } else if (Array.isArray(name)) {
@@ -82,9 +75,7 @@ export function removeCookie(name: string | Array<string>) {
 }
 
 export function isVNode(node: any) {
-  const vm = new Vue()
-  const emptyVNode = vm.$createElement()
-  return node instanceof emptyVNode.constructor
+  return vueIsVNode(node)
 }
 
 export function appendScript({
@@ -95,8 +86,8 @@ export function appendScript({
 }: {
   doc: Document
   url: string
-  attrs?: Object
-  callback?: Function
+  attrs?: Record<string, string>
+  callback?: (el: HTMLScriptElement) => void
 }) {
   try {
     const $s = document.createElement('script')
@@ -109,26 +100,24 @@ export function appendScript({
 
     if (typeof callback === 'function') {
       $s.addEventListener('load', function () {
-        callback(this)
+        callback(this as HTMLScriptElement)
       })
     }
 
     doc.body.appendChild($s)
-  } catch (e) {}
+  } catch (_e) {
+    // ignore errors
+  }
 }
 
-export function reflashIframe(iframe: any) {
+export function reflashIframe(iframe: HTMLIFrameElement) {
   try {
-    if (iframe.location) {
-      iframe.location.reload(true)
-    } else if (iframe.contentWindow.location.reload) {
-      iframe.contentWindow.location.reload(true)
+    if (iframe.contentWindow?.location) {
+      iframe.contentWindow.location.reload()
     } else if (iframe.src) {
       iframe.src = iframe.src
-    } else {
-      alert('Sorry, unable to reload that frame!')
     }
-  } catch (e) {
+  } catch (_e) {
     const _src = iframe.src
     iframe.setAttribute('src', '')
     setTimeout(function () {
@@ -138,7 +127,7 @@ export function reflashIframe(iframe: any) {
 }
 
 export function ensureArray<T>(
-  items: (T | null | undefined)[] | T | null | undefined
+  items: (T | null | undefined)[] | T | null | undefined,
 ): T[] {
   if (Array.isArray(items)) {
     return items.filter(Boolean) as T[]

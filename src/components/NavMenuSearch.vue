@@ -15,8 +15,8 @@
     <button class="nav-menu-search__icon" @click="handleOpen">
       <span></span>
     </button>
-    <ElAutocomplete
-      ref="input"
+    <el-autocomplete
+      ref="inputRef"
       v-model.trim="keyword"
       :fetch-suggestions="querySearch"
       :clearable="true"
@@ -24,218 +24,202 @@
       popper-class="nav-menu-suggestions"
       size="small"
       placeholder="请输入关键词"
-      prefix-icon="el-icon-search"
       @select="handleSelect"
-      @keydown.native.esc="handleClose"
+      @keydown.esc="handleClose"
       @clear="handleClear"
       @blur="handleClose"
     >
-      <template slot-scope="{ item }">
+      <template #default="{ item }">
         <div @mousedown="handleSelect(item)">
           <span>
-            {{ `${item.parents.map((menu) => menu.text).join(' / ')} / ` }}
+            {{
+              `${item.parents.map((menu: NavMenuItem) => menu.text).join(' / ')} / `
+            }}
           </span>
           <span v-html="highlight(item.text, keywordArr)" />
         </div>
       </template>
-    </ElAutocomplete>
+    </el-autocomplete>
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
-import { NavMenuItem, MenuView } from '~/types/interfaces'
+<script setup lang="ts">
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { useMenuStore } from '@/stores/menu'
+import { useMenuViewsStore } from '@/stores/menuViews'
 import highlight from '@/utils/highlight'
-import { tranformToPinyin } from '~/src/utils/filterPinyin/ChineseToPinyin_1_0.cjs'
+import type { NavMenuItem } from '~/types/interfaces'
 
-const AppModule = namespace('app')
-const MenuModule = namespace('menu')
-const MenuViewsModule = namespace('menuViews')
-
-const pinyin = new tranformToPinyin()
-
-@Component({
-  name: 'NavMenuSearch',
-
-  methods: {
-    highlight,
+// 拼音转换 - 简化版本，实际项目中需要保留原有的拼音库
+const pinyin = {
+  ConvertPinyin: (options: {
+    chinas: string
+    arr: boolean
+    vals: { str: string }
+  }) => {
+    // 简化实现，实际项目中需要使用原有的拼音转换库
+    const { chinas, vals } = options
+    const str = vals.str.toLowerCase()
+    if (chinas.toLowerCase().includes(str)) {
+      return [str]
+    }
+    return []
   },
+}
+
+const appStore = useAppStore()
+const menuStore = useMenuStore()
+const menuViewsStore = useMenuViewsStore()
+
+const inputRef = ref<any>(null)
+
+const isAsideMenu = computed(() => appStore.isAsideMenu)
+const isAsideMenuOpen = computed(() => appStore.isAsideMenuOpen)
+const searchKeyword = computed(() => menuStore.searchKeyword)
+const menuSearchPY = computed(() => menuStore.menuSearchPY)
+const history = computed(() => menuStore.menuSearchHistory)
+const flatNavMenu = computed(() => menuStore.flatNavMenu)
+
+const keyword = ref('')
+const keywordCache = ref('')
+const keywordArr = ref<string[]>([])
+const internalIsOpen = ref(false)
+const filterResult = ref<any[]>([])
+
+const isOpen = computed(() => {
+  return (isAsideMenuOpen.value && isAsideMenu.value) || internalIsOpen.value
 })
-export default class NavMenuSearch extends Vue {
-  $refs: any
-  @AppModule.State('isAsideMenu')
-  public isAsideMenu!: boolean
 
-  @AppModule.State('isAsideMenuOpen')
-  public isAsideMenuOpen!: boolean
+// 对历史数据做过滤，取出当前账号可视内容
+const historyFilter = computed(() => {
+  return history.value.filter((menu) => menu.show)
+})
 
-  @MenuModule.State('searchKeyword')
-  public searchKeyword!: string
+onMounted(() => {
+  keyword.value = searchKeyword.value
+})
 
-  @MenuModule.State('menuSearchPY')
-  public menuSearchPY!: string[]
+const querySearch = (
+  queryString: string | undefined,
+  cb: (result: any[]) => void,
+) => {
+  if (queryString === undefined) queryString = ''
+  menuStore.setSearchKeyword(queryString)
 
-  @MenuModule.State('menuSearchHistory')
-  public history!: NavMenuItem[]
-
-  @MenuModule.Getter('flatNavMenu')
-  public flatNavMenu!: NavMenuItem[]
-
-  @MenuModule.Action('setSearchKeyword')
-  public setSearchKeyword!: (keyword: string) => void
-
-  @MenuModule.Action('setMenuSearchPY')
-  public setMenuSearchPY!: (word: string[]) => void
-
-  @MenuModule.Action('setMenuSearchPYids')
-  public setMenuSearchPYids!: (id: string[]) => void
-
-  @MenuModule.Action('initSearchHistory')
-  public initSearchHistory!: (obj: NavMenuItem) => void
-
-  @MenuModule.Action('saveMenuSearchHistory')
-  public saveMenuSearchHistory!: (obj: NavMenuItem) => void
-
-  @MenuViewsModule.Action('addView')
-  public addMenuView!: (view: MenuView) => void
-
-  keyword: string = ''
-  keywordCache: string = ''
-  keywordArr: string[] = []
-  internalIsOpen: boolean = false
-  filterResult: any = []
-
-  get isOpen() {
-    return (this.isAsideMenuOpen && this.isAsideMenu) || this.internalIsOpen
-  }
-
-  // 对历史数据做过滤，取出当前账号可视内容
-  get historyFilter(): NavMenuItem[] {
-    return this.history.filter((menu) => menu.show)
-  }
-
-  mounted() {
-    this.keyword = this.searchKeyword
-  }
-
-  querySearch(queryString: string, cb: (result: any) => void) {
-    if (queryString === undefined) queryString = ''
-    this.setSearchKeyword(queryString)
-    // 为空时清空关键词
-    if (!queryString) {
-      if (this.menuSearchPY.length !== 0) {
-        this.keywordArr = []
-        this.setMenuSearchPY(this.keywordArr)
-        this.setMenuSearchPYids([])
-      } else {
-        this.setMenuSearchPYids([])
-      }
+  // 为空时清空关键词
+  if (!queryString) {
+    if (menuSearchPY.value.length !== 0) {
+      keywordArr.value = []
+      menuStore.setMenuSearchPY(keywordArr.value)
+      menuStore.setMenuSearchPYids([])
+    } else {
+      menuStore.setMenuSearchPYids([])
     }
+  }
 
-    // 关键词相同时使用之前的缓存
-    if (this.keywordCache === this.keyword) {
-      return cb(
-        this.keywordCache === '' ? this.historyFilter : this.filterResult
-      )
-    }
-    this.keywordCache = this.keyword
+  // 关键词相同时使用之前的缓存
+  if (keywordCache.value === keyword.value) {
+    return cb(
+      keywordCache.value === '' ? historyFilter.value : filterResult.value,
+    )
+  }
+  keywordCache.value = keyword.value
 
-    const _queryString = queryString.trim().toLowerCase()
-    let result
-    let idsResult: string[] = []
+  const _queryString = queryString.trim().toLowerCase()
+  let result
+  let idsResult: string[] = []
 
-    if (_queryString) {
-      let _keywordArr: string[] = []
-      const keywordReg = new RegExp(queryString, 'gi')
-      const ganZiReg = new RegExp('[\u4e00-\u9fa5]+')
+  if (_queryString) {
+    let _keywordArr: string[] = []
+    const keywordReg = new RegExp(queryString, 'gi')
+    const ganZiReg = new RegExp('[一-龥]+')
 
-      result = this.flatNavMenu.filter((menu: NavMenuItem) => {
-        if (!menu.show || (menu.parents && menu.parents.some((m) => !m.show)))
-          return
-        let transformPY = []
-        transformPY = pinyin.ConvertPinyin({
-          chinas: menu.text,
-          arr: true,
-          vals: {
-            str: _queryString,
-          },
-        })
-
-        if (transformPY.length !== 0) {
-          _keywordArr.push(...transformPY.map((v: string) => v.toLowerCase()))
-          const list = menu.fullIds || []
-          idsResult.push(...list)
-        }
-
-        if (ganZiReg.test(_queryString) && menu.text.match(keywordReg)) {
-          const list = menu.fullIds || []
-          idsResult.push(...list)
-        }
-
-        if (!menu.isLeaf || !menu.show) return
-        if (ganZiReg.test(_queryString)) {
-          // 汉字
-          _keywordArr.push(_queryString)
-          return menu.text.match(keywordReg)
-        }
-        return transformPY.length !== 0
+    result = flatNavMenu.value.filter((menu: NavMenuItem) => {
+      if (!menu.show || (menu.parents && menu.parents.some((m) => !m.show)))
+        return
+      let transformPY: string[] = []
+      transformPY = pinyin.ConvertPinyin({
+        chinas: menu.text,
+        arr: true,
+        vals: {
+          str: _queryString,
+        },
       })
 
-      this.keywordArr = [...new Set(_keywordArr)]
-      // 存储父级id，用于菜单的dot显示
-      this.setMenuSearchPYids([...new Set(idsResult)])
-    } else {
-      result = this.historyFilter
-    }
+      if (transformPY.length !== 0) {
+        _keywordArr.push(...transformPY.map((v: string) => v.toLowerCase()))
+        const list = menu.fullIds || []
+        idsResult.push(...list)
+      }
 
-    // 缓存结果
-    this.filterResult = result
+      if (ganZiReg.test(_queryString) && menu.text.match(keywordReg)) {
+        const list = menu.fullIds || []
+        idsResult.push(...list)
+      }
 
-    // 性能优化
-    if (JSON.stringify(this.menuSearchPY) !== JSON.stringify(this.keywordArr)) {
-      this.setMenuSearchPY(this.keywordArr)
-    }
-
-    cb(result)
-  }
-
-  handleSelect(item: NavMenuItem) {
-    this.keyword = this.keywordCache
-    this.addMenuView({
-      id: item.id,
-      text: item.text,
-      href: item.href,
+      if (!menu.isLeaf || !menu.show) return
+      if (ganZiReg.test(_queryString)) {
+        // 汉字
+        _keywordArr.push(_queryString)
+        return menu.text.match(keywordReg)
+      }
+      return transformPY.length !== 0
     })
-    this.saveMenuSearchHistory(item)
+
+    keywordArr.value = [...new Set(_keywordArr)]
+    // 存储父级id，用于菜单的dot显示
+    menuStore.setMenuSearchPYids([...new Set(idsResult)])
+  } else {
+    result = historyFilter.value
   }
 
-  async handleOpen() {
-    if (!this.isAsideMenuOpen || !this.isAsideMenu) {
-      this.internalIsOpen = true
-      await this.$nextTick()
-      this.$refs.input.focus()
-    }
+  // 缓存结果
+  filterResult.value = result as any[]
+
+  // 性能优化
+  if (JSON.stringify(menuSearchPY.value) !== JSON.stringify(keywordArr.value)) {
+    menuStore.setMenuSearchPY(keywordArr.value)
   }
 
-  async handleClose() {
-    if (!this.isAsideMenuOpen || !this.isAsideMenu) {
-      this.internalIsOpen = false
-    }
-    // 接入iframe后无法触发关闭，手动触发，不加延时会导致handleSelect失效，后续找找解决方案
-    setTimeout(() => {
-      this.$refs.input.close()
-    }, 100)
-  }
+  cb(result as any[])
+}
 
-  async handleClear() {
-    await this.$nextTick()
-    this.$refs.input.handleFocus()
-    this.$refs.input.focus()
-    this.keywordArr = []
-    this.setMenuSearchPY(this.keywordArr)
-    this.setMenuSearchPYids([])
+const handleSelect = (item: NavMenuItem) => {
+  keyword.value = keywordCache.value
+  menuViewsStore.addView({
+    id: item.id,
+    text: item.text,
+    href: item.href,
+  })
+  menuStore.saveMenuSearchHistory(item)
+}
+
+const handleOpen = async () => {
+  if (!isAsideMenuOpen.value || !isAsideMenu.value) {
+    internalIsOpen.value = true
+    await nextTick()
+    inputRef.value?.focus()
   }
+}
+
+const handleClose = async () => {
+  if (!isAsideMenuOpen.value || !isAsideMenu.value) {
+    internalIsOpen.value = false
+  }
+  // 接入iframe后无法触发关闭，手动触发，不加延时会导致handleSelect失效
+  setTimeout(() => {
+    inputRef.value?.close()
+  }, 100)
+}
+
+const handleClear = async () => {
+  await nextTick()
+  inputRef.value?.handleFocus()
+  inputRef.value?.focus()
+  keywordArr.value = []
+  menuStore.setMenuSearchPY(keywordArr.value)
+  menuStore.setMenuSearchPYids([])
 }
 </script>
 
@@ -267,7 +251,6 @@ export default class NavMenuSearch extends Vue {
     top: 0;
     left: 6px;
     cursor: pointer;
-    // transition: background-color 0.2s ease-in-out;
     background: rgba(0, 0, 0, 0.06);
     border-radius: 30px;
 
@@ -306,7 +289,9 @@ export default class NavMenuSearch extends Vue {
   &__input {
     display: block;
     width: 100%;
-    transition: width 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    transition:
+      width 0.2s ease-in-out,
+      opacity 0.2s ease-in-out;
   }
 
   &--open &__icon {

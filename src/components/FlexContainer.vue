@@ -1,33 +1,28 @@
-<template functional>
+<template>
   <div
     :class="[
       'flex-container',
-      { 'flex-container--vertical': props.vertical !== false },
-      data.class,
-      data.staticClass
+      { 'flex-container--vertical': vertical !== false },
     ]"
   >
     <slot />
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    vertical: {
-      default: false
-    }
-  }
+<script setup lang="ts">
+interface Props {
+  vertical?: boolean
 }
+
+withDefaults(defineProps<Props>(), {
+  vertical: false,
+})
 </script>
 
 <style lang="less">
 .flex-container {
   display: flex;
 }
-// .flex-container .flex-container {
-//   flex: 1;
-// }
 .flex-container--vertical {
   flex-direction: column;
 }

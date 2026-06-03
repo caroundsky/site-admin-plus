@@ -1,49 +1,34 @@
-<script lang="tsx">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+<script setup lang="tsx">
+import { computed, h, Fragment, useAttrs } from 'vue'
 import bus from '@/bus'
 
-@Component({
-  name: 'PluginSlot',
-  components: {
-    VNodes: {
-      functional: true,
-      render: (h: any, ctx: any) => {
-        let { vnodes } = ctx.props
-        let key = new Date().getTime()
-        setTimeout(() => {
-          vnodes.key = key
-        }, 0)
-        return typeof vnodes === 'object' ? vnodes : <span>{vnodes}</span>
-      },
-    },
-  },
+interface Props {
+  name: string
+}
+
+const props = defineProps<Props>()
+const attrs = useAttrs()
+
+const pluginSlots = computed(() => {
+  return bus.getSlots(props.name)
 })
-export default class PluginSlot extends Vue {
-  @Prop()
-  name!: string
 
-  get pluginSlots() {
-    return bus.getSlots(this.name)
-  }
-
-  renderPluginSlot(slotsData: Vue | Vue[]): any {
-    try {
-      return Array.isArray(slotsData) ? (
-        <fragment>{slotsData.map(this.renderPluginSlot)}</fragment>
-      ) : (
-        <slotsData {...{ attrs: this.$attrs }} />
-      )
-    } catch (e) {
-      return null
+const renderPluginSlot = (slotsData: any): any => {
+  try {
+    if (Array.isArray(slotsData)) {
+      return <Fragment>{slotsData.map(renderPluginSlot)}</Fragment>
     }
-  }
-
-  get renderComponents() {
-    return this.renderPluginSlot(this.pluginSlots)
-  }
-
-  render() {
-    return <VNodes vnodes={this.renderComponents} />
+    return h(slotsData, attrs)
+  } catch (_e) {
+    return null
   }
 }
+
+const renderComponents = computed(() => {
+  return renderPluginSlot(pluginSlots.value)
+})
 </script>
+
+<template>
+  <component :is="renderComponents" />
+</template>

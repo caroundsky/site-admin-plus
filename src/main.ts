@@ -1,18 +1,11 @@
-import Vue, { DefineComponent } from 'vue'
-import Vuex, { Store } from 'vuex'
-import Fragment from 'vue-fragment'
+import { createApp, type App, type Component } from 'vue'
+import { createPinia, type Pinia } from 'pinia'
 import isFunction from 'lodash/isFunction'
 import isPlainObject from 'lodash/isPlainObject'
 
-/** Vuex modules */
-import AppModule from '@/store/app'
-import MenuModule from '@/store/menu'
-import MenuViewsModule from '@/store/menuViews'
-
 /* Styles */
 import 'normalize.css'
-// import 'font-awesome/css/font-awesome.css'
-import '@/import-element-ui'
+import { setupElementPlus } from '@/import-element-ui'
 import '@/styles/index.less'
 
 /* Internal components */
@@ -25,40 +18,45 @@ import PluginSlot from '@/PluginSlot.vue'
 import '@/components/ContextMenu'
 
 /* Tools & types */
-import bus, { BusConfig } from '@/bus'
+import bus, { type BusConfig } from '@/bus'
 import * as tools from '@/tools'
 import { ensureArray } from '@/utils/tools'
 import { warn } from '@/utils/debug'
-import { Plugin, PluginCtx, PluginHasStore } from '~/types'
-
-Vue.component('FlexContainer', FlexContainer)
-Vue.component('FlexMain', FlexMain)
-Vue.component('PluginSlot', PluginSlot)
-Vue.use(Fragment.Plugin)
+import type { Plugin, PluginCtx, PluginBase, PluginHasStore } from '~/types'
+import { useAppStore } from '@/stores/app'
+import { useMenuStore } from '@/stores/menu'
+import { useMenuViewsStore } from '@/stores/menuViews'
 
 export interface AppInstance {
-  component: DefineComponent<any>
-  $store: Store<any>
-  $on: Vue['$on']
-  $emit: Vue['$emit']
-  $watch: Vue['$watch']
+  app: App
+  component: Component
+  pinia: Pinia
   $tools: typeof tools
+  bus: typeof bus
+  store: {
+    appStore: typeof import('@/stores/app').useAppStore
+    menuStore: typeof import('@/stores/menu').useMenuStore
+    menuViewsStore: typeof import('@/stores/menuViews').useMenuViewsStore
+  }
 }
 
 export interface RawInputOptions {
   config: BusConfig
-  store: Store<any>
   plugins: Plugin[]
 }
 
 let instance: AppInstance
 
-function _isPluginHasStore(plugin: Plugin): plugin is PluginHasStore {
+function _isPluginHasStore(plugin: PluginBase): plugin is PluginHasStore {
   const store = (plugin as PluginHasStore).storeModule
   return store && isPlainObject(store)
 }
 
-export function create(rawInputOptions: RawInputOptions) {
+function _isPluginBase(plugin: Plugin): plugin is PluginBase {
+  return isPlainObject(plugin)
+}
+
+export function create(rawInputOptions: RawInputOptions): AppInstance {
   if (instance) {
     return instance
   }
@@ -66,57 +64,61 @@ export function create(rawInputOptions: RawInputOptions) {
   /** Config init */
   const config = rawInputOptions.config
   if (isPlainObject(config)) {
-    // TODO: config validate
-    bus.config = config
+    bus.setConfig(config)
   }
 
-  /** Store init */
-  let rootStore = rawInputOptions.store
-  if (!rootStore) {
-    rootStore = new Vuex.Store({
-      strict: import.meta.env.MODE !== 'production',
-    })
-  }
-  rootStore.registerModule('app', AppModule)
-  rootStore.registerModule('menu', MenuModule)
-  rootStore.registerModule('menuViews', MenuViewsModule)
-  bus.setStore(rootStore)
+  /** Create Vue app */
+  const app = createApp(RootContainer)
+
+  /** Setup Element Plus */
+  setupElementPlus(app)
+
+  /** Pinia init */
+  const pinia = createPinia()
+  app.use(pinia)
+
+  /** Register global components */
+  app.component('FlexContainer', FlexContainer)
+  app.component('FlexMain', FlexMain)
+  app.component('PluginSlot', PluginSlot)
 
   /** Apply plugins */
-  const $on = bus.$on.bind(bus)
-  const $emit = bus.$emit.bind(bus)
-  const $watch = bus.$watch.bind(bus)
   const pluginCtx: PluginCtx = {
     $bus: bus,
     $tools: tools,
-    $store: rootStore,
-    $on,
-    $emit,
+    $store: pinia as any,
+    $on: bus.on.bind(bus),
+    $emit: bus.emit.bind(bus),
   }
-  const normalizePlugins = (plugins: Plugin[]) => {
-    const validPlugin: Plugin[] = []
+
+  const normalizePlugins = (plugins: Plugin[]): PluginBase[] => {
+    const validPlugin: PluginBase[] = []
     plugins.forEach((plugin) => {
       if (isFunction(plugin)) {
-        plugin = plugin(pluginCtx)
+        const result = (plugin as (ctx: PluginCtx) => PluginBase | void)(
+          pluginCtx,
+        )
+        if (result) {
+          plugin = result
+        } else {
+          return
+        }
       }
-      if (_isPluginHasStore(plugin) && !plugin.name) {
-        warn("包含 'storeModule' 的插件需提供 'name' 属性用于注册命名空间。")
-      } else if (isPlainObject(plugin)) {
-        validPlugin.push(plugin)
+      if (_isPluginBase(plugin)) {
+        if (_isPluginHasStore(plugin) && !plugin.name) {
+          warn("包含 'storeModule' 的插件需提供 'name' 属性用于注册命名空间。")
+        } else {
+          validPlugin.push(plugin)
+        }
       }
     })
     return validPlugin
   }
+
   const rawPlugins = ensureArray(rawInputOptions.plugins) as Plugin[]
   const normalizedPlugins = normalizePlugins(rawPlugins)
-  normalizedPlugins.forEach((plugin) => {
-    // Register store
-    if (_isPluginHasStore(plugin)) {
-      const pluginStoreModule = plugin.storeModule
-      pluginStoreModule.namespaced = true
-      rootStore.registerModule(plugin.name, pluginStoreModule)
-    }
 
+  normalizedPlugins.forEach((plugin) => {
     // Bind slots
     const slots = plugin.slots
     if (slots && isPlainObject(slots)) {
@@ -130,6 +132,125 @@ export function create(rawInputOptions: RawInputOptions) {
     }
   })
 
-  instance = { component: RootContainer, $watch, ...pluginCtx }
+  instance = {
+    app,
+    component: RootContainer,
+    pinia,
+    $tools: tools,
+    bus,
+    store: {
+      appStore: useAppStore,
+      menuStore: useMenuStore,
+      menuViewsStore: useMenuViewsStore,
+    },
+  }
+
   return instance
 }
+
+/**
+ * 创建库实例（不自动创建 app）
+ * 用于外部应用集成，允许使用自定义根组件
+ */
+export interface LibraryInstance {
+  pinia: Pinia
+  bus: typeof bus
+  $tools: typeof tools
+  component: Component
+  store: {
+    appStore: typeof import('@/stores/app').useAppStore
+    menuStore: typeof import('@/stores/menu').useMenuStore
+    menuViewsStore: typeof import('@/stores/menuViews').useMenuViewsStore
+  }
+  /**
+   * 安装到外部 Vue 应用
+   * @param app 外部 Vue 应用实例
+   */
+  install: (app: App) => void
+}
+
+export function createLibrary(
+  rawInputOptions: Omit<RawInputOptions, 'config'> & { config: BusConfig },
+): LibraryInstance {
+  /** Config init */
+  const config = rawInputOptions.config
+  if (isPlainObject(config)) {
+    bus.setConfig(config)
+  }
+
+  /** Create Pinia */
+  const pinia = createPinia()
+
+  /** Apply plugins */
+  const pluginCtx: PluginCtx = {
+    $bus: bus,
+    $tools: tools,
+    $store: pinia as any,
+    $on: bus.on.bind(bus),
+    $emit: bus.emit.bind(bus),
+  }
+
+  const normalizePlugins = (plugins: Plugin[]): PluginBase[] => {
+    const validPlugin: PluginBase[] = []
+    plugins.forEach((plugin) => {
+      if (isFunction(plugin)) {
+        const result = (plugin as (ctx: PluginCtx) => PluginBase | void)(
+          pluginCtx,
+        )
+        if (result) {
+          plugin = result
+        } else {
+          return
+        }
+      }
+      if (_isPluginBase(plugin)) {
+        if (_isPluginHasStore(plugin) && !plugin.name) {
+          warn("包含 'storeModule' 的插件需提供 'name' 属性用于注册命名空间。")
+        } else {
+          validPlugin.push(plugin)
+        }
+      }
+    })
+    return validPlugin
+  }
+
+  const rawPlugins = ensureArray(rawInputOptions.plugins) as Plugin[]
+  const normalizedPlugins = normalizePlugins(rawPlugins)
+
+  normalizedPlugins.forEach((plugin) => {
+    const slots = plugin.slots
+    if (slots && isPlainObject(slots)) {
+      Object.entries(slots).forEach(([key, value]) => bus.addSlot(key, value))
+    }
+
+    const effects = plugin.effects
+    if (isFunction(effects)) {
+      effects(pluginCtx)
+    }
+  })
+
+  const install = (app: App) => {
+    app.use(pinia)
+    setupElementPlus(app)
+    app.component('FlexContainer', FlexContainer)
+    app.component('FlexMain', FlexMain)
+    app.component('PluginSlot', PluginSlot)
+    app.component('SiteContainer', RootContainer)
+  }
+
+  return {
+    pinia,
+    bus,
+    $tools: tools,
+    component: RootContainer,
+    store: {
+      appStore: useAppStore,
+      menuStore: useMenuStore,
+      menuViewsStore: useMenuViewsStore,
+    },
+    install,
+  }
+}
+
+export { bus, tools, RootContainer as SiteContainer }
+export type { BusConfig, Plugin, PluginCtx }

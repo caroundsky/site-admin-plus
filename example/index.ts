@@ -1,16 +1,16 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import localforage from 'localforage'
 import App from './app.vue'
-import store from './store'
+
 // import i18n from '@/i18n'
 import i18n from './plugins/i18n/main'
 import getMainDomain from '@/utils/getMainDomain'
 
 import MenuData from './mock/menu'
 
-import { create } from '~/src/main'
-// import { create } from '~/lib'
-import '../lib/style.css'
+import { createLibrary } from '~/src/main'
+// import { createLibrary } from '~/lib'
+import '../lib/index.css'
 
 import userDropdownMenuPlugin from './plugins/userDropdownMenu'
 import netTestBtnPlugin from './plugins/netTestBtn'
@@ -23,16 +23,14 @@ import I18n from './plugins/i18n'
 import _logo from './logo.png'
 import _logoSmall from './logo-sm.png'
 
-Vue.config.productionTip = false
-Vue.config.performance = true
-
 try {
   document.domain = getMainDomain()
-} catch (error) {}
+} catch (_error) {}
 
 const HOME_PAGE = '0255'
-const app = create({
-  store,
+
+// 创建库实例（不自动创建 app）
+const library = createLibrary({
   plugins: [
     userDropdownMenuPlugin(),
     themesPlugin(),
@@ -64,35 +62,54 @@ const app = create({
   },
 })
 
-app.$on('appCreateStart', (vm: any) => {
-  const msg = app.$tools.message({
+console.log('[example/index.ts] library created')
+
+// 事件监听
+library.bus.on('appCreateStart', () => {
+  console.log('[example/index.ts] appCreateStart received')
+
+  const msg = library.$tools.message({
     message: '站点容器初始化中...',
-    iconClass: 'el-icon-loading',
     customClass: 'bg-message bg-message--info',
     duration: 0,
   })
 
   const menus = MenuData.data
-  app.$emit('setMenus', menus)
+  console.log('[example/index.ts] emitting setMenus with', menus.length, 'items')
+  library.bus.emit('setMenus', menus)
 
-  msg.close()
+  // 延迟关闭消息，确保菜单设置完成
+  setTimeout(() => {
+    console.log('[example/index.ts] closing message')
+    msg.close()
+  }, 100)
 })
 
-app.$on('setMenusCompelet', (vm: any) => {
-  app.$store.dispatch('menuViews/addViewById', HOME_PAGE)
+library.bus.on('setMenusCompelet', () => {
+  console.log('[example/index.ts] setMenusCompelet received')
+  const menuViewsStore = library.store.menuViewsStore()
+  menuViewsStore.addViewById(HOME_PAGE)
 })
 
-app.$on('logout', async () => {
+library.bus.on('logout', async () => {
   await localforage.removeItem('SiteContainer/MenuLocalCache')
   alert('logout success')
 })
 
-Vue.component('SiteContainer', app.component)
-Vue.prototype.$tools = app.$tools
-window.$tools = { ...app.$tools }
+// 创建 Vue 应用，使用自定义的 App 组件
+const app = createApp(App)
 
-new Vue({
-  render: (h) => h(App),
-  store,
-  i18n,
-}).$mount('#app')
+// 安装库到应用
+library.install(app)
+
+// 使用 i18n
+app.use(i18n)
+
+// 挂载全局 tools
+app.config.globalProperties.$tools = library.$tools
+window.$tools = { ...library.$tools }
+
+// 挂载应用到 DOM
+app.mount('#app')
+
+console.log('[example/index.ts] app mounted')

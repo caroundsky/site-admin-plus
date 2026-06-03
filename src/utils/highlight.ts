@@ -5,7 +5,7 @@ export default function highlight(
   value: any,
   keyword: string[],
   outPutType = 'string',
-  options = { tag: 'span', className: 'hightlight' }
+  options = { tag: 'span', className: 'hightlight' },
 ) {
   let ifReplace = false
   keyword.forEach((txt) => {
@@ -16,20 +16,20 @@ export default function highlight(
     }
     value = value.replace(
       keywordReg,
-      (matchedText: string) => `#${matchedText}#`
+      (matchedText: string) => `#${matchedText}#`,
     )
   })
   const { tag, className } = options
   value = value.replace(
     new RegExp('#.*?#', 'gi'),
     (matchedText: string) =>
-      `<${tag} class="${className}">${matchedText.replace(/#/g, '')}</${tag}>`
+      `<${tag} class="${className}">${matchedText.replace(/#/g, '')}</${tag}>`,
   )
 
   if (outPutType === 'object') {
     return {
       ifReplace,
-      replaceHtml: value
+      replaceHtml: value,
     }
   } else {
     return value

@@ -34,79 +34,59 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
-import { NavMenuItem } from '~/types/interfaces'
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { useMenuStore } from '@/stores/menu'
+import type { NavMenuItem } from '~/types/interfaces'
 
-import Clickoutside from '@/utils/clickoutside'
+const appStore = useAppStore()
+const menuStore = useMenuStore()
 
-const AppModule = namespace('app')
-const MenuModule = namespace('menu')
+const isInited = computed(() => appStore.isInited)
+const isMenuMaskOpen = computed(() => appStore.isMenuMaskOpen)
+const menuData = computed(() => menuStore.navMenu)
+const navMenuMode = computed(() => menuStore.navMenuMode)
 
-interface navMenuMode {
-  [key: string]: boolean
+const selectAll = ref(false)
+const filterMenuData = ref<NavMenuItem[]>([])
+
+const toggleMaskMenu = () => {
+  appStore.toggleMaskMenu()
 }
 
-@Component({
-  directives: { Clickoutside },
+const close = () => {
+  if (!isMenuMaskOpen.value) return
+  toggleMaskMenu()
+}
+
+const change = (val: boolean) => {
+  menuStore.toggleMenuShow(val)
+}
+
+const menuClick = (id: string) => {
+  menuStore.toggleMenuShow(id)
+}
+
+// 监听 isInited 变化
+watch(isInited, (val) => {
+  if (val) {
+    filterMenuData.value = menuData.value.filter((item) => item.show)
+  }
 })
-export default class MaskMenu extends Vue {
-  @AppModule.State('isInited')
-  public isInited!: boolean
 
-  @AppModule.State('isMenuMaskOpen')
-  public isMenuMaskOpen!: boolean
-
-  @AppModule.Action('toggleMaskMenu')
-  public toggleMaskMenu!: () => void
-
-  @MenuModule.Action('toggleMenuShow')
-  public toggleMenuShow!: (index: string | boolean) => void
-
-  @MenuModule.State('navMenu')
-  public menuData!: NavMenuItem[]
-
-  @MenuModule.State('navMenuMode')
-  public navMenuMode!: navMenuMode
-
-  /**
-   * 菜单显示控制只需要显示一级菜单
-   * 做一次过滤将一级菜单且show为true的筛选出来
-   */
-  @Watch('isInited')
-  handleAppInit(val: boolean) {
-    if (val) {
-      this.filterMenuData = this.menuData.filter((item) => item.show)
-      console.log('this.filterMenuData', this.filterMenuData)
-    }
-  }
-
-  @Watch('navMenuMode', { deep: true })
-  handleNavMenuMode(val: navMenuMode) {
+// 监听 navMenuMode 变化
+watch(
+  navMenuMode,
+  (val) => {
     if (Object.values(val).some((key) => !key)) {
-      this.selectAll = false
+      selectAll.value = false
     } else {
-      this.selectAll = true
+      selectAll.value = true
     }
-  }
-
-  public selectAll: boolean = false
-  public filterMenuData: NavMenuItem[] = []
-
-  close() {
-    if (!this.isMenuMaskOpen) return
-    this.toggleMaskMenu()
-  }
-
-  change(val: boolean) {
-    this.toggleMenuShow(val)
-  }
-
-  menuClick(id: NavMenuItem['id']) {
-    this.toggleMenuShow(id)
-  }
-}
+  },
+  { deep: true },
+)
 </script>
 
 <style lang="less" scoped>
@@ -171,7 +151,7 @@ export default class MaskMenu extends Vue {
     }
   }
 
-  /deep/.el-switch__label {
+  :deep(.el-switch__label) {
     color: #fff;
   }
 }
@@ -255,7 +235,6 @@ export default class MaskMenu extends Vue {
     }
 
     i {
-      // 处理没有图标时的情况
       display: inline-block;
       width: 30px;
       height: 30px;

@@ -1,64 +1,82 @@
 /**
- * 来自
- * https://github.com/ElemeFE/element/blob/dev/src/utils/clickoutside.js
+ * 来自 Element Plus
+ * Vue 3 版本的点击外部指令
+ *
+ * 指令钩子名称变更：
+ * - bind → beforeMount
+ * - inserted → mounted
+ * - update → updated
+ * - unbind → unmounted
  */
-import Vue from 'vue'
+import type { DirectiveBinding } from 'vue'
 import { on } from './tools'
-import { DirectiveBinding } from 'vue/types/options'
 
-const nodeList: HTMLElement[] = []
-const includeNode: HTMLElement[] = [] // 白名单 -- 新增
-const ctx = '@@clickoutsideContext'
+interface ClickoutsideElement extends HTMLElement {
+  [key: symbol]: {
+    id: number
+    documentHandler: (mouseup: Event, mousedown: Event) => void
+    methodName: string
+    bindingFn: () => void
+  }
+}
+
+interface ClickoutsideBindingValue {
+  handler: () => void
+  include?: () => HTMLElement[]
+}
+
+const nodeList: ClickoutsideElement[] = []
+const includeNode: HTMLElement[] = []
 
 let startClick: Event
 let seed = 0
 
-!Vue.prototype.$isServer &&
-  on(document, 'mousedown', (e: Event) => (startClick = e))
+const ctx = Symbol('clickoutsideContext')
 
-!Vue.prototype.$isServer &&
-  on(document, 'mouseup', (e: Event) => {
+if (typeof document !== 'undefined') {
+  on(document as any, 'mousedown', (e: Event) => (startClick = e))
+  on(document as any, 'mouseup', (e: Event) => {
     nodeList.forEach((node) => node[ctx].documentHandler(e, startClick))
   })
+}
 
 function createDocumentHandler(
   el: HTMLElement,
-  binding: DirectiveBinding,
-  vnode: any
+  binding: DirectiveBinding<ClickoutsideBindingValue | (() => void)>,
 ) {
-  return function(mouseup: any = {}, mousedown: any = {}) {
+  return function (
+    mouseup: Event = {} as Event,
+    mousedown: Event = {} as Event,
+  ) {
+    const target = mouseup.target as Node
+    const mousedownTarget = mousedown.target as Node
+
     if (
-      !vnode ||
-      !vnode.context ||
       !mouseup.target ||
       !mousedown.target ||
-      el.contains(mouseup.target) ||
-      el.contains(mousedown.target) ||
-      el === mouseup.target ||
-      (vnode.context.popperElm &&
-        (vnode.context.popperElm.contains(mouseup.target) ||
-          vnode.context.popperElm.contains(mousedown.target)))
-    )
+      el.contains(target) ||
+      el.contains(mousedownTarget) ||
+      el === target
+    ) {
       return
+    }
 
     for (let i = 0; i < includeNode.length; i++) {
       const dom = includeNode[i]
       if (
-        dom.contains(mouseup.target) ||
-        dom.contains(mousedown.target) ||
-        dom === mouseup.target
-      )
+        dom.contains(target) ||
+        dom.contains(mousedownTarget) ||
+        dom === target
+      ) {
         return
+      }
     }
 
-    if (
-      binding.expression &&
-      el[ctx].methodName &&
-      vnode.context[el[ctx].methodName]
-    ) {
-      vnode.context[el[ctx].methodName]()
-    } else {
-      el[ctx].bindingFn && el[ctx].bindingFn()
+    const bindingValue = binding.value
+    if (typeof bindingValue === 'function') {
+      bindingValue()
+    } else if (bindingValue && typeof bindingValue.handler === 'function') {
+      bindingValue.handler()
     }
   }
 }
@@ -68,38 +86,53 @@ function createDocumentHandler(
  * @desc 点击元素外面才会触发的事件
  * @example
  * ```vue
- * <div v-element-clickoutside="handleClose">
+ * <div v-clickoutside="handleClose">
  * ```
  */
 export default {
-  bind(el: HTMLElement, binding: DirectiveBinding, vnode: any) {
+  beforeMount(
+    el: ClickoutsideElement,
+    binding: DirectiveBinding<ClickoutsideBindingValue | (() => void)>,
+  ) {
     nodeList.push(el)
     const id = seed++
     el[ctx] = {
       id,
-      documentHandler: createDocumentHandler(el, binding, vnode),
-      methodName: binding.expression,
-      bindingFn: binding.value
+      documentHandler: createDocumentHandler(el, binding),
+      methodName: '',
+      bindingFn:
+        typeof binding.value === 'function'
+          ? binding.value
+          : binding.value?.handler || (() => {}),
     }
   },
 
-  inserted(el: HTMLElement, binding: DirectiveBinding) {
-    // @ts-ignore
-    includeNode.push(document.getElementById(binding.arg))
+  mounted(
+    el: ClickoutsideElement,
+    binding: DirectiveBinding<ClickoutsideBindingValue | (() => void)>,
+  ) {
+    // 添加白名单元素
+    if (binding.arg) {
+      const includeEl = document.getElementById(binding.arg)
+      if (includeEl) {
+        includeNode.push(includeEl)
+      }
+    }
   },
 
-  update(el: HTMLElement, binding: DirectiveBinding, vnode: any) {
-    el[ctx].documentHandler = createDocumentHandler(el, binding, vnode)
-    el[ctx].methodName = binding.expression
-    el[ctx].bindingFn = binding.value
-
-    // @ts-ignore
-    includeNode.push(document.getElementById(binding.arg))
+  updated(
+    el: ClickoutsideElement,
+    binding: DirectiveBinding<ClickoutsideBindingValue | (() => void)>,
+  ) {
+    el[ctx].documentHandler = createDocumentHandler(el, binding)
+    el[ctx].bindingFn =
+      typeof binding.value === 'function'
+        ? binding.value
+        : binding.value?.handler || (() => {})
   },
 
-  unbind(el: HTMLElement) {
-    let len = nodeList.length
-
+  unmounted(el: ClickoutsideElement) {
+    const len = nodeList.length
     for (let i = 0; i < len; i++) {
       if (nodeList[i][ctx].id === el[ctx].id) {
         nodeList.splice(i, 1)
@@ -107,5 +140,5 @@ export default {
       }
     }
     delete el[ctx]
-  }
+  },
 }

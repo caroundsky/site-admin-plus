@@ -25,8 +25,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+<script setup lang="ts">
+import { computed } from 'vue'
 
 import NavMenuSearch from '@/components/NavMenuSearch.vue'
 import NavMenu from '@/components/NavMenu/index.vue'
@@ -34,20 +34,9 @@ import AppActionBar from '@/layouts/components/AppActionBar.vue'
 import Logo from '@/components/Logo.vue'
 import bus from '@/bus'
 
-@Component({
-  name: 'HorizonNavMenu',
-  components: {
-    NavMenuSearch,
-    NavMenu,
-    AppActionBar,
-    Logo,
-  },
+const navMenuConfig = computed(() => {
+  return bus.config.navMenu || {}
 })
-export default class HorizonNavMenu extends Vue {
-  get navMenuConfig() {
-    return bus.config.navMenu || {}
-  }
-}
 </script>
 
 <style lang="less">

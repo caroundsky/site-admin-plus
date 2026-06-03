@@ -5,8 +5,8 @@
   <li
     :class="[
       'bg-submenu nav-menu__item',
-      `nav-menu__item-lv${this.level}`,
-      { 'is-flat-menu': this.isFlatMenu },
+      `nav-menu__item-lv${level}`,
+      { 'is-flat-menu': isFlatMenu },
     ]"
     @click="itemClick"
     @contextmenu.prevent="onContextmenu"
@@ -15,18 +15,16 @@
       <el-popover
         placement="right-start"
         trigger="hover"
-        ref="popover"
         transition="bg-pop"
         popper-class="nav-menu__submenu--pop nav-menu__submenu--close"
-        :closeDelay="0"
+        :hide-after="0"
       >
-        <div slot="reference">
-          <slot />
-        </div>
-        <div
-          style="font-size: 12px"
-          v-html="setHighlight(this.menuData.text)"
-        />
+        <template #reference>
+          <div>
+            <slot />
+          </div>
+        </template>
+        <div style="font-size: 12px" v-html="setHighlight(menuData.text)" />
       </el-popover>
     </template>
     <template v-else>
@@ -34,67 +32,66 @@
     </template>
   </li>
 </template>
-<script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
 
-import Emitter from '@/mixins/emitter'
-import MenuMixin from '@/mixins/menuMixin'
-
+<script setup lang="ts">
+import { computed, inject } from 'vue'
 import highlight from '@/utils/highlight'
-
 import bus from '@/bus'
+import { useContextMenu } from '@/components/ContextMenu'
+import type { NavMenuItem } from '~/types/interfaces'
 
-@Component({
-  name: 'MenuItem',
+const contextMenu = useContextMenu()
+
+interface Props {
+  level?: number
+  menuData: NavMenuItem
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  level: 1,
 })
-export default class MenuItem extends Mixins(Emitter, MenuMixin) {
-  @Prop({ default: 1 })
-  public level!: number
 
-  get isFlatMenu(): boolean {
-    return this.level > this.rootMenu.popoverLevel
-  }
+// 注入 rootMenu
+const rootMenu = inject<any>('rootMenu')
 
-  get isPop(): boolean {
-    return (
-      !this.isFlatMenu && !this.rootMenu.asideMenuOpen && !this.rootMenu.horizon
-    )
-  }
+const isFlatMenu = computed(() => {
+  return props.level > rootMenu.value.popoverLevel
+})
 
-  setHighlight(text: string) {
-    return highlight(text, this.rootMenu.menuSearchPY)
-  }
+const isPop = computed(() => {
+  return (
+    !isFlatMenu.value &&
+    !rootMenu.value.asideMenuOpen &&
+    !rootMenu.value.horizon
+  )
+})
 
-  itemClick(event: Event) {
-    event.stopPropagation()
-    this.dispatch('NavMenu', 'item-click', this.menuData)
-  }
+const setHighlight = (text: string) => {
+  return highlight(text, rootMenu.value.menuSearchPY)
+}
 
-  onContextmenu(event: Event) {
-    const { id, href, text } = this.menuData
-    const view = { id, href, text }
+const itemClick = (event: Event) => {
+  event.stopPropagation()
+  // 使用事件总线派发事件
+  bus.emit('item-click', props.menuData)
+}
 
-    if (
-      !bus.setContextMenu['menuItem'] ||
-      typeof bus.setContextMenu['menuItem'] !== 'function'
-    )
-      return
+const onContextmenu = (event: Event) => {
+  const { id, href, text } = props.menuData
+  const view = { id, href, text }
 
-    const definedBtn = bus.setContextMenu['menuItem']
+  if (
+    !bus.setContextMenu['menuItem'] ||
+    typeof bus.setContextMenu['menuItem'] !== 'function'
+  )
+    return
 
-    this.$contextmenu({
-      event,
-      view,
-      definedBtn: definedBtn(view),
-      setOffset: this.isFlatMenu ? { x: 30, y: 30 } : { x: 20, y: 0 },
-      queryClass: this.isFlatMenu
-        ? 'bg-submenu__title-txt'
-        : 'bg-submenu__title',
-      appendToBody: !this.isFlatMenu,
-      reference: this.rootMenu.horizon
-        ? 'el-scrollbar__wrap'
-        : 'nav-menu__submenu--pop__container',
-    })
-  }
+  const definedBtn = bus.setContextMenu['menuItem']
+
+  contextMenu.show({
+    event: event as MouseEvent,
+    view,
+    definedBtn: definedBtn(view),
+  })
 }
 </script>

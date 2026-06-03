@@ -6,7 +6,9 @@
     :class="{ 'bgcb-menu-mask': true, 'bgcb-menu-mask__open': isMenuMaskOpen }"
   >
     <div class="bgcb-menu-mask-warpper" v-clickoutside:menu__logo="close">
-      <i class="bgcb-menu-mask-close el-icon-close" @click="toggleMaskMenu" />
+      <el-icon class="bgcb-menu-mask-close" @click="toggleMaskMenu">
+        <Close />
+      </el-icon>
 
       <div class="bgcb-flex-between" style="margin-bottom: 10px">
         <h3>请根据您的需要进行选择，所选的系统同时显示在左侧主菜单中！</h3>
@@ -34,83 +36,67 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
-import { NavMenuItem } from '~/types/interfaces'
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { Close } from '@element-plus/icons-vue'
+import { useAppStore } from '@/stores/app'
+import { useMenuStore } from '@/stores/menu'
+import type { NavMenuItem } from '~/types/interfaces'
 
 import Clickoutside from '@/utils/clickoutside'
+import bus from '@/bus'
 
-const AppModule = namespace('app')
-const MenuModule = namespace('menu')
+const vClickoutside = Clickoutside
 
-interface navMenuMode {
-  [key: string]: boolean
+const appStore = useAppStore()
+const menuStore = useMenuStore()
+
+const isInited = computed(() => appStore.isInited)
+const isMenuMaskOpen = computed(() => appStore.isMenuMaskOpen)
+const menuData = computed(() => menuStore.navMenu)
+const navMenuMode = computed(() => menuStore.navMenuMode)
+
+const selectAll = ref(false)
+const filterMenuData = ref<NavMenuItem[]>([])
+
+const toggleMaskMenu = () => {
+  appStore.toggleMaskMenu()
 }
 
-@Component({
-  directives: { Clickoutside },
-  inject: ['bus'],
-  name: 'MaskMenu',
-})
-export default class MaskMenu extends Vue {
-  @AppModule.State('isInited')
-  public isInited!: boolean
+const close = () => {
+  if (!isMenuMaskOpen.value) return
+  toggleMaskMenu()
+}
 
-  @AppModule.State('isMenuMaskOpen')
-  public isMenuMaskOpen!: boolean
+const change = (val: boolean) => {
+  menuStore.toggleMenuShow(val)
+}
 
-  @AppModule.Action('toggleMaskMenu')
-  public toggleMaskMenu!: () => void
+const menuClick = (id: NavMenuItem['id']) => {
+  menuStore.toggleMenuShow(id)
+}
 
-  @MenuModule.Action('toggleMenuShow')
-  public toggleMenuShow!: (index: string | boolean) => void
-
-  @MenuModule.State('navMenu')
-  public menuData!: NavMenuItem[]
-
-  @MenuModule.State('navMenuMode')
-  public navMenuMode!: navMenuMode
-
-  @Watch('navMenuMode', { deep: true })
-  handleNavMenuMode(val: navMenuMode) {
+watch(
+  navMenuMode,
+  (val) => {
     if (Object.values(val).some((key) => !key)) {
-      this.selectAll = false
+      selectAll.value = false
     } else {
-      this.selectAll = true
+      selectAll.value = true
     }
-  }
+  },
+  { deep: true },
+)
 
-  public selectAll: boolean = false
-  public filterMenuData: NavMenuItem[] = []
+onMounted(() => {
+  bus.on('setMenusCompelet', () => {
+    filterMenuData.value = menuData.value.filter((item) => item.show)
+  })
 
-  mounted() {
-    /**
-     * 菜单显示控制只需要显示一级菜单
-     * 做一次过滤将一级菜单且show为true的筛选出来
-     */
-    this.bus.$on('setMenusCompelet', () => {
-      this.filterMenuData = this.menuData.filter((item) => item.show)
-    })
-
-    this.bus.$on('logoClick', () => {
-      this.$store.dispatch('app/toggleMaskMenu')
-    })
-  }
-
-  close() {
-    if (!this.isMenuMaskOpen) return
-    this.toggleMaskMenu()
-  }
-
-  change(val: boolean) {
-    this.toggleMenuShow(val)
-  }
-
-  menuClick(id: NavMenuItem['id']) {
-    this.toggleMenuShow(id)
-  }
-}
+  bus.on('logoClick', () => {
+    appStore.toggleMaskMenu()
+  })
+})
 </script>
 
 <style lang="less" scoped>
@@ -175,7 +161,7 @@ export default class MaskMenu extends Vue {
     }
   }
 
-  /deep/.el-switch__label {
+  :deep(.el-switch__label) {
     color: #fff;
   }
 }
@@ -209,7 +195,6 @@ export default class MaskMenu extends Vue {
     margin-top: 10px;
     cursor: pointer;
 
-    // 令最后一排左对齐
     &:last-child:nth-child(6n - 1) {
       margin-right: calc(16% + 6% / 7);
     }
@@ -259,7 +244,6 @@ export default class MaskMenu extends Vue {
     }
 
     i {
-      // 处理没有图标时的情况
       display: inline-block;
       width: 30px;
       height: 30px;

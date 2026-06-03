@@ -18,14 +18,14 @@ import { NavMenuItem } from '~/types/interfaces'
 /** 扁平化菜单 */
 export default function flattenTree(
   treeData: object[],
-  prop: string = 'children'
+  prop: string = 'children',
 ): NavMenuItem[] {
   // let test = '协同系统藏'
   // console.log(convertPY(test))
   const _flatten = (
     treeData: object[],
     prop: string,
-    parents: NavMenuItem[]
+    parents: NavMenuItem[],
   ) => {
     let flatResult: NavMenuItem[] = []
     if (Array.isArray(treeData)) {
@@ -47,7 +47,7 @@ export default function flattenTree(
         if (isParent) {
           flatResult = [
             ...flatResult,
-            ..._flatten(childrenData, prop, [...parents, node])
+            ..._flatten(childrenData, prop, [...parents, node]),
           ]
         }
       })

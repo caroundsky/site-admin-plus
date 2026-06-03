@@ -20,15 +20,17 @@
           </span>
           <span class="name">{{ username }}</span>
         </span>
-        <el-dropdown-menu slot="dropdown" class="user-act__popover">
-          <div>
-            <PluginSlot name="user-dropdown" />
-          </div>
-          <el-dropdown-item @click.native="logOut">
-            <LogoutIcon class="icon" />
-            {{ $t('退出登录') }}
-          </el-dropdown-item>
-        </el-dropdown-menu>
+        <template #dropdown>
+          <el-dropdown-menu class="user-act__popover">
+            <div>
+              <PluginSlot name="user-dropdown" />
+            </div>
+            <el-dropdown-item @click="logOut">
+              <LogoutIcon class="icon" />
+              {{ $t('退出登录') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
       </el-dropdown>
     </div>
 
@@ -37,19 +39,18 @@
     <div class="app-act__item">
       <el-popover
         placement="bottom-end"
-        width="200"
+        :width="200"
         trigger="click"
         :key="isAsideMenu"
       >
-        <div slot="reference" class="app-act__link sys-act" title="设置">
-          <i class="el-icon-setting" />
-        </div>
+        <template #reference>
+          <div class="app-act__link sys-act" title="设置">
+            <el-icon><Setting /></el-icon>
+          </div>
+        </template>
         <div class="sys-field" v-if="showSwitch">
           <span class="sys-field__label">水平式导航</span>
-          <el-switch
-            :value="!isAsideMenu"
-            @click.native="toggleNavMenuLayout"
-          />
+          <el-switch :model-value="!isAsideMenu" @click="toggleNavMenuLayout" />
         </div>
 
         <PluginSlot name="sys-dropdown" />
@@ -58,47 +59,32 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { Setting } from '@element-plus/icons-vue'
+import { useAppStore } from '@/stores/app'
 
 import bus from '@/bus'
 import LogoutIcon from '@/assets/svg-icons/logout.svg'
 import defaultAvatar from '@/assets/default-avatar.jpg'
 
-const AppModule = namespace('app')
-const MenuViewsModule = namespace('menuViews')
+const appStore = useAppStore()
 
-@Component({
-  name: 'AppActionBar',
-  components: {
-    LogoutIcon,
-  },
+const isAsideMenu = computed(() => appStore.isAsideMenu)
+
+const avatar = computed(() => bus.getState('avatar'))
+const username = computed(() => bus.getState('username'))
+
+const showSwitch = computed(() => {
+  return !bus.config.navMenu?.disableLayoutSwitch
 })
-export default class AppActionBar extends Vue {
-  @AppModule.State('isAsideMenu')
-  public isAsideMenu!: boolean
 
-  @AppModule.Action('toggleNavMenuLayout')
-  public toggleNavMenuLayout!: () => void
+const toggleNavMenuLayout = () => {
+  appStore.toggleNavMenuLayout()
+}
 
-  defaultAvatar = defaultAvatar
-
-  get avatar() {
-    return bus.getState('avatar')
-  }
-  get username() {
-    return bus.getState('username')
-  }
-
-  get showSwitch() {
-    return !bus.config.navMenu?.disableLayoutSwitch
-  }
-
-  // 登出
-  logOut() {
-    bus.$emit('logout')
-  }
+const logOut = () => {
+  bus.emit('logout')
 }
 </script>
 
@@ -108,7 +94,7 @@ export default class AppActionBar extends Vue {
   height: 100%;
   border-left: 1px solid rgba(0, 0, 0, 0.1);
 
-  ::v-deep > * {
+  :deep(> *) {
     display: inline-block;
     height: 100%;
     vertical-align: top;
@@ -118,11 +104,11 @@ export default class AppActionBar extends Vue {
     align-items: center;
   }
 
-  ::v-deep &__item {
+  :deep(&__item) {
     color: #333;
   }
 
-  ::v-deep &__link {
+  :deep(&__link) {
     position: relative;
     color: #333;
     cursor: pointer;

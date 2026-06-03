@@ -1,10 +1,5 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createPinia } from 'pinia'
 
-Vue.use(Vuex)
+const pinia = createPinia()
 
-const store = new Vuex.Store({
-  strict: import.meta.env.MODE !== 'production',
-})
-
-export default store
+export default pinia

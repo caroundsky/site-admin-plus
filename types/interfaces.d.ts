@@ -9,10 +9,6 @@ export interface NavMenuItem {
   /** 菜单ID */
   id: string
 
-  /** 父级菜单ID */
-  // NOTE: 站点容器菜单有 pid ，OA 菜单无 pid ，该属性似乎没用，暂时关闭
-  // pid: string | number | null
-
   /** 子菜单 */
   children?: NavMenuItem[]
 
@@ -37,7 +33,7 @@ export interface NavMenuItem {
   /** 是否新窗口打开 */
   isNewWindow?: boolean
 
-  /** TODO: 是否显示菜单 */
+  /** 是否显示菜单 */
   show: boolean
 
   /** 是否叶子菜单节点 - 扁平化处理后新增 */
@@ -69,15 +65,6 @@ export interface FavNavMenuItem {
   href: NavMenuItem['href']
 }
 
-/**
- * 菜单搜索历史记录
- */
-// export interface HistoryMenuItem {
-//   id: NavMenuItem['id']
-//   text?: NavMenuItem['text']
-//   path?: NavMenuItem['text'][]
-// }
-
 export interface Theme {
   name: string
   darkText?: boolean
@@ -86,5 +73,5 @@ export interface Theme {
 export interface ContextButton {
   label: string
   icon?: string
-  onClick: Function
+  onClick: () => void
 }

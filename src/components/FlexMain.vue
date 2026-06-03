@@ -1,11 +1,11 @@
-<template functional>
-  <div :class="['flex-main', data.class, data.staticClass]">
+<template>
+  <div class="flex-main">
     <slot />
   </div>
 </template>
 
-<script>
-export default {}
+<script setup lang="ts">
+// 简单的功能组件，不需要任何 props
 </script>
 
 <style>

@@ -7,14 +7,10 @@ declare module '*.vue' {
   export default component
 }
 
-declare module 'nprogress'
-// declare module '@caroundsky/el-plus-dialog-service'
-declare module 'vuex-map-fields'
-declare module 'vue-smooth-dnd'
+// 新模块声明
+declare module 'vue-draggable-plus'
+declare module 'mitt'
+declare module 'localforage'
 
-// declare module 'vuex' {
-//   export * from 'vuex/types/index.d.ts'
-//   export * from 'vuex/types/helpers.d.ts'
-//   export * from 'vuex/types/logger.d.ts'
-//   export * from 'vuex/types/vue.d.ts'
-// }
+// 第三方库类型声明（如需要）
+declare module 'nprogress'

@@ -1,265 +1,223 @@
 <!--
  * tab栏
 -->
-<script lang="tsx">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
-import { mapFields } from 'vuex-map-fields'
-
-import { Container, Draggable } from 'vue-smooth-dnd'
+<script lang="tsx" setup>
+import { ref, computed, watch, nextTick } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { useMenuViewsStore } from '@/stores/menuViews'
+import { VueDraggable } from 'vue-draggable-plus'
 import ScrollPane from './ScrollPane.vue'
 import applyDrag from '@/utils/applyDrag'
 
-import { MenuView } from '~/types/interfaces'
+import type { MenuView } from '~/types/interfaces'
 
 import sortBy from 'lodash/sortBy'
 import bus from '@/bus'
+import { useContextMenu } from '@/components/ContextMenu'
 
-const MenuViewsModule = namespace('menuViews')
-const AppModule = namespace('app')
+const contextMenu = useContextMenu()
 
-@Component({
-  name: 'MenuViews',
-  components: {
-    ScrollPane,
-    Container,
-    Draggable,
-  },
-  computed: {
-    ...mapFields('menuViews', ['views']),
-  },
+const appStore = useAppStore()
+const menuViewsStore = useMenuViewsStore()
+
+const isAsideMenu = computed(() => appStore.isAsideMenu)
+const menuViews = computed(() => menuViewsStore.views)
+const activeId = computed(() => menuViewsStore.activeId)
+
+const FIXED_DRAG = computed(
+  () => bus.config.FIXED_DRAG || [bus.config.HOME_PAGE],
+)
+
+const viewTabsWidth = ref(700)
+const hoverIndex = ref(-1)
+const removeOnDropOut = ref(false)
+const animaDuration = ref(250)
+const moveInArea = ref(false)
+
+const scrollPaneRef = ref<any>(null)
+const containerRef = ref<any>(null)
+const tagRefs = ref<any[]>([])
+
+let contentArea: HTMLElement | null = null
+let mainCont: HTMLElement | null = null
+let moveView: MenuView | null = null
+
+// 监听 activeId 变化
+watch(activeId, async (id) => {
+  const targetMenu = menuViews.value.find((menu) => menu.id === id)
+  if (targetMenu && scrollPaneRef.value) {
+    scrollPaneRef.value.moveToTarget(targetMenu.text, tagRefs.value)
+  }
 })
-export default class MenuViews extends Vue {
-  @AppModule.State('isAsideMenu')
-  public isAsideMenu!: boolean
 
-  @AppModule.Action('setMenuTabTouch')
-  public setMenuTabTouch!: (val: boolean) => void
+// 监听 menuViews 变化
+watch(
+  menuViews,
+  () => {
+    calcTabsWidth()
+  },
+  { deep: true },
+)
 
-  @AppModule.Action('setMenuTabMoveInArea')
-  public setMenuTabMoveInArea!: (val: boolean) => void
+// 监听 isAsideMenu 变化
+watch(isAsideMenu, () => {
+  calcTabsWidth()
+})
 
-  @MenuViewsModule.State('views')
-  public menuViews!: MenuView[]
+const calcTabsWidth = async () => {
+  await nextTick()
+  if (!tagRefs.value || tagRefs.value.length === 0) return
 
-  @MenuViewsModule.State('activeId')
-  public activeId!: MenuView['id']
-
-  @MenuViewsModule.Action('activeView')
-  public activeView!: (view: MenuView) => void
-
-  @MenuViewsModule.Action('closeView')
-  public closeView!: (view: MenuView) => void
-
-  @MenuViewsModule.Action('setViews')
-  public setViews!: (views: MenuView[]) => void
-
-  public views!: MenuView[]
-  public viewTabsWidth: number = 700
-  public hoverIndex: number = -1
-  public removeOnDropOut: boolean = false
-
-  private contentArea: any
-  private mainCont: any
-  private moveView: any
-  private animaDuration: number = 250
-  private moveInArea: boolean = false
-  public FIXED_DRAG = bus.config.FIXED_DRAG || []
-
-  @Watch('activeId')
-  async handleActiveId(id: MenuView['id']) {
-    const { scrollPane } = this.$refs
-    const targetMenu = this.menuViews.find((menu) => menu.id === id)
-    targetMenu && (scrollPane as any).moveToTarget(targetMenu.text)
-  }
-
-  @Watch('menuViews')
-  handleMenuViews() {
-    this.calcTabsWidth()
-  }
-
-  @Watch('isAsideMenu')
-  handleAsideMenu() {
-    this.calcTabsWidth()
-  }
-
-  async calcTabsWidth() {
-    await this.$nextTick()
-    const { container, tag } = this.$refs
-    if (!tag) return
-    // @ts-ignore
-    const $dragMenu = tag.map((item) => {
-      return item.$el
-    })
-
-    let result = 0
-    for (const el of $dragMenu) {
-      result += el.getBoundingClientRect().width
+  let result = 0
+  for (const el of tagRefs.value) {
+    if (el && el.$el) {
+      result += el.$el.getBoundingClientRect().width
     }
-    this.viewTabsWidth = Math.ceil(result)
   }
+  viewTabsWidth.value = Math.ceil(result)
+}
 
-  onDrop(dropResult: any) {
-    const targetId = this.views[dropResult.addedIndex].id
-    if (this.FIXED_DRAG.includes(targetId)) return
-    this.views = applyDrag(this.views, dropResult)
-  }
+const onDrop = (dropResult: any) => {
+  const targetId = menuViewsStore.views[dropResult.addedIndex]?.id
+  if (FIXED_DRAG.value.includes(targetId)) return
 
-  onDropStart(dragResult: any) {
-    this.animaDuration = 250
-    this.setMenuTabTouch(true)
-    this.$nextTick(() => {
-      const ghostDom = document.getElementsByClassName('smooth-dnd-ghost')[0]
-      if (!ghostDom) return
+  const newViews = applyDrag([...menuViewsStore.views], dropResult)
+  menuViewsStore.views = newViews
+}
 
-      this.contentArea = document.getElementsByClassName(
-        'flex-main__content'
-      )[0]
-      this.mainCont = document.getElementsByClassName('main-content')[0]
-      if (!this.contentArea) return
-      this.moveView = dragResult.payload
-      document.addEventListener('mouseup', this.onMouseUp)
-      document.addEventListener('mousemove', this.onMouseMove)
-    })
-  }
+const onDragStart = (dragResult: any) => {
+  animaDuration.value = 250
+  appStore.setMenuTabTouch(true)
 
-  async onMouseUp() {
-    // @ts-ignore
-    if (this.contentArea.contains(window.event.srcElement)) {
-      // @ts-ignore
-      document.getElementsByClassName('smooth-dnd-ghost')[0].style.display =
-        'none'
-      this.removeOnDropOut = true
-      this.closeView(this.moveView)
+  nextTick(() => {
+    const ghostDom = document.querySelector('.smooth-dnd-ghost') as HTMLElement
+    if (!ghostDom) return
+
+    contentArea = document.querySelector('.flex-main__content')
+    mainCont = document.querySelector('.main-content')
+    if (!contentArea) return
+
+    moveView = dragResult.payload
+    document.addEventListener('mouseup', onMouseUp)
+    document.addEventListener('mousemove', onMouseMove)
+  })
+}
+
+const onMouseUp = () => {
+  const srcElement = (window.event as MouseEvent)?.srcElement as HTMLElement
+  if (contentArea && srcElement && contentArea.contains(srcElement)) {
+    const ghostDom = document.querySelector('.smooth-dnd-ghost') as HTMLElement
+    if (ghostDom) {
+      ghostDom.style.display = 'none'
     }
-
-    this.setMenuTabTouch(false)
-    this.setMenuTabMoveInArea(false)
-    this.moveInArea = false
-    document.removeEventListener('mouseup', this.onMouseUp)
-    document.removeEventListener('mousemove', this.onMouseMove)
-    this.removeOnDropOut = false
-  }
-
-  onMouseMove() {
-    // @ts-ignore
-    if (this.contentArea.contains(window.event.srcElement)) {
-      if (this.mainCont.classList.contains('move-in-area')) return
-      this.animaDuration = 0
-      this.moveInArea = true
-      this.setMenuTabMoveInArea(true)
-    } else {
-      if (!this.mainCont.classList.contains('move-in-area')) return
-      this.animaDuration = 250
-      this.moveInArea = false
-      this.setMenuTabMoveInArea(false)
+    removeOnDropOut.value = true
+    if (moveView) {
+      menuViewsStore.closeView(moveView)
     }
   }
 
-  getChildPayload(index: number) {
-    return this.menuViews[index]
-  }
+  appStore.setMenuTabTouch(false)
+  appStore.setMenuTabMoveInArea(false)
+  moveInArea.value = false
+  document.removeEventListener('mouseup', onMouseUp)
+  document.removeEventListener('mousemove', onMouseMove)
+  removeOnDropOut.value = false
+}
 
-  getGhostParent() {
-    return document.body
-  }
-
-  // -> \components\ContextMenu\index.ts
-  onContextmenu(event: Event, view: MenuView, index: number) {
-    event.preventDefault()
-
-    let newView = { ...view }
-
-    if (
-      !bus.setContextMenu['menuViewBar'] ||
-      typeof bus.setContextMenu['menuViewBar'] !== 'function'
-    )
-      return
-
-    const definedBtn = bus.setContextMenu['menuViewBar']
-
-    this.hoverIndex = index
-    this.$contextmenu({
-      event,
-      definedBtn: definedBtn(view),
-      view: newView,
-      afterDestory: () => {
-        this.hoverIndex = -1
-      },
-    })
-  }
-
-  render() {
-    // 对menuViews做一次排序，目的是筛出固定不动的页签，将他们排到最前面
-    let sortMenuViews = sortBy(this.menuViews, [
-      (view) => {
-        return !this.FIXED_DRAG.includes(view.id)
-      },
-    ])
-
-    return (
-      // @ts-ignore
-      <ScrollPane ref="scrollPane" class="view-tabs-scroll">
-        <Container
-          ref="container"
-          orientation="horizontal"
-          class="view-tabs-wrap"
-          style={{ width: `${this.viewTabsWidth}px` }}
-          on-drop={this.onDrop}
-          on-drag-start={this.onDropStart}
-          non-drag-area-selector=".no-draggable"
-          get-child-payload={this.getChildPayload}
-          remove-on-drop-out={this.removeOnDropOut}
-          get-ghost-parent={this.getGhostParent}
-          animation-duration={this.animaDuration}
-        >
-          {sortMenuViews.map((view, index) => (
-            <Draggable
-              ref="tag"
-              class={{
-                'view-tab-wrap': true,
-                'no-draggable': this.FIXED_DRAG.includes(view.id),
-                'in-area': this.moveInArea,
-              }}
-              refInFor={true}
-              title={view.text}
-            >
-              <div
-                refInFor={true}
-                key={view.id}
-                class={{
-                  'view-tab': true,
-                  'view-tab--horizon': !this.isAsideMenu,
-                  'view-tab--active': view.id === this.activeId,
-                  'view-tab--hover':
-                    this.hoverIndex === index && view.id !== this.activeId,
-                }}
-                on-click={() => this.activeView(view)}
-                on-contextmenu={(e: Event) =>
-                  this.onContextmenu(e, view, index)
-                }
-              >
-                <span class="view-tab__text" domPropsInnerHTML={view.text} />
-                {view.closable && (
-                  <span
-                    class="view-tab__close"
-                    on-click={(e: Event) => {
-                      e.stopPropagation()
-                      this.closeView(view)
-                    }}
-                  >
-                    <i class="el-icon-close" />
-                  </span>
-                )}
-              </div>
-            </Draggable>
-          ))}
-        </Container>
-      </ScrollPane>
-    )
+const onMouseMove = () => {
+  const srcElement = (window.event as MouseEvent)?.srcElement as HTMLElement
+  if (contentArea && srcElement && contentArea.contains(srcElement)) {
+    if (mainCont?.classList.contains('move-in-area')) return
+    animaDuration.value = 0
+    moveInArea.value = true
+    appStore.setMenuTabMoveInArea(true)
+  } else {
+    if (mainCont && !mainCont.classList.contains('move-in-area')) return
+    animaDuration.value = 250
+    moveInArea.value = false
+    appStore.setMenuTabMoveInArea(false)
   }
 }
+
+const onContextmenu = (event: MouseEvent, view: MenuView, index: number) => {
+  event.preventDefault()
+
+  if (
+    !bus.setContextMenu['menuViewBar'] ||
+    typeof bus.setContextMenu['menuViewBar'] !== 'function'
+  )
+    return
+
+  const definedBtn = bus.setContextMenu['menuViewBar']
+
+  hoverIndex.value = index
+  contextMenu.show({
+    event,
+    view,
+    definedBtn: definedBtn(view),
+    afterDestory: () => {
+      hoverIndex.value = -1
+    },
+  })
+}
+
+// 对 menuViews 做排序
+const sortMenuViews = computed(() => {
+  return sortBy(menuViews.value, [
+    (view) => {
+      return !FIXED_DRAG.value.includes(view.id)
+    },
+  ])
+})
 </script>
+
+<template>
+  <ScrollPane ref="scrollPaneRef" class="view-tabs-scroll">
+    <VueDraggable
+      ref="containerRef"
+      v-model="sortMenuViews"
+      :animation="animaDuration"
+      class="view-tabs-wrap"
+      :style="{ width: `${viewTabsWidth}px` }"
+      @start="onDragStart"
+      @end="onDrop"
+    >
+      <template #item="{ element: view, index }">
+        <div
+          :ref="(el: any) => (tagRefs[index] = el)"
+          :class="{
+            'view-tab-wrap': true,
+            'no-draggable': FIXED_DRAG.includes(view.id),
+            'in-area': moveInArea,
+          }"
+          :title="view.text"
+        >
+          <div
+            :key="view.id"
+            :class="{
+              'view-tab': true,
+              'view-tab--horizon': !isAsideMenu,
+              'view-tab--active': view.id === activeId,
+              'view-tab--hover': hoverIndex === index && view.id !== activeId,
+            }"
+            @click="menuViewsStore.activeView(view)"
+            @contextmenu="(e: MouseEvent) => onContextmenu(e, view, index)"
+          >
+            <span class="view-tab__text" v-html="view.text" />
+            <span
+              v-if="view.closable"
+              class="view-tab__close"
+              @click.stop="menuViewsStore.closeView(view)"
+            >
+              <el-icon><Close /></el-icon>
+            </span>
+          </div>
+        </div>
+      </template>
+    </VueDraggable>
+  </ScrollPane>
+</template>
+
 <style lang="less" scoped>
 .smooth-dnd-ghost .view-tab {
   box-shadow: 0 0 10px 0 #d1d1d1;
@@ -268,11 +226,6 @@ export default class MenuViews extends Vue {
   &::after {
     display: none;
   }
-}
-
-.smooth-dnd-container {
-  display: inline-block;
-  min-width: 300px;
 }
 
 .view-tabs-scroll {
@@ -289,7 +242,8 @@ export default class MenuViews extends Vue {
   background-color: #fff;
   user-select: none;
   font-size: 14px;
-  /deep/&-wrap {
+
+  &-wrap {
     display: inline-block !important;
   }
 
@@ -302,7 +256,6 @@ export default class MenuViews extends Vue {
     display: block;
     width: 1px;
     height: 12px;
-    content: '';
     background-color: #ddd;
     transform: translateY(-50%);
   }
@@ -319,7 +272,9 @@ export default class MenuViews extends Vue {
     background-color: rgb(0, 112, 178);
     background-color: var(--theme-color);
     z-index: 2;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
 
     &::after {
       display: none;
@@ -338,7 +293,6 @@ export default class MenuViews extends Vue {
   }
 
   &-wrap {
-    // transition-duration: 0ms !important;
     &.in-area {
       transition-duration: 0ms !important;
     }

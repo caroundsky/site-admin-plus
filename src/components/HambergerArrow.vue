@@ -1,7 +1,7 @@
-<template functional>
+<template>
   <div
-    :class="['hamburger', 'hamburger--arrow-r', { 'is-active': !!props.arrow }]"
-    v-on="listeners"
+    :class="['hamburger', 'hamburger--arrow-r', { 'is-active': !!arrow }]"
+    @click="$emit('click')"
   >
     <div class="hamburger-box">
       <div class="hamburger-inner"></div>
@@ -9,8 +9,18 @@
   </div>
 </template>
 
-<script>
-export default {}
+<script setup lang="ts">
+interface Props {
+  arrow?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  arrow: false,
+})
+
+defineEmits<{
+  click: []
+}>()
 </script>
 
 <style lang="less">

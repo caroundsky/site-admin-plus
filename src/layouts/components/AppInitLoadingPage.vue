@@ -2,9 +2,6 @@
   <div>AppInitLoadingPage</div>
 </template>
 
-<script>
-import { Vue, Component } from 'vue-property-decorator'
-
-@Component
-export default class AppInitLoadingPage extends Vue {}
+<script setup lang="ts">
+// 简单的加载页面组件
 </script>

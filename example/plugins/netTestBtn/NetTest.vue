@@ -1,33 +1,27 @@
-<script lang="tsx">
-import Vue from 'vue'
+<script setup lang="tsx">
+import { useMenuViewsStore } from '@/stores/menuViews'
 import MonitorIcon from './svg-icons/monitor.svg'
 
-export default Vue.extend({
-  name: 'NetTestBtn',
+const menuViewsStore = useMenuViewsStore()
 
-  methods: {
-    addView(menuView: any) {
-      this.$store.dispatch('menuViews/addView', menuView)
-    },
-  },
-
-  render() {
-    return (
-      <div
-        class="app-act__link"
-        title="网络连接测试"
-        on-click={() => {
-          this.addView({
-            id: 'NET-TEST',
-            text: '网络连接测试',
-            href: 'https://juejin.im/',
-          })
-        }}
-        style="text-align: center"
-      >
-        <MonitorIcon style="height: 40px" />
-      </div>
-    )
-  },
-})
+const addView = (menuView: any) => {
+  menuViewsStore.addView(menuView)
+}
 </script>
+
+<template>
+  <div
+    class="app-act__link"
+    title="网络连接测试"
+    @click="
+      addView({
+        id: 'NET-TEST',
+        text: '网络连接测试',
+        href: 'https://juejin.im/',
+      })
+    "
+    style="text-align: center"
+  >
+    <MonitorIcon style="height: 40px" />
+  </div>
+</template>

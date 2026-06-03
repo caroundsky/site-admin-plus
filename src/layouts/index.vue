@@ -43,43 +43,27 @@
   </FlexContainer>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Provide } from 'vue-property-decorator'
-import { namespace } from 'vuex-class'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAppStore } from '@/stores/app'
 import AsideNavMenu from '@/layouts/components/AsideNavMenu.vue'
 import HorizonNavMenu from '@/layouts/components/HorizonNavMenu.vue'
 import MenuViewBar from '@/layouts/components/MenuViewBar/index.vue'
 import MainContent from '@/layouts/components/MainContent.vue'
 
-const AppModule = namespace('app')
+const appStore = useAppStore()
 
-@Component({
-  name: 'MainContainer',
-  components: {
-    AsideNavMenu,
-    HorizonNavMenu,
-    MenuViewBar,
-    MainContent,
-  },
-})
-export default class MainContainer extends Vue {
-  @AppModule.State('isAsideMenu')
-  public isAsideMenu!: boolean
+const isAsideMenu = computed(() => appStore.isAsideMenu)
+const isAsideMenuOpen = computed(() => appStore.isAsideMenuOpen)
+const isMenuMaskOpen = computed(() => appStore.isMenuMaskOpen)
 
-  @AppModule.State('isAsideMenuOpen')
-  public isAsideMenuOpen!: boolean
-
-  @AppModule.State('isMenuMaskOpen')
-  public isMenuMaskOpen!: boolean
-
-  get theme() {
-    try {
-      return this.$store.state.themes.currentTheme || 'default'
-    } catch (error) {
-      return 'default'
-    }
+const theme = computed(() => {
+  try {
+    return appStore.currentTheme || 'default'
+  } catch {
+    return 'default'
   }
-}
+})
 </script>
 
 <style lang="less">
@@ -87,20 +71,9 @@ export default class MainContainer extends Vue {
   height: 100%;
   width: 100%;
   background-color: #fff;
-  // & > .flex-main {
-  //   position: absolute;
-  //   top: 0;
-  //   right: 0;
-  //   width: calc(100% - @aside-menu-width);
-  //   height: 100%;
-  // }
 }
 
 .site-container__aside {
-  // position: absolute;
-  // top: 0;
-  // left: 0;
-  // transform: translateZ(0);
   width: @aside-menu-width;
   transition: width ease 0.4s;
 }
