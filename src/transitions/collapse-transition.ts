@@ -2,7 +2,7 @@
  * 折叠过渡动画组件
  * Vue 3 版本
  */
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, Transition } from 'vue'
 
 export default defineComponent({
   name: 'BgCollapseTransition',
@@ -48,16 +48,14 @@ export default defineComponent({
       },
     }
 
-    return () => {
-      const children = slots.default?.()
-      return h(
-        'transition',
+    return () =>
+      h(
+        Transition,
         {
           name: 'bg-collapse',
           ...onData,
         },
-        children,
+        { default: slots.default },
       )
-    }
   },
 })

@@ -170,9 +170,12 @@ const closeMenu = (index: string) => {
 const openMenu = (index: string, indexPath: string[]) => {
   if (openedMenus.value.indexOf(index) !== -1) return
   if (props.uniqueOpened) {
-    openedMenus.value = openedMenus.value.filter((item) => {
-      return indexPath.indexOf(item) !== -1
-    })
+    // 从后往前 splice，保持数组引用不变，避免 rootMenu.value.openedMenus 与 openedMenus.value 脱钩
+    for (let i = openedMenus.value.length - 1; i >= 0; i--) {
+      if (indexPath.indexOf(openedMenus.value[i]) === -1) {
+        openedMenus.value.splice(i, 1)
+      }
+    }
   }
   openedMenus.value.push(index)
 }

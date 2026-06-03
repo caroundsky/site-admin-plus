@@ -40,7 +40,7 @@ const isFlatMenu = computed(() => {
 
 const index = computed(() => props.menuData.id)
 
-// 监听 openedMenus 变化
+// 监听 openedMenus 变化（deep:true 感知数组内 push/splice 的变化）
 watch(
   () => rootMenu?.value?.openedMenus,
   (val: string[]) => {
@@ -48,6 +48,7 @@ watch(
       opened.value = val.indexOf(index.value) > -1
     }
   },
+  { deep: true },
 )
 
 // 监听 asideMenuOpen 变化
