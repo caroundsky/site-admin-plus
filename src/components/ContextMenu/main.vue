@@ -15,7 +15,12 @@
         :key="index"
         @click="itemClick(item)"
       >
-        <i :class="item.icon || null" />
+        <template v-if="item.icon">
+          <el-icon v-if="typeof item.icon !== 'string'">
+            <component :is="item.icon" />
+          </el-icon>
+          <i v-else :class="item.icon" />
+        </template>
         <span>{{ item.label }}</span>
       </li>
     </div>
@@ -174,8 +179,8 @@ onUnmounted(() => {
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: center top;
 }
-.bgcb__dropdown-trans-enter,
-.bgcb__dropdown-trans-leave-active {
+.bgcb__dropdown-trans-enter-from,
+.bgcb__dropdown-trans-leave-to {
   opacity: 0;
   transform: scaleY(0);
 }
@@ -189,8 +194,8 @@ onUnmounted(() => {
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: center bottom;
 }
-.bgcb__dropdown-trans-bottom-enter,
-.bgcb__dropdown-trans-bottom-leave-active {
+.bgcb__dropdown-trans-bottom-enter-from,
+.bgcb__dropdown-trans-bottom-leave-to {
   opacity: 0;
   transform: scaleY(0);
 }

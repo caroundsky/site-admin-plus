@@ -3,6 +3,7 @@
  * Vue 3 版本
  */
 import { createApp, h, Transition, defineComponent, ref, type App } from 'vue'
+import { ElIcon } from 'element-plus'
 
 import { getOffset, queryDom, getOffsetWithDom } from '@/utils/tools'
 
@@ -107,10 +108,16 @@ const ContextMenuComponent = defineComponent({
                           },
                           [
                             item.icon
-                              ? h('i', {
-                                  class: item.icon,
-                                  style: { width: '13px' },
-                                })
+                              ? typeof item.icon === 'string'
+                                ? h('i', {
+                                    class: item.icon,
+                                    style: { width: '13px' },
+                                  })
+                                : h(
+                                    ElIcon,
+                                    { style: { width: '13px' } },
+                                    { default: () => h(item.icon) },
+                                  )
                               : null,
                             h('span', item.label),
                           ],

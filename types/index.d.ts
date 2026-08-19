@@ -21,7 +21,10 @@ export interface PluginHasStore extends PluginBase {
   storeModule: any // Pinia store definition
 }
 
-export type Plugin = PluginBase | PluginHasStore | ((ctx: PluginCtx) => Plugin | void)
+export type Plugin =
+  | PluginBase
+  | PluginHasStore
+  | ((ctx: PluginCtx) => Plugin | void)
 
 export type PluginFunction = (ctx: PluginCtx) => Plugin | void
 

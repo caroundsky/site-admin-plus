@@ -298,10 +298,6 @@
         box-sizing: border-box;
         justify-content: space-between;
 
-        .el-icon-arrow-right {
-          margin-left: 2px;
-        }
-
         &-current {
           background-color: rgb(245, 247, 250);
           color: rgb(0, 138, 219);
@@ -412,7 +408,7 @@
     transition: transform 0.4s ease, opacity 0.3s;
   }
 
-  &-enter,
+  &-enter-from,
   &-leave-to {
     transform: translateX(10px);
     opacity: 0;
@@ -432,7 +428,7 @@
     transition: transform 0.3s ease, opacity 0.2s;
   }
 
-  &-enter,
+  &-enter-from,
   &-leave-to {
     transform: translateY(10px);
     opacity: 0;
@@ -448,7 +444,7 @@
     transition: opacity 0.2s;
   }
 
-  &-enter,
+  &-enter-from,
   &-leave-to {
     opacity: 0;
   }

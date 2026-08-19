@@ -1,3 +1,5 @@
+import type { Component } from 'vue'
+
 export interface SimpleMap<T> {
   [k: string]: T
 }
@@ -72,6 +74,7 @@ export interface Theme {
 
 export interface ContextButton {
   label: string
-  icon?: string
+  /** 图标：iconfont 类名（如 'icbg-menu'）或 Element Plus 图标组件 */
+  icon?: string | Component
   onClick: () => void
 }

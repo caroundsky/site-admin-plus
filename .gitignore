@@ -2,6 +2,7 @@
 node_modules
 /dist
 /lib
+/site-admin-plus-old
 
 # local env files
 .env.local

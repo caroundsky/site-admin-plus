@@ -65,7 +65,9 @@ const changeTheme = (theme: Theme) => {
   }
 
   .cur-theme {
-    box-shadow: 0 0 0 2px #fff, 0 0 0 7px #3f6ad8;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 7px #3f6ad8;
   }
 }
 </style>

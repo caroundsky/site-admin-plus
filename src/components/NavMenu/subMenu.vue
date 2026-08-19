@@ -25,8 +25,6 @@ const rootMenu = inject<any>('rootMenu')
 
 const opened = ref(false)
 const showPop = ref(false)
-const horizonScroll = ref(0)
-const horizonPopWidth = ref(0)
 const inlineTitle = ref<any>(null)
 const popTitle = ref<any>(null)
 
@@ -75,6 +73,14 @@ const subMenuEnter = (e: Event) => {
   e.stopPropagation()
   showPop.value = true
 }
+
+// 横版菜单 popover 的宽度（固定列宽）与最大高度（超出滚动）
+const horizonPopWidth = computed(() => {
+  return rootMenu?.value?.popoverColumnMaxWidth || 240
+})
+const horizonPopMaxH = computed(() => {
+  return rootMenu?.value?.horizonPopMaxH || undefined
+})
 </script>
 
 <template>
@@ -125,7 +131,7 @@ const subMenuEnter = (e: Event) => {
         <el-scrollbar
           v-if="showPop"
           class="scroller"
-          :style="{ height: `${horizonScroll}px` }"
+          :max-height="horizonPopMaxH"
         >
           <div
             class="nav-menu__submenu--pop__container nav-menu__submenu--pop__horizon"

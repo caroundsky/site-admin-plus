@@ -28,7 +28,8 @@
           :class="{ 'has-checked': navMenuMode[menu.id] }"
           @click="menuClick(menu.id)"
         >
-          <i :class="menu.icon || 'fa fa-file-text-o'" />
+          <el-icon v-if="!menu.icon"><Document /></el-icon>
+          <i v-else :class="menu.icon" />
           <span>{{ menu.text }}</span>
         </li>
       </ul>
@@ -38,7 +39,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { Close } from '@element-plus/icons-vue'
+import { Close, Document } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import type { NavMenuItem } from '~/types/interfaces'

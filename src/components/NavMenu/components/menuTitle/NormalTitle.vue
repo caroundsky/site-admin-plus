@@ -1,4 +1,26 @@
+<template>
+  <div
+    :class="[
+      'bg-submenu__title',
+      { 'set-dot': ifReplace },
+      { 'is-new': menu.isNew },
+    ]"
+    :title="asideMenuOpen ? menu.text : ''"
+  >
+    <el-icon v-if="!menu.icon" class="bg-submenu__title-icon">
+      <Document />
+    </el-icon>
+    <i v-else :class="['bg-submenu__title-icon', menu.icon]" />
+    <span class="bg-submenu__title-txt" v-html="replaceHtml" />
+    <el-icon v-if="hasChildren" class="bg-submenu__title-arrow">
+      <ArrowDown />
+    </el-icon>
+  </div>
+</template>
+
 <script lang="tsx" setup>
+import { ArrowDown, Document } from '@element-plus/icons-vue'
+
 import type { NavMenuItem } from '~/types/interfaces'
 
 interface Props {
@@ -16,18 +38,3 @@ withDefaults(defineProps<Props>(), {
   hasChildren: false,
 })
 </script>
-
-<template>
-  <div
-    :class="[
-      'bg-submenu__title',
-      { 'set-dot': ifReplace },
-      { 'is-new': menu.isNew },
-    ]"
-    :title="asideMenuOpen ? menu.text : ''"
-  >
-    <i :class="['bg-submenu__title-icon', menu.icon || 'fa fa-file-text-o']" />
-    <span class="bg-submenu__title-txt" v-html="replaceHtml" />
-    <i v-if="hasChildren" class="bg-submenu__title-arrow el-icon-arrow-down" />
-  </div>
-</template>

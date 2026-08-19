@@ -2,6 +2,13 @@
  * 右键按钮事件统一处理
  */
 import { ElMessage } from 'element-plus'
+import {
+  RefreshRight,
+  Close,
+  CopyDocument,
+  Star,
+  Check,
+} from '@element-plus/icons-vue'
 import type { MenuView, ContextButton, SimpleMap } from '~/types/interfaces'
 import { useMenuViewsStore } from '@/stores/menuViews'
 import { useFavMenuStore } from '../favMenuBar/storeModule'
@@ -11,7 +18,7 @@ import bus from '@/bus'
 const AllButtonsMap: SimpleMap<ContextButton> = {
   refresh: {
     label: '刷新',
-    icon: 'el-icon-refresh-right',
+    icon: RefreshRight,
     onClick: (view: MenuView) => {
       const menuViewsStore = useMenuViewsStore()
       menuViewsStore.setRefreshId(view.id)
@@ -19,7 +26,7 @@ const AllButtonsMap: SimpleMap<ContextButton> = {
   },
   close: {
     label: '关闭',
-    icon: 'el-icon-close',
+    icon: Close,
     onClick: (view: MenuView) => {
       const menuViewsStore = useMenuViewsStore()
       menuViewsStore.closeView(view)
@@ -41,7 +48,7 @@ const AllButtonsMap: SimpleMap<ContextButton> = {
   },
   windowOpen: {
     label: '新窗口打开',
-    icon: 'fa fa-clone',
+    icon: CopyDocument,
     onClick: (view: MenuView) => {
       const menuViewsStore = useMenuViewsStore()
       menuViewsStore.windowOpen(view.href)
@@ -49,7 +56,7 @@ const AllButtonsMap: SimpleMap<ContextButton> = {
   },
   collect: {
     label: '设为常用',
-    icon: 'fa fa-heart',
+    icon: Star,
     onClick: (view: MenuView) => {
       const favMenuStore = useFavMenuStore()
       favMenuStore.addFav(view)
@@ -141,14 +148,14 @@ const getButtons = (view: MenuView, filterKey?: Array<string>) => {
 
       // 默认打开
       if (defaultOpenMap.includes(key)) {
-        btn['defaultOpen'].icon = 'el-icon-check'
+        btn['defaultOpen'].icon = Check
       } else {
         delete btn['defaultOpen'].icon
       }
 
       // 默认首页
       if (key === defaultHome) {
-        btn['defaultHome'].icon = 'el-icon-check'
+        btn['defaultHome'].icon = Check
       } else {
         delete btn['defaultHome'].icon
       }

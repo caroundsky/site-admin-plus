@@ -119,7 +119,12 @@ const onContextmenu = (event: MouseEvent, view: MenuView, index: number) => {
 
   hoverIndex.value = index
   // TODO: contextmenu
-  console.log('contextmenu', event, view, buttons(view, ['windowOpen', 'collect']))
+  console.log(
+    'contextmenu',
+    event,
+    view,
+    buttons(view, ['windowOpen', 'collect']),
+  )
   hoverIndex.value = -1
 }
 </script>

@@ -1,4 +1,20 @@
+<template>
+  <span :class="['bg-submenu__title-txt', { 'is-new': menu.isNew }]">
+    <span v-html="replaceHtml" />
+    <el-icon
+      v-if="menu.help && menu.helpUrl"
+      class="help-icon"
+      title="帮助"
+      @click="(e: Event) => helpDocument(e, menu.helpUrl)"
+    >
+      <QuestionFilled />
+    </el-icon>
+  </span>
+</template>
+
 <script lang="tsx" setup>
+import { QuestionFilled } from '@element-plus/icons-vue'
+
 import type { NavMenuItem } from '~/types/interfaces'
 
 interface Props {
@@ -19,15 +35,3 @@ const helpDocument = (e: Event, url: string) => {
   window.open(url)
 }
 </script>
-
-<template>
-  <span :class="['bg-submenu__title-txt', { 'is-new': menu.isNew }]">
-    <span v-html="replaceHtml" />
-    <i
-      v-if="menu.help && menu.helpUrl"
-      class="help-icon fa fa-question-circle-o"
-      title="帮助"
-      @click="(e: Event) => helpDocument(e, menu.helpUrl)"
-    />
-  </span>
-</template>

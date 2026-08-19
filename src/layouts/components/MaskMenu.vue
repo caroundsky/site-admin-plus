@@ -6,7 +6,9 @@
     :class="{ 'bgcb-menu-mask': true, 'bgcb-menu-mask__open': isMenuMaskOpen }"
   >
     <div class="bgcb-menu-mask-warpper" v-clickoutside:menu__logo="close">
-      <i class="bgcb-menu-mask-close el-icon-close" @click="toggleMaskMenu" />
+      <el-icon class="bgcb-menu-mask-close" @click="toggleMaskMenu">
+        <Close />
+      </el-icon>
 
       <div class="bgcb-flex-between" style="margin-bottom: 10px">
         <h3>请根据您的需要进行选择，所选的系统同时显示在左侧主菜单中！</h3>
@@ -26,7 +28,8 @@
           :class="{ 'has-checked': navMenuMode[menu.id] }"
           @click="menuClick(menu.id)"
         >
-          <i :class="menu.icon || 'fa fa-file-text-o'" />
+          <el-icon v-if="!menu.icon"><Document /></el-icon>
+          <i v-else :class="menu.icon" />
           <span>{{ menu.text }}</span>
         </li>
       </ul>
@@ -36,6 +39,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { Close, Document } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import type { NavMenuItem } from '~/types/interfaces'
@@ -212,16 +216,16 @@ watch(
       transition: opacity 0.2s;
     }
     &:before {
-      content: '\e6da';
+      content: '';
       position: absolute;
       z-index: 1;
-      right: 1px;
-      top: 1px;
-      color: #fff;
-      font-size: 12px;
-      font-weight: bolder;
-      font-family: 'element-icons';
-      transform: scale(0);
+      right: 2px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(45deg) scale(0);
       transition: transform ease 0.2s;
     }
 
@@ -230,7 +234,7 @@ watch(
         opacity: 1;
       }
       &:before {
-        transform: none;
+        transform: rotate(45deg) scale(1);
       }
     }
 

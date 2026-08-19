@@ -18,7 +18,7 @@ const mockData: MockData = {
       text: '菜单一',
       href: '',
       help: true,
-      icon: 'fa fa-envelope-o',
+      icon: 'icbg-message',
       show: true,
       isNew: false,
       children: [

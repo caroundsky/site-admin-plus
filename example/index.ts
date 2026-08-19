@@ -75,7 +75,11 @@ library.bus.on('appCreateStart', () => {
   })
 
   const menus = MenuData.data
-  console.log('[example/index.ts] emitting setMenus with', menus.length, 'items')
+  console.log(
+    '[example/index.ts] emitting setMenus with',
+    menus.length,
+    'items',
+  )
   library.bus.emit('setMenus', menus)
 
   // 延迟关闭消息，确保菜单设置完成

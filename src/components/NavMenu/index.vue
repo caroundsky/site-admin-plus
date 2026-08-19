@@ -76,6 +76,8 @@ rootMenu.value = {
   horizon: isHorizon.value,
   menuSearchPY: menuSearchPY.value,
   openedMenus: openedMenus.value,
+  horizonPopMaxH: horizonPopMaxH.value,
+  popoverColumnMaxWidth: navMenuConfig.value.popoverColumnMaxWidth || 240,
 }
 
 // 监听 appInited 变化
@@ -86,15 +88,20 @@ watch(appInited, (val) => {
 })
 
 // 监听自身变化更新 rootMenu
-watch([asideMenuOpen, () => props.popoverLevel, menuSearchPY], () => {
-  rootMenu.value = {
-    popoverLevel: props.popoverLevel,
-    asideMenuOpen: asideMenuOpen.value,
-    horizon: isHorizon.value,
-    menuSearchPY: menuSearchPY.value,
-    openedMenus: openedMenus.value,
-  }
-})
+watch(
+  [asideMenuOpen, () => props.popoverLevel, menuSearchPY, horizonPopMaxH],
+  () => {
+    rootMenu.value = {
+      popoverLevel: props.popoverLevel,
+      asideMenuOpen: asideMenuOpen.value,
+      horizon: isHorizon.value,
+      menuSearchPY: menuSearchPY.value,
+      openedMenus: openedMenus.value,
+      horizonPopMaxH: horizonPopMaxH.value,
+      popoverColumnMaxWidth: navMenuConfig.value.popoverColumnMaxWidth || 240,
+    }
+  },
+)
 
 // 渲染菜单项
 const renderMenuItem = (menu: NavMenuItem, level: number = 1) => {
