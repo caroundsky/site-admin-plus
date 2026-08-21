@@ -33,7 +33,7 @@ const mockData: MockData = {
             {
               id: '1a5409a96b7f6493bcf3g1',
               text: '子菜单 - 1',
-              href: 'http://www.baidu.com/',
+              href: 'https://caroundsky.github.io/el-dialog-service/',
               help: true,
               show: true,
               isNew: false,

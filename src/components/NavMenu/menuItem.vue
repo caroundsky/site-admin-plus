@@ -17,6 +17,7 @@
         trigger="hover"
         transition="bg-pop"
         popper-class="nav-menu__submenu--pop nav-menu__submenu--close"
+        width="auto"
         :hide-after="0"
       >
         <template #reference>

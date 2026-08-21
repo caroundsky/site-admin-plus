@@ -10,7 +10,7 @@ import MenuData from './mock/menu'
 
 import { createLibrary } from '~/src/main'
 // import { createLibrary } from '~/lib'
-import '../lib/index.css'
+// import '../lib/index.css'
 
 import userDropdownMenuPlugin from './plugins/userDropdownMenu'
 import netTestBtnPlugin from './plugins/netTestBtn'
@@ -52,7 +52,7 @@ const library = createLibrary({
       // 设置 popover 最大高度与屏幕的占比
       // popoverHeightRatio: 0.8,
       // 设置 popover 列最大宽度
-      popoverColumnMaxWidth: 220,
+      popoverColumnMaxWidth: 230,
       // 设置最大列数
       maxDepartNum: 3,
       popoverTrigger: 'click',

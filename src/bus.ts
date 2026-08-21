@@ -1,4 +1,4 @@
-import { reactive, readonly } from 'vue'
+import { reactive } from 'vue'
 import mitt from 'mitt'
 import type { Store } from 'pinia'
 import get from 'lodash/get'
@@ -88,7 +88,6 @@ const setConfig = (config: Partial<BusConfig>) => {
 
 const bus = {
   ...emitter,
-  ...readonly(busState),
   addSlot,
   getSlots,
   setStore,
@@ -108,6 +107,12 @@ const bus = {
   },
   set store(val: Store<any> | null) {
     busState.store = val
+  },
+  get state() {
+    return busState.state
+  },
+  get setContextMenu() {
+    return busState.setContextMenu
   },
 }
 

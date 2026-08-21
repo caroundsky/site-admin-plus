@@ -56,10 +56,11 @@ const moveToTarget = async (currentTag: string, tagList: any[]) => {
 
     const prevTag = tagList[currentIndex - 1]
     const nextTag = tagList[currentIndex + 1]
+    const nextEl = nextTag?.$el || nextTag
+    const prevEl = prevTag?.$el || prevTag
 
-    if (nextTag?.$el) {
-      const afterNextTagOffsetLeft =
-        nextTag.$el.offsetLeft + nextTag.$el.offsetWidth
+    if (nextEl) {
+      const afterNextTagOffsetLeft = nextEl.offsetLeft + nextEl.offsetWidth
       if (
         afterNextTagOffsetLeft >
         $scrollWrapper.scrollLeft + $containerWidth
@@ -68,8 +69,8 @@ const moveToTarget = async (currentTag: string, tagList: any[]) => {
       }
     }
 
-    if (prevTag?.$el) {
-      const beforePrevTagOffsetLeft = prevTag.$el.offsetLeft
+    if (prevEl) {
+      const beforePrevTagOffsetLeft = prevEl.offsetLeft
       if (beforePrevTagOffsetLeft < $scrollWrapper.scrollLeft) {
         $scrollWrapper.scrollLeft = beforePrevTagOffsetLeft
       }

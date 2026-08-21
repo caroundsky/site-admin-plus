@@ -119,10 +119,6 @@ export const useMenuViewsStore = defineStore('menuViews', {
       }
     },
 
-    activeView(view: MenuView) {
-      this.activeViewById(view.id)
-    },
-
     activeViewById(activeId: string): MenuView | null {
       const activeView = this.viewsMap[activeId] || null
       if (activeView) {
