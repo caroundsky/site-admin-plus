@@ -30,18 +30,18 @@
               class="view-tabs-wrap"
               :animation="150"
             >
-              <template #item="{ element: item, index }">
-                <span
-                  :class="[
-                    'fav-menu__item',
-                    { 'fav-menu__item--hover': hoverIndex === index },
-                  ]"
-                  @click="() => handleFavClick(item.id)"
-                  @contextmenu.prevent="(e) => onContextmenu(e, item, index)"
-                >
-                  {{ item.text }}
-                </span>
-              </template>
+              <span
+                v-for="(item, index) in favMenu"
+                :key="item.id"
+                :class="[
+                  'fav-menu__item',
+                  { 'fav-menu__item--hover': hoverIndex === index },
+                ]"
+                @click="() => handleFavClick(item.id)"
+                @contextmenu.prevent="(e) => onContextmenu(e, item, index)"
+              >
+                {{ item.text }}
+              </span>
             </VueDraggable>
           </ScrollPane>
         </FlexMain>
@@ -99,10 +99,12 @@ const favMenuMap = computed(() => favMenuStore.favMenuMap)
 
 const handleAddFav = () => {
   if (!activeMenuId.value || activeMenuId.value === HOME_PAGE) return
+  if (!activeView.value) return
   favMenuStore.addFav(activeView.value)
 }
 
 const handleDelFav = () => {
+  if (!activeView.value) return
   favMenuStore.delFav(activeView.value)
 }
 

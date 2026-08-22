@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { toRaw } from 'vue'
 import keyBy from 'lodash/keyBy'
 import intersectionBy from 'lodash/intersectionBy'
 import localforage from 'localforage'
@@ -76,7 +77,8 @@ export const useMenuStore = defineStore('menu', {
         }
       }
 
-      localforage.setItem('SiteContainer/navMenuMode', this.navMenuMode)
+      // Pinia state 是响应式 Proxy，IndexedDB 无法克隆，需先转为原始对象
+      localforage.setItem('SiteContainer/navMenuMode', toRaw(this.navMenuMode))
     },
 
     setSearchKeyword(payload: string) {
@@ -110,7 +112,7 @@ export const useMenuStore = defineStore('menu', {
       this.menuSearchHistory.unshift(payload)
       localforage.setItem(
         'SiteContainer/SearchLocalCache',
-        this.menuSearchHistory,
+        toRaw(this.menuSearchHistory),
       )
     },
   },

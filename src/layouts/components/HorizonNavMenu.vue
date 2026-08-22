@@ -42,6 +42,7 @@ const navMenuConfig = computed(() => {
 <style lang="less">
 .nav-menu--horizon {
   position: relative;
+  display: flex;
   .nav-menu-search {
     position: initial;
     &__icon {

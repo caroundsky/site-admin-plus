@@ -1,3 +1,21 @@
+<template>
+  <NormalTitle
+    v-if="level <= popoverLevel"
+    :menu="menu"
+    :replace-html="replaceHtml"
+    :if-replace="ifReplace"
+    :aside-menu-open="asideMenuOpen"
+    :has-children="hasChildren"
+  />
+  <PopoverTitle
+    v-else
+    :menu="menu"
+    :replace-html="replaceHtml"
+    :if-replace="ifReplace"
+    :has-children="hasChildren"
+  />
+</template>
+
 <script lang="tsx" setup>
 import { computed, inject } from 'vue'
 import type { NavMenuItem } from '~/types/interfaces'
@@ -24,21 +42,3 @@ const rootMenu = inject<any>('rootMenu')
 const asideMenuOpen = computed(() => rootMenu?.value?.asideMenuOpen ?? true)
 const popoverLevel = computed(() => rootMenu?.value?.popoverLevel ?? 1)
 </script>
-
-<template>
-  <NormalTitle
-    v-if="level <= popoverLevel"
-    :menu="menu"
-    :replace-html="replaceHtml"
-    :if-replace="ifReplace"
-    :aside-menu-open="asideMenuOpen"
-    :has-children="hasChildren"
-  />
-  <PopoverTitle
-    v-else
-    :menu="menu"
-    :replace-html="replaceHtml"
-    :if-replace="ifReplace"
-    :has-children="hasChildren"
-  />
-</template>

@@ -43,7 +43,7 @@ const AllButtonsMap: SimpleMap<ContextButton> = {
     label: '关闭所有',
     onClick: (view: MenuView) => {
       const menuViewsStore = useMenuViewsStore()
-      menuViewsStore.closeAllViews(view.id)
+      menuViewsStore.closeAllViews()
     },
   },
   windowOpen: {

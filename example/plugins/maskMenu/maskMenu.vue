@@ -222,16 +222,16 @@ onMounted(() => {
       transition: opacity 0.2s;
     }
     &:before {
-      content: '\e6da';
+      content: '';
       position: absolute;
       z-index: 1;
-      right: 1px;
-      top: 1px;
-      color: #fff;
-      font-size: 12px;
-      font-weight: bolder;
-      font-family: 'element-icons';
-      transform: scale(0);
+      right: 2px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(45deg) scale(0);
       transition: transform ease 0.2s;
     }
 
@@ -240,7 +240,7 @@ onMounted(() => {
         opacity: 1;
       }
       &:before {
-        transform: none;
+        transform: rotate(45deg) scale(1);
       }
     }
 

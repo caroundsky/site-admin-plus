@@ -1,3 +1,11 @@
+<template>
+  <MainContainer v-if="isReady" />
+  <div v-else class="loading-container">
+    <div class="loading-spinner"></div>
+    <span>加载中...</span>
+  </div>
+</template>
+
 <script setup lang="tsx">
 import { provide, onMounted, ref, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
@@ -48,14 +56,6 @@ onMounted(() => {
   bus.emit('appMounted')
 })
 </script>
-
-<template>
-  <MainContainer v-if="isReady" />
-  <div v-else class="loading-container">
-    <div class="loading-spinner"></div>
-    <span>加载中...</span>
-  </div>
-</template>
 
 <style scoped>
 .loading-container {

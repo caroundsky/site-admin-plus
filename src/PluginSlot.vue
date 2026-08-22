@@ -1,3 +1,7 @@
+<template>
+  <component :is="renderComponents" />
+</template>
+
 <script setup lang="tsx">
 import { computed, h, Fragment, useAttrs } from 'vue'
 import bus from '@/bus'
@@ -28,7 +32,3 @@ const renderComponents = computed(() => {
   return renderPluginSlot(pluginSlots.value)
 })
 </script>
-
-<template>
-  <component :is="renderComponents" />
-</template>

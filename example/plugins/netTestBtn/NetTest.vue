@@ -1,14 +1,3 @@
-<script setup lang="tsx">
-import { useMenuViewsStore } from '@/stores/menuViews'
-import MonitorIcon from './svg-icons/monitor.svg'
-
-const menuViewsStore = useMenuViewsStore()
-
-const addView = (menuView: any) => {
-  menuViewsStore.addView(menuView)
-}
-</script>
-
 <template>
   <div
     class="app-act__link"
@@ -25,3 +14,14 @@ const addView = (menuView: any) => {
     <MonitorIcon style="height: 40px" />
   </div>
 </template>
+
+<script setup lang="tsx">
+import { useMenuViewsStore } from '@/stores/menuViews'
+import MonitorIcon from './svg-icons/monitor.svg'
+
+const menuViewsStore = useMenuViewsStore()
+
+const addView = (menuView: any) => {
+  menuViewsStore.addView(menuView)
+}
+</script>

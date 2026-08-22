@@ -1,6 +1,54 @@
-<!--
- * tab栏
--->
+<template>
+  <ScrollPane ref="scrollPaneRef" class="view-tabs-scroll">
+    <VueDraggable
+      ref="containerRef"
+      v-model="sortMenuViews"
+      :animation="animaDuration"
+      class="view-tabs-wrap"
+      draggable=".view-tab-wrap"
+      filter=".no-draggable"
+      :prevent-on-filter="false"
+      :force-fallback="true"
+      fallback-class="smooth-dnd-ghost"
+      @start="onDragStart"
+      @end="onDrop"
+      @choose="onChoose"
+    >
+      <div
+        v-for="(view, index) in sortMenuViews"
+        :key="view.id"
+        :ref="(el: any) => (tagRefs[index] = el)"
+        :class="{
+          'view-tab-wrap': true,
+          'no-draggable': FIXED_DRAG.includes(view.id),
+          'in-area': moveInArea,
+        }"
+        :title="view.text"
+      >
+        <div
+          :class="{
+            'view-tab': true,
+            'view-tab--horizon': !isAsideMenu,
+            'view-tab--active': view.id === activeId,
+            'view-tab--hover': hoverIndex === index && view.id !== activeId,
+          }"
+          @click="menuViewsStore.activeViewById(view.id)"
+          @contextmenu="(e: MouseEvent) => onContextmenu(e, view, index)"
+        >
+          <span class="view-tab__text" v-html="view.text" />
+          <span
+            v-if="view.closable"
+            class="view-tab__close"
+            @click.stop="menuViewsStore.closeView(view)"
+          >
+            <el-icon><Close /></el-icon>
+          </span>
+        </div>
+      </div>
+    </VueDraggable>
+  </ScrollPane>
+</template>
+
 <script lang="tsx" setup>
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
@@ -188,57 +236,6 @@ const sortMenuViews = computed<MenuView[]>({
 })
 </script>
 
-<template>
-  <ScrollPane ref="scrollPaneRef" class="view-tabs-scroll">
-    <VueDraggable
-      ref="containerRef"
-      v-model="sortMenuViews"
-      :animation="animaDuration"
-      class="view-tabs-wrap"
-      draggable=".view-tab-wrap"
-      filter=".no-draggable"
-      :prevent-on-filter="false"
-      :force-fallback="true"
-      fallback-class="smooth-dnd-ghost"
-      @start="onDragStart"
-      @end="onDrop"
-      @choose="onChoose"
-    >
-      <div
-        v-for="(view, index) in sortMenuViews"
-        :key="view.id"
-        :ref="(el: any) => (tagRefs[index] = el)"
-        :class="{
-          'view-tab-wrap': true,
-          'no-draggable': FIXED_DRAG.includes(view.id),
-          'in-area': moveInArea,
-        }"
-        :title="view.text"
-      >
-        <div
-          :class="{
-            'view-tab': true,
-            'view-tab--horizon': !isAsideMenu,
-            'view-tab--active': view.id === activeId,
-            'view-tab--hover': hoverIndex === index && view.id !== activeId,
-          }"
-          @click="menuViewsStore.activeViewById(view.id)"
-          @contextmenu="(e: MouseEvent) => onContextmenu(e, view, index)"
-        >
-          <span class="view-tab__text" v-html="view.text" />
-          <span
-            v-if="view.closable"
-            class="view-tab__close"
-            @click.stop="menuViewsStore.closeView(view)"
-          >
-            <el-icon><Close /></el-icon>
-          </span>
-        </div>
-      </div>
-    </VueDraggable>
-  </ScrollPane>
-</template>
-
 <style lang="less" scoped>
 .smooth-dnd-ghost {
   // 拖拽中的悬浮克隆体不拦截鼠标事件，保证 elementFromPoint 能穿透检测下方区域
@@ -377,3 +374,6 @@ const sortMenuViews = computed<MenuView[]>({
   transform: none !important;
 }
 </style>
+<!--
+ * tab栏
+-->

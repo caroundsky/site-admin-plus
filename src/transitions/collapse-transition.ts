@@ -9,42 +9,48 @@ export default defineComponent({
 
   setup(_, { slots }) {
     const onData = {
-      onBeforeEnter(el: HTMLElement) {
-        el.classList.add('bg-menu--collapse')
-        el.style.height = '0'
+      onBeforeEnter(el: Element) {
+        const htmlEl = el as HTMLElement
+        htmlEl.classList.add('bg-menu--collapse')
+        htmlEl.style.height = '0'
       },
 
-      onEnter(el: HTMLElement) {
-        if (el.scrollHeight !== 0) {
-          el.style.height = el.scrollHeight + 'px'
+      onEnter(el: Element) {
+        const htmlEl = el as HTMLElement
+        if (htmlEl.scrollHeight !== 0) {
+          htmlEl.style.height = htmlEl.scrollHeight + 'px'
         } else {
-          el.style.height = ''
+          htmlEl.style.height = ''
         }
-        el.style.overflow = 'hidden'
+        htmlEl.style.overflow = 'hidden'
       },
 
-      onAfterEnter(el: HTMLElement) {
-        el.classList.remove('bg-menu--collapse')
-        el.style.height = ''
-        el.style.overflow = ''
+      onAfterEnter(el: Element) {
+        const htmlEl = el as HTMLElement
+        htmlEl.classList.remove('bg-menu--collapse')
+        htmlEl.style.height = ''
+        htmlEl.style.overflow = ''
       },
 
-      onBeforeLeave(el: HTMLElement) {
-        el.style.height = el.scrollHeight + 'px'
-        el.style.overflow = 'hidden'
+      onBeforeLeave(el: Element) {
+        const htmlEl = el as HTMLElement
+        htmlEl.style.height = htmlEl.scrollHeight + 'px'
+        htmlEl.style.overflow = 'hidden'
       },
 
-      onLeave(el: HTMLElement) {
-        if (el.scrollHeight !== 0) {
-          el.classList.add('bg-menu--collapse')
-          el.style.height = '0'
+      onLeave(el: Element) {
+        const htmlEl = el as HTMLElement
+        if (htmlEl.scrollHeight !== 0) {
+          htmlEl.classList.add('bg-menu--collapse')
+          htmlEl.style.height = '0'
         }
       },
 
-      onAfterLeave(el: HTMLElement) {
-        el.classList.remove('bg-menu--collapse')
-        el.style.height = ''
-        el.style.overflow = ''
+      onAfterLeave(el: Element) {
+        const htmlEl = el as HTMLElement
+        htmlEl.classList.remove('bg-menu--collapse')
+        htmlEl.style.height = ''
+        htmlEl.style.overflow = ''
       },
     }
 

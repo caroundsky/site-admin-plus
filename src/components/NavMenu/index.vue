@@ -1,6 +1,37 @@
-<!--
- * menu
--->
+<template>
+  <div
+    :key="menuKey"
+    :class="[
+      'bg-nav-menu',
+      {
+        'bg-nav-menu--horizon': isHorizon,
+        'bg-nav-menu--close': !asideMenuOpen,
+        'bg-nav-menu--nosearch': !navMenuConfig.search,
+      },
+    ]"
+    :style="
+      isHorizon && horizonNavMaxW > 0
+        ? { maxWidth: `${horizonNavMaxW}px` }
+        : undefined
+    "
+  >
+    <HorizonSwiper v-if="isHorizon" class="bg-menu nav-menu__menu">
+      <component
+        v-for="menu in menuData"
+        :is="renderMenuItem(menu)"
+        :key="menu.id"
+      />
+    </HorizonSwiper>
+    <ul v-else class="bg-menu nav-menu__menu">
+      <component
+        v-for="menu in menuData"
+        :is="renderMenuItem(menu)"
+        :key="menu.id"
+      />
+    </ul>
+  </div>
+</template>
+
 <script lang="tsx" setup>
 import {
   ref,
@@ -57,9 +88,20 @@ const isHorizon = computed(() => attrs.horizon !== undefined)
 
 const openedMenus = ref<string[]>([])
 const horizonPopMaxH = ref(0)
-const horizonNavMaxW = ref(324)
+const horizonNavMaxW = ref(0)
 
 const DEFAULT_POPOVER_HEIGHT_RATIO = 0.8
+
+// 横版菜单可用宽度 = 视窗宽度 - logo 宽度 - 右侧操作区宽度（动态测量，随窗口/布局变化重算）
+const calcHorizonNavMaxW = () => {
+  if (!isHorizon.value) return
+  const logoW =
+    document.getElementById('menu__logo')?.getBoundingClientRect().width || 0
+  const operatW =
+    document.getElementById('horizon-operat')?.getBoundingClientRect().width ||
+    0
+  horizonNavMaxW.value = window.innerWidth - logoW - operatW
+}
 
 const navMenuConfig = computed(() => {
   return bus.config.navMenu || {}
@@ -83,7 +125,7 @@ rootMenu.value = {
 // 监听 appInited 变化
 watch(appInited, (val) => {
   if (val && isHorizon.value) {
-    horizonNavMaxW.value = 324
+    calcHorizonNavMaxW()
   }
 })
 
@@ -200,6 +242,7 @@ bus.on('subMenu-click', handleSubmenuClick)
 bus.on('item-click', handleItemClick)
 
 let listenerResize: any
+let horizonSizeObserver: ResizeObserver | null = null
 
 onMounted(async () => {
   await nextTick()
@@ -208,10 +251,23 @@ onMounted(async () => {
     window.innerHeight *
     (navMenuConfig.value.popoverHeightRatio || DEFAULT_POPOVER_HEIGHT_RATIO)
 
+  calcHorizonNavMaxW()
+
+  // 操作区插件异步渲染完成后宽度会变，用 ResizeObserver 跟踪 logo/操作区宽度变化
+  horizonSizeObserver = new ResizeObserver(
+    debounce(() => calcHorizonNavMaxW(), 100),
+  )
+  const logoEl = document.getElementById('menu__logo')
+  const operatEl = document.getElementById('horizon-operat')
+  if (logoEl) horizonSizeObserver.observe(logoEl)
+  if (operatEl) horizonSizeObserver.observe(operatEl)
+
   listenerResize = debounce(() => {
     horizonPopMaxH.value =
       window.innerHeight *
       (navMenuConfig.value.popoverHeightRatio || DEFAULT_POPOVER_HEIGHT_RATIO)
+
+    calcHorizonNavMaxW()
 
     const WW = window.innerWidth
     if (WW <= TRIGGLE_ASIDE && asideMenuOpen.value) {
@@ -227,45 +283,15 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', listenerResize)
+  horizonSizeObserver?.disconnect()
   bus.off('subMenu-click', handleSubmenuClick)
   bus.off('item-click', handleItemClick)
 })
 </script>
 
-<template>
-  <div
-    :key="menuKey"
-    :class="[
-      'bg-nav-menu',
-      {
-        'bg-nav-menu--horizon': isHorizon,
-        'bg-nav-menu--close': !asideMenuOpen,
-        'bg-nav-menu--nosearch': !navMenuConfig.search,
-      },
-    ]"
-    :style="
-      isHorizon
-        ? { maxWidth: `calc(100% - 50px - ${horizonNavMaxW}px)` }
-        : undefined
-    "
-  >
-    <HorizonSwiper v-if="isHorizon" class="bg-menu nav-menu__menu">
-      <component
-        v-for="menu in menuData"
-        :is="renderMenuItem(menu)"
-        :key="menu.id"
-      />
-    </HorizonSwiper>
-    <ul v-else class="bg-menu nav-menu__menu">
-      <component
-        v-for="menu in menuData"
-        :is="renderMenuItem(menu)"
-        :key="menu.id"
-      />
-    </ul>
-  </div>
-</template>
-
 <style lang="less">
 @import './navMenu.less';
 </style>
+<!--
+ * menu
+-->

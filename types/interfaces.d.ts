@@ -76,5 +76,5 @@ export interface ContextButton {
   label: string
   /** 图标：iconfont 类名（如 'icbg-menu'）或 Element Plus 图标组件 */
   icon?: string | Component
-  onClick: () => void
+  onClick: (this: ContextButton, view: MenuView) => void
 }

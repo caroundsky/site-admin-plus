@@ -1,6 +1,88 @@
 <!--
  * 菜单列（含下级）
 -->
+<template>
+  <li
+    :class="[
+      'bg-submenu nav-menu__item',
+      `nav-menu__item-lv${level}`,
+      {
+        'is-opened': !isMenuPopup && opened,
+        'nav-menu__item--has-child': hasChildren,
+        'is-pop': isMenuPopup,
+      },
+    ]"
+    @click="subMenuClick"
+    @mouseenter="subMenuEnter"
+  >
+    <template v-if="isMenuPopup">
+      <el-popover
+        v-if="!rootMenu?.horizon"
+        placement="right-start"
+        trigger="hover"
+        transition="bg-pop"
+        popper-class="nav-menu__submenu--pop"
+        width="auto"
+        :hide-after="100"
+        :disabled="!hasChildren"
+      >
+        <template #reference>
+          <slot name="title" />
+        </template>
+        <div v-if="showPop" class="nav-menu__submenu--pop__container">
+          <slot />
+        </div>
+      </el-popover>
+      <el-popover
+        v-else
+        placement="bottom-start"
+        trigger="hover"
+        transition="bg-pop-horizon"
+        popper-class="nav-menu__submenu--pop nav-menu__submenu--pop-horizon"
+        :width="horizonPopWidth"
+        :show-after="0"
+        :hide-after="100"
+        :disabled="!hasChildren"
+      >
+        <template #reference>
+          <slot name="title" />
+        </template>
+        <el-scrollbar
+          v-if="showPop"
+          class="scroller"
+          :max-height="horizonPopMaxH"
+        >
+          <div
+            class="nav-menu__submenu--pop__container nav-menu__submenu--pop__horizon"
+          >
+            <template v-if="overPopHeight">
+              <div
+                v-for="(column, i) in departColumns"
+                :key="i"
+                class="nav-menu__submenu--pop__depart"
+              >
+                <VnodeColumn :nodes="column" />
+              </div>
+            </template>
+            <slot v-else />
+          </div>
+        </el-scrollbar>
+      </el-popover>
+    </template>
+    <template v-else>
+      <slot name="title" />
+      <BgCollapseTransition v-if="!isFlatMenu">
+        <ul v-if="opened" class="bg-menu">
+          <slot />
+        </ul>
+      </BgCollapseTransition>
+      <ul v-else class="bg-menu">
+        <slot />
+      </ul>
+    </template>
+  </li>
+</template>
+
 <script lang="tsx" setup>
 import { ref, computed, watch, inject, useSlots } from 'vue'
 import type { NavMenuItem } from '~/types/interfaces'
@@ -176,85 +258,3 @@ const departColumns = computed(() => {
 const VnodeColumn = (props: { nodes: any[] }) => props.nodes
 VnodeColumn.props = { nodes: { type: Array, required: true } }
 </script>
-
-<template>
-  <li
-    :class="[
-      'bg-submenu nav-menu__item',
-      `nav-menu__item-lv${level}`,
-      {
-        'is-opened': !isMenuPopup && opened,
-        'nav-menu__item--has-child': hasChildren,
-        'is-pop': isMenuPopup,
-      },
-    ]"
-    @click="subMenuClick"
-    @mouseenter="subMenuEnter"
-  >
-    <template v-if="isMenuPopup">
-      <el-popover
-        v-if="!rootMenu?.horizon"
-        placement="right-start"
-        trigger="hover"
-        transition="bg-pop"
-        popper-class="nav-menu__submenu--pop"
-        width="auto"
-        :hide-after="100"
-        :disabled="!hasChildren"
-      >
-        <template #reference>
-          <slot name="title" />
-        </template>
-        <div v-if="showPop" class="nav-menu__submenu--pop__container">
-          <slot />
-        </div>
-      </el-popover>
-      <el-popover
-        v-else
-        placement="bottom-start"
-        trigger="hover"
-        transition="bg-pop-horizon"
-        popper-class="nav-menu__submenu--pop nav-menu__submenu--pop-horizon"
-        :width="horizonPopWidth"
-        :show-after="0"
-        :hide-after="100"
-        :disabled="!hasChildren"
-      >
-        <template #reference>
-          <slot name="title" />
-        </template>
-        <el-scrollbar
-          v-if="showPop"
-          class="scroller"
-          :max-height="horizonPopMaxH"
-        >
-          <div
-            class="nav-menu__submenu--pop__container nav-menu__submenu--pop__horizon"
-          >
-            <template v-if="overPopHeight">
-              <div
-                v-for="(column, i) in departColumns"
-                :key="i"
-                class="nav-menu__submenu--pop__depart"
-              >
-                <VnodeColumn :nodes="column" />
-              </div>
-            </template>
-            <slot v-else />
-          </div>
-        </el-scrollbar>
-      </el-popover>
-    </template>
-    <template v-else>
-      <slot name="title" />
-      <BgCollapseTransition v-if="!isFlatMenu">
-        <ul v-if="opened" class="bg-menu">
-          <slot />
-        </ul>
-      </BgCollapseTransition>
-      <ul v-else class="bg-menu">
-        <slot />
-      </ul>
-    </template>
-  </li>
-</template>
