@@ -89,10 +89,22 @@ const onContextmenu = (event: Event) => {
 
   const definedBtn = bus.setContextMenu['menuItem']
 
+  // 传参与旧版一致：
+  // - isFlatMenu（pop 内的平铺项）挂到 pop 容器内（appendToBody: false），
+  //   鼠标移入右键菜单不至于触发 pop 的 mouseleave 导致 pop 消失
+  // - queryClass / setOffset / reference 控制定位基准与偏移
   contextMenu.show({
     event: event as MouseEvent,
     view,
     definedBtn: definedBtn(view),
+    setOffset: isFlatMenu.value ? { x: 30, y: 30 } : { x: 20, y: 0 },
+    queryClass: isFlatMenu.value
+      ? 'bg-submenu__title-txt'
+      : 'bg-submenu__title',
+    appendToBody: !isFlatMenu.value,
+    reference: rootMenu.value.horizon
+      ? 'el-scrollbar__wrap'
+      : 'nav-menu__submenu--pop__container',
   })
 }
 </script>

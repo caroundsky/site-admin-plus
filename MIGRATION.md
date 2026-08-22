@@ -328,3 +328,114 @@ Vue 2 版 `subMenu.vue` 在横版 popover 显示时，若内容高度超过 `hor
 - Playwright 时序实测：username 到达前 menu/swiper=1361px；username 到达后 operat 189→236px，menu maxWidth 与 swiper 宽度约 0.3s 内同步更新为 1313.83px；
 - 800px 窄视窗：swiper 跟踪到 513.83px，icon-next 出现；滑动到底 icon-prev 出现 / icon-next 隐藏，回退正常（`swiperIndex`/`translateX` 状态逐点核对无误）；恢复宽视窗后两按钮均隐藏。
 - `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 14. ContextMenu 去除 h() 写法 + 新增 appendTo 挂载位置参数（2026-08-22 修复）
+
+### 背景
+
+1. `src/components/ContextMenu/index.ts` 迁移时用 `h()` 内联重写了菜单组件，而同目录已有模板写法的 `main.vue` 被闲置，h() 版本还丢了旧版的「点击外部关闭 / 方向翻转」等行为；
+2. 右键菜单固定挂载到 body：在 pop（popover 弹层）内右键菜单项时，鼠标移入右键菜单会触发 pop 的 mouseleave，导致 pop 消失。
+
+### 修复方式
+
+- `index.ts`：删除内联 `h()` 组件，改为 `createApp(ContextMenuComponent)` 挂载 `main.vue`（SFC 模板），destroy 回调延迟 300ms 卸载以保留 leave 动画；销毁顺序改为先 `unmount` 再移除容器 DOM；
+- 新增 `appendTo?: HTMLElement` 参数，默认 `document.body`；传入自定义容器时菜单位置相对容器计算（`getOffsetWithDom`）。旧参数 `appendToBody`/`reference` 保留兼容并标记 `@deprecated`；
+- `menuItem.vue`：右键事件向上查找 `nav-menu__submenu--pop` 祖先，找到则以 `appendTo` 传入——右键菜单渲染进 pop 内部，鼠标移入不再触发 pop 关闭。
+
+### 验证
+
+- Playwright 实测：tab 栏右键 → 菜单挂在 body、内容正确；收起侧边栏 hover 出 pop 后右键 pop 内子项 → 菜单挂载在 pop 内（`hasCtxMenu: true`），鼠标移入菜单停留 1.2s pop 保持 `display: block`；
+- `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 15. ContextMenu 修正：el-icon 解析、底部边界翻转（2026-08-22 修复）
+
+### 根因
+
+1. `main.vue` 模板用了 `<el-icon>`，但右键菜单是独立 `createApp` 挂载的实例，没有注册 ElementPlus，`el-icon` 无法解析；
+2. 旧版有「底部空间不足时向上翻转」的逻辑（contrast 方向），迁移时丢失。
+
+> 注：曾尝试改为「在鼠标位置打开」，因边界情况多（翻转基准、容器内相对坐标等），已撤回，保持按目标元素定位。
+
+### 修复方式
+
+- `main.vue`：本地 `import { ElIcon } from 'element-plus'`（独立 app 不依赖全局注册）；`view` prop 类型放宽为 `MenuView | MenuView[]`（调用方传的是单对象，修复类型告警）；
+- `main.vue` 新增 `onAdjust` 回调 prop：渲染前以「占位但不可见」（`display: block; visibility: hidden`）的方式测出菜单实际高度，把 `{ height, flip }` 交给外部；`flip(top)` 设置 `contrast`（箭头朝下）并修正 top，全部在 `visible = true` 之前同步完成——enter 动画开始时不带任何 class/位置变更（实测：enter 进行中改 `:class` 会擦掉 transition 类导致动画卡在 scaleY(0)；transition name 也固定不再切换，翻转时的 transform-origin 用更高优先级的 `.contrast` 类覆盖）；
+- `index.ts`：`onAdjust` 中实现翻转——**是否翻转只看菜单与视窗底部的距离，与挂载位置无关**（`height > innerHeight - 菜单文档top` 即翻转）；flip 的 top 按当前坐标系换算：body 挂载用文档坐标（`元素top - 菜单高`），容器挂载用相对坐标（`_top - 菜单高`）。
+
+### 验证
+
+- Playwright 实测（500px 矮视窗）：
+  - tab 栏右键 → 菜单出现在 tab 下方（top=38 ≈ tab 底边 40-2），`el-icon` 正常渲染出 svg；
+  - 侧边菜单 top=442 处右键（菜单高 60）→ 上翻到 `top=382`（元素上方），带 `contrast` 类，完整可见；
+  - pop 内右键（视窗空间充足）→ 菜单挂进 pop、不翻转；按元素位置打开。
+- `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 16. 再次右键时新菜单被误关闭（2026-08-22 修复）
+
+### 根因（`src/components/ContextMenu/index.ts`）
+
+旧菜单销毁时延迟 300ms 调全局的 `ContextmenuProxy.destroy()`（为保留 leave 动画）。再次右键时序：mousedown → 旧菜单 destroy（300ms 定时器排队）→ contextmenu → 新菜单创建并赋值给 `lastApp` → 300ms 后定时器触发，把**新实例**卸载了。
+
+### 修复方式
+
+`onDestroy` 的延迟销毁改为只处理闭包内捕获的自身 `app`/`container`，卸载后仅当 `lastApp === app` 时才清空全局引用，不再误杀新实例。
+
+### 验证
+
+- Playwright 实测：右键菜单项 A → 菜单出现；再右键菜单项 B → 旧菜单关闭、新菜单保持在 B 的位置（1s 后仍可见）；左键点击非 iframe 区域 → 菜单正常关闭。
+- 备注：点击 iframe 区域无法关闭菜单是固有行为（事件不冒泡到父页面 document），与旧版一致。
+- `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 17. ContextMenu 废弃自造方案，整体对齐旧版（2026-08-22 调整）
+
+### 背景
+
+前几轮（第 14~16 条）重写 ContextMenu 时自造了编排方式（`appendTo` 参数、`onAdjust` 回调 prop、预测量翻转等），与旧版差异越来越大。本次**废弃自造方案**，完整参照旧版（`site-admin-plus-old/src/components/ContextMenu`）转为 Vue 3 写法。
+
+### 旧版 → Vue3 的对应关系
+
+| 旧版（Vue2） | 新版（Vue3） |
+| --- | --- |
+| `Vue.extend(main.vue)` + `new Constructor()` | `createApp(main.vue, props)` |
+| 实例属性读写（`instance.visible/style/contrast = ...`） | `main.vue` 内 `reactive` 的 `state`（同名字段），`defineExpose({ state })` 后由 index.ts 读写 |
+| `instance.$on('destroy'/'mounted')` | createApp props 的 `onDestroy` / `onMounted` |
+| 组件 `destroy()` 内 `$destroy()` + 移除 DOM | 组件只 `emit('destroy')`，index.ts 回调中 `app.unmount()` + 移除容器（同步，无延迟，天然规避第 16 条的误杀时序） |
+| `Vue.prototype.$contextmenu` | `useContextMenu()` / 默认导出 |
+
+### API（与旧版完全一致）
+
+`event / view / definedBtn / afterDestory / queryClass / setOffset / x / y / appendToBody / reference`。定位、挂载（`appendToBody === false` 时插入 `nav-menu__submenu--pop`，找不到兜底 body）、翻转逻辑（`_reference === 'body'` 按视窗底部距离，否则按参照容器）均照搬旧版公式。`menuItem.vue` 恢复旧版传参（`queryClass`、`setOffset`、`appendToBody: !isFlatMenu`、`reference`）。
+
+### 迁移期的必要保留项
+
+- `main.vue` 本地 `import { ElIcon }`（独立 app 无 ElementPlus 全局注册），图标支持组件形式（旧版仅支持 class 字符串）；
+- 翻转测量放在 `onMounted` 的 `nextTick` 里再套一层 `nextTick`：确保 `visible = true` 的渲染已刷新，否则 `display: none` 下 `clientHeight` 为 0。
+
+### 验证
+
+- `yarn lint`：0 error；`yarn build`：构建通过。
+- （本轮未跑 Playwright；前序轮次已实测覆盖 tab 右键、pop 内右键、二次右键旧关新开、底部翻转等场景，行为路径未变。）
+
+---
+
+## 18. 竖版 pop 内右键菜单全部显示在顶部（2026-08-22 修复）
+
+### 根因（`src/components/ContextMenu/index.ts` 翻转逻辑 else 分支）
+
+旧版公式 `containerDom.clientHeight - getOffset(menuEl).top` 把「参照容器高度」与「菜单的文档坐标 top」两个不同坐标系的值混减：竖版 pop 场景下结果恒为负数 → 永远判定「底部空间不足」→ 永远上翻（`_top - 菜单高 - 20`），菜单全部顶到 pop 顶部。
+
+### 修复方式
+
+改为同一坐标系（视窗坐标）计算容器内剩余空间：`containerDom.getBoundingClientRect().bottom - menuEl.getBoundingClientRect().top`，翻转公式本身不变。
+
+### 验证
+
+- `yarn lint`：0 error；`yarn build`：构建通过。
