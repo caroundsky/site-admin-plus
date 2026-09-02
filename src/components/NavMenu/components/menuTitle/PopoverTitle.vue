@@ -30,8 +30,9 @@ withDefaults(defineProps<Props>(), {
   hasChildren: false,
 })
 
-const helpDocument = (e: Event, url: string) => {
+const helpDocument = (e: Event, url?: string) => {
   e.stopPropagation()
+  if (!url) return
   window.open(url)
 }
 </script>

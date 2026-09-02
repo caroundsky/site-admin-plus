@@ -527,3 +527,61 @@ Vue 2 版 `subMenu.vue` 在横版 popover 显示时，若内容高度超过 `hor
 - `yarn lint`：0 error；`yarn build`：构建通过。
 
 补充：`$t` 的模板类型报错（`Property '$t' does not exist...`）——vue-i18n v9 在 `legacy: false` 下不会自动给组件实例注入 `$t` 类型，已在 `src/shims-tsx.d.ts` 的 `ComponentCustomProperties` 中补充 `$t: import('vue-i18n').ComposerTranslation` 声明，`tsc --noEmit` 通过。
+
+---
+
+## 23. 底层依赖升级：Vite 8 / vue-i18n 11 / Pinia 4（2026-08-22 升级）
+
+### 版本变更
+
+| 依赖 | 旧 | 新 |
+| --- | --- | --- |
+| vite | ^6.0.0 | 8.2.2 |
+| vue-i18n | ^9.14.0 | 11.4.10 |
+| pinia | ^2.2.0 | 4.0.3 |
+| vue | ^3.5.0 | ^3.5.11（pinia 4 要求，实际装 3.5.42） |
+| typescript | ^5.5.0 | ^5.9.2（pinia 4 要求 >=5.6） |
+| @vitejs/plugin-vue | ^5.1.0 | ^6.0.8（支持 vite 8） |
+| @vitejs/plugin-vue-jsx | ^4.0.0 | ^5.1.6（支持 vite 8） |
+| @vue/devtools-api | — | ^8.2.1（新增，pinia 4 的对等依赖） |
+
+### 代码/配置适配
+
+- `vite.config.ts`：`build.rollupOptions` → `build.rolldownOptions`（Vite 8 更名，旧名 deprecated）；
+- `src/bus.ts`：`Store<any>`（pinia）类型改为 `unknown`——pinia 4 的 `Store` 泛型带内部 `_p` 标记，直接引用会出现方差不匹配，bus 只保存不透明引用，`unknown` 即可；
+- vue-i18n 11 的破坏性变更（`tc`/`$tc` 移除、`v-t` 废弃、Legacy API 废弃）本项目均未涉及；`$t` 类型声明（`ComposerTranslation`）在 v11 仍可用。
+
+### 构建变化（Vite 8 = Rolldown + Oxc）
+
+- 构建提速约 35%（1.1s → 0.73s）；CSS 经 Lightning CSS 压缩，产物体积略降；
+- `optimizeDeps.esbuildOptions` / `esbuild` 等旧选项有兼容层（本项目未用）；
+- CJS default import 互操作规则统一（本项目依赖均为 ESM，无影响）。
+
+### 安装备忘
+
+- npmmirror 当时未同步 `@rolldown/binding-*` 平台包，需 `--registry https://registry.npmjs.org` 安装；
+- Windows 下 `yarn add` 报 EPERM 是残留的 vite/esbuild 进程锁定 node_modules，`pkill` 在 Git Bash 杀不掉 Windows 进程树，需用 `taskkill //F //IM esbuild.exe` 或按 PID 清理。
+
+### 验证
+
+- `tsc --noEmit` 通过；`yarn lint` 0 error；`yarn build` 通过；
+- Playwright 冒烟：菜单渲染、打开 tab、拼音搜索（zcd → 23 条）、主题切换、右键菜单、i18n 中英文切换，全部正常，0 console error。
+
+---
+
+## 24. 全量 TS 检查与报错清零（2026-08-22 修复）
+
+### 背景
+
+`tsc --noEmit` 不检查 `.vue` 文件。引入 `vue-tsc@^3.3.11`（新增 devDependency），并新增 `yarn type-check` 脚本。
+
+### 修复的报错
+
+1. `example/plugins/favMenuBar/FavMenuBar.vue`：`favMenuMap[activeMenuId]`——`activeId` 为 `string | null`，computed 兜底 `|| ''`；
+2. `src/components/NavMenu/components/menuTitle/PopoverTitle.vue`：`helpDocument(e, menu.helpUrl)`——`helpUrl` 可选，参数改可选并加空值守卫；
+3. `src/layouts/components/MainContent.vue`：iframe ref 回调参数类型与 `VNodeRef` 不兼容，参数放宽为 `Element | ComponentPublicInstance | null` 后断言；`window.frames[view.id]` 字符串索引隐式 any，断言为 `Record<string, Window>`；
+4. `src/PluginSlot.vue`：JSX 中 `<Fragment>` 类型不兼容——Vue 3 渲染函数直接返回数组即 Fragment，删除显式 `Fragment`。
+
+### 验证
+
+- `vue-tsc --noEmit`：0 error（含全部 .vue）；`yarn lint`：0 error；`yarn build`：通过。

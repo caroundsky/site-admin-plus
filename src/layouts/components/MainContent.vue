@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, type ComponentPublicInstance } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useMenuViewsStore } from '@/stores/menuViews'
 import type { MenuView } from '~/types/interfaces'
@@ -50,11 +50,12 @@ const iframeList = ref<MenuView[]>([])
 const iframeRefs = ref<Record<string, HTMLIFrameElement>>({})
 
 // 设置 iframe ref 的函数
-const setIframeRef = (id: string) => (el: HTMLIFrameElement | null) => {
-  if (el) {
-    iframeRefs.value[id] = el
+const setIframeRef =
+  (id: string) => (el: Element | ComponentPublicInstance | null) => {
+    if (el) {
+      iframeRefs.value[id] = el as HTMLIFrameElement
+    }
   }
-}
 
 /**
  * 生成iframe数据源，不使用tab源，因为tab源排序后会导致数据刷新
@@ -89,7 +90,9 @@ watch(refreshId, (viewId) => {
 
 const iframeLoad = (view: MenuView) => {
   try {
-    const iframeWindow = window.frames[view.id]
+    const iframeWindow = (window.frames as unknown as Record<string, Window>)[
+      view.id
+    ]
     if (!iframeWindow) return
 
     iframeWindow.document.body.addEventListener('click', () => {

@@ -54,7 +54,8 @@ export default defineConfig({
   },
 
   build: {
-    rollupOptions: {
+    // Vite 8：rollupOptions 已更名为 rolldownOptions
+    rolldownOptions: {
       external: ['vue', 'pinia', 'vue-draggable-plus', 'element-plus'],
     },
     sourcemap: true,

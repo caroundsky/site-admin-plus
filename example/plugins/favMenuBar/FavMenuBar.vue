@@ -87,7 +87,7 @@ const collapse = ref(false)
 
 const HOME_PAGE = bus.config.HOME_PAGE
 
-const activeMenuId = computed(() => menuViewsStore.activeId)
+const activeMenuId = computed(() => menuViewsStore.activeId || '')
 const activeView = computed(() => menuViewsStore.activeView)
 const favMenu = computed({
   get: () => favMenuStore.favMenu,
