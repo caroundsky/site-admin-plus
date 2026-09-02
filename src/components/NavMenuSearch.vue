@@ -22,7 +22,6 @@
       :clearable="true"
       class="nav-menu-search__input"
       popper-class="nav-menu-suggestions"
-      size="small"
       placeholder="请输入关键词"
       @select="handleSelect"
       @keydown.esc="handleClose"
@@ -50,23 +49,7 @@ import { useMenuStore } from '@/stores/menu'
 import { useMenuViewsStore } from '@/stores/menuViews'
 import highlight from '@/utils/highlight'
 import type { NavMenuItem } from '~/types/interfaces'
-
-// 拼音转换 - 简化版本，实际项目中需要保留原有的拼音库
-const pinyin = {
-  ConvertPinyin: (options: {
-    chinas: string
-    arr: boolean
-    vals: { str: string }
-  }) => {
-    // 简化实现，实际项目中需要使用原有的拼音转换库
-    const { chinas, vals } = options
-    const str = vals.str.toLowerCase()
-    if (chinas.toLowerCase().includes(str)) {
-      return [str]
-    }
-    return []
-  },
-}
+import { ConvertPinyin } from '@/utils/filterPinyin'
 
 const appStore = useAppStore()
 const menuStore = useMenuStore()
@@ -139,7 +122,7 @@ const querySearch = (
       if (!menu.show || (menu.parents && menu.parents.some((m) => !m.show)))
         return
       let transformPY: string[] = []
-      transformPY = pinyin.ConvertPinyin({
+      transformPY = ConvertPinyin({
         chinas: menu.text,
         arr: true,
         vals: {

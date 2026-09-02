@@ -1,35 +1,29 @@
 <template>
-  <el-dropdown-item @click.native="setLocale('zh-CN')">
-    <ChinaIcon class="icon" />
+  <el-dropdown-item :icon="ChinaIcon" @click="setLocale('zh-CN')">
     简体中文
   </el-dropdown-item>
-  <el-dropdown-item @click.native="setLocale('en-US')">
-    <AmericaIcon class="icon" />
+  <el-dropdown-item :icon="AmericaIcon" @click="setLocale('en-US')">
     English
   </el-dropdown-item>
-  <el-dropdown-item @click.native="updateMenu">
-    <UpdateIcon class="icon" />
+  <el-dropdown-item :icon="UpdateIcon" @click="updateMenu">
     {{ $t('更新菜单') }}
   </el-dropdown-item>
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
 import { ElMessage } from 'element-plus'
 import ChinaIcon from './svg-icons/china.svg'
 import AmericaIcon from './svg-icons/america.svg'
 import UpdateIcon from './svg-icons/update.svg'
 
 import MenuData from '../../mock/menu'
-import { useUserStore } from './storeModule'
+import { useI18nStore } from '../i18n/storeModule'
 import bus from '@/bus'
 
-const userStore = useUserStore()
+const i18nStore = useI18nStore()
 
 const setLocale = (local: string) => {
-  // i18n store 需要单独处理
-  // userStore.setLocale(local)
-  console.log('setLocale', local)
+  i18nStore.setLocale(local)
 }
 
 const updateMenu = async () => {

@@ -25,8 +25,7 @@
             <div>
               <PluginSlot name="user-dropdown" />
             </div>
-            <el-dropdown-item @click="logOut">
-              <LogoutIcon class="icon" />
+            <el-dropdown-item :icon="LogoutIcon" @click="logOut">
               {{ $t('退出登录') }}
             </el-dropdown-item>
           </el-dropdown-menu>

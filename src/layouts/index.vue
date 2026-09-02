@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import bus from '@/bus'
 import AsideNavMenu from '@/layouts/components/AsideNavMenu.vue'
 import HorizonNavMenu from '@/layouts/components/HorizonNavMenu.vue'
 import MenuViewBar from '@/layouts/components/MenuViewBar/index.vue'
@@ -57,13 +58,8 @@ const isAsideMenu = computed(() => appStore.isAsideMenu)
 const isAsideMenuOpen = computed(() => appStore.isAsideMenuOpen)
 const isMenuMaskOpen = computed(() => appStore.isMenuMaskOpen)
 
-const theme = computed(() => {
-  try {
-    return appStore.currentTheme || 'default'
-  } catch {
-    return 'default'
-  }
-})
+// 主题由主题插件通过 bus.setState('theme', ...) 同步
+const theme = computed(() => bus.getState('theme') || 'default')
 </script>
 
 <style lang="less">

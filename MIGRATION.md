@@ -439,3 +439,91 @@ Vue 2 版 `subMenu.vue` 在横版 popover 显示时，若内容高度超过 `hor
 ### 验证
 
 - `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 19. 菜单搜索不支持拼音首字母/全拼检索（2026-08-22 修复）
+
+### 根因（`src/components/NavMenuSearch.vue`）
+
+迁移时用了一个「简化版」拼音桩（只做子串包含匹配），没有接入旧版的拼音转换库。
+
+### 修复方式
+
+- 移除拼音桩，接入仓库已有的旧版拼音库：`import { tranformToPinyin } from '@/utils/filterPinyin/ChineseToPinyin_1_0.cjs'`（内容与旧版 `ChineseToPinyin_1_0.js` 一致），`const pinyin = new tranformToPinyin()`；筛选逻辑本身与旧版一致，无需改动。
+
+### 验证
+
+- Playwright 实测：`js`/`jieshao` → 介绍；`zcd`/`zicaidan` → 子菜单系列（23 条）；汉字 `介绍`/`子菜单` 正常；多音字（单 dan/chan/shan）按候选数组处理正常。
+- `yarn lint`：0 error；`yarn build`：构建通过（拼音字典打包后包体 +80KB 左右，符合预期）。
+
+---
+
+## 20. 拼音库重构为 TS（ChineseToPinyin_1_0.cjs → filterPinyin）（2026-08-22 重构）
+
+### 背景
+
+`src/utils/filterPinyin/ChineseToPinyin_1_0.cjs` 是旧版原型链写法的库（扩展名 .cjs 但内容是 ESM，名实不符），且字典中汉字全是 `\uXXXX` 转义，无法阅读维护；`pinyin.ts`（monoPhone）为无人引用的重复字典。
+
+### 重构内容
+
+- 新增 `src/utils/filterPinyin/dict.ts`：`MATCHING_TABLE`（单音字：读音 → 汉字集）与 `POLYPHONE_TABLE`（多音字：汉字 → 读音数组），`\uXXXX` 全部还原为字面汉字；
+- 新增 `src/utils/filterPinyin/index.ts`：纯模块函数实现，导出 `ConvertPinyin(options)`，无需 `new`；
+- 删除 `ChineseToPinyin_1_0.cjs` 与死代码 `pinyin.ts`；
+- `NavMenuSearch.vue`：`new tranformToPinyin()` 改为直接调用 `ConvertPinyin(...)`。
+
+### 优化点
+
+- 汉字 → 读音反查表模块级惰性构建一次（旧版每个实例构建一次）；
+- 检索逻辑重写为直白实现：全拼按「拼接最优候选 → 子串命中 → 区间映射回汉字」，首字母按「首字母串与汉字一一对应」，替代旧版 `#&&#` 标记 + 多重嵌套闭包；
+- 删除无人使用的 HTML 高亮输出路径（getHtml / className / Division，约 100 行）；
+- 字典未收录的汉字保留原字返回（旧版推入 `false`，后续 substr 会报错）。
+
+### 验证
+
+- 新旧实现对拍（同页面内 import 旧版 js 与新版 ts）：18 个文本 × 22 个检索词（首字母/全拼/混合/多音字）396 组 + 转换模式 76 组，输出全部一致；
+- Playwright UI 实测：`js`/`jieshao`/`zcd`/`zicaidan`/`介绍` 检索结果正确；
+- `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 21. 主题切换后导航菜单背景色不更新（2026-08-22 修复）
+
+### 根因
+
+主题样式 scoped 在 `.site-container--theme-*` 类下。旧版布局从根 store 的 themes 模块读 `currentTheme`；新版 `src/layouts/index.vue` 读的是 `appStore.currentTheme`——该字段不存在（主题插件有自己的 pinia store），computed 永远返回 'default'，`site-container--theme-*` 类从不更新，`aside-nav-menu` / `nav-menu--horizon` 背景色保持默认主题。
+
+### 修复方式
+
+- 主题插件（`example/plugins/themes/storeModule.ts`）`updateBodyThemeName` 中同步 `bus.setState('theme', name)`（init 时也会走到）；
+- `src/layouts/index.vue` 的 `theme` 改为 `bus.getState('theme')`（bus.state 是 reactive，computed 可响应）。
+
+### 验证
+
+- Playwright 实测：竖版切 red → container 类更新为 `site-container--theme-red`，`.aside-nav-menu` 背景 rgb(192,65,95)；横版切 red → `.nav-menu--horizon` 背景由 rgb(0,138,219) 变为 rgb(202,96,121)（lighten 8% 生效）。
+- `yarn lint`：0 error；`yarn build`：构建通过。
+
+---
+
+## 22. i18n 修复：$t 不可用、语言切换不生效（2026-08-22 修复）
+
+### 根因（多层）
+
+1. `example/plugins/i18n/main.ts` 用 `createI18n({ legacy: false })` 但未开 `globalInjection`，模板里的 `$t(...)` 未注入；
+2. locale 文件是 `.json5`（无引号键名），加载靠「正则去注释 + JSON.parse 失败兜底 eval」的脆弱 hack；
+3. `UserDropdownMenu.vue` 的 `setLocale` 是桩（只 console.log，真正的调用被注释），且 `@click.native` 是 Vue 2 写法（Vue 3 已移除 `.native` 修饰符，会编译成 `onClickNative` prop，点击根本不触发）；
+4. i18n 实例初始语言写死 zh-CN，不读 cookie；`setLocale` 也不写 cookie，刷新后丢失。
+
+### 修复方式
+
+- `main.ts`：`globalInjection: true`；locale 文件改为标准 `.json`（键名加引号），用 `import.meta.glob('./locales/*.json', { eager: true })` 直接加载，删除解析 hack；初始语言从 cookie 读取（`getInitLocale`）；
+- `storeModule.ts`：`setLocale` 写 `Culture=lang=xx` cookie 持久化；`validLocale`/`getInitLocale` 移至 main.ts 导出复用；
+- `UserDropdownMenu.vue`：删除 `@click.native` 的 `.native`；`setLocale` 接入 `useI18nStore().setLocale`；
+- `.eslintrc.cjs`：关闭 `vue/no-multiple-template-root`（Vue 2 约束，Vue 3 支持多根节点；extends 仍为 vue2 预设 `plugin:vue/essential`，后续可整体迁移到 `plugin:vue/vue3-essential`）。
+
+### 验证
+
+- Playwright 实测：用户下拉正常渲染「更新菜单 / 退出登录」；点击 English → cookie 写入、文案变「Update menu / Sign out」；预设 cookie 后刷新 → 启动即为英文。
+- `yarn lint`：0 error；`yarn build`：构建通过。
+
+补充：`$t` 的模板类型报错（`Property '$t' does not exist...`）——vue-i18n v9 在 `legacy: false` 下不会自动给组件实例注入 `$t` 类型，已在 `src/shims-tsx.d.ts` 的 `ComponentCustomProperties` 中补充 `$t: import('vue-i18n').ComposerTranslation` 声明，`tsc --noEmit` 通过。

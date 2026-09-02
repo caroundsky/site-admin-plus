@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import keyBy from 'lodash/keyBy'
 import type { Theme } from './types'
+import bus from '@/bus'
 
 interface State {
   allThemes: readonly Theme[]
@@ -45,6 +46,8 @@ export const useThemesStore = defineStore('themes', {
         '',
       )
       document.body.classList.add(`theme-${this.currentTheme}`)
+      // 同步给布局（site-container--theme-* 类依赖它）
+      bus.setState('theme', this.currentTheme)
     },
   },
 })

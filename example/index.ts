@@ -2,7 +2,6 @@ import { createApp } from 'vue'
 import localforage from 'localforage'
 import App from './app.vue'
 
-// import i18n from '@/i18n'
 import i18n from './plugins/i18n/main'
 import getMainDomain from '@/utils/getMainDomain'
 

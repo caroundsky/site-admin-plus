@@ -34,7 +34,6 @@ const changeTheme = (theme: Theme) => {
 .sys-themes {
   margin: -5px 0 0;
   padding: 0;
-  text-align: center;
 
   li {
     width: 24px;

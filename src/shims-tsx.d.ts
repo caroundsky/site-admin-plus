@@ -34,6 +34,8 @@ declare module '@vue/runtime-core' {
     $contextmenu: any
     $dialogServe: any
     $appConfig: any
+    // vue-i18n globalInjection 注入的模板翻译函数
+    $t: import('vue-i18n').ComposerTranslation
     $message: typeof import('element-plus').ElMessage
     $msgbox: typeof import('element-plus').ElMessageBox
     $notify: typeof import('element-plus').ElNotification

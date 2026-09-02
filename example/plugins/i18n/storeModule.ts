@@ -1,21 +1,14 @@
 import { defineStore } from 'pinia'
 import Cookie from 'js-cookie'
-import i18n from './main'
+import i18n, { getInitLocale, validLocale } from './main'
 
 interface State {
   locale: string
 }
 
-const validLocale = ['zh-CN', 'en-US']
-
-const getLocale = () => {
-  const cookieLocal = (Cookie.get('Culture') || '').replace('lang=', '')
-  return cookieLocal || 'zh-CN'
-}
-
 export const useI18nStore = defineStore('i18n', {
   state: (): State => ({
-    locale: getLocale(),
+    locale: getInitLocale(),
   }),
 
   actions: {
@@ -23,6 +16,8 @@ export const useI18nStore = defineStore('i18n', {
       if (validLocale.includes(locale)) {
         this.locale = locale
         i18n.global.locale.value = locale as any
+        // 持久化到 cookie，供下次启动读取
+        Cookie.set('Culture', `lang=${locale}`, { expires: 365 })
       }
     },
   },

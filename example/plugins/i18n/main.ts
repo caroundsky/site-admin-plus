@@ -1,45 +1,35 @@
 import { createI18n } from 'vue-i18n'
+import Cookie from 'js-cookie'
 
-function loadLocaleMessages(): Record<string, any> {
-  const locales = import.meta.glob('./locales/*.json5', {
-    as: 'raw',
-    eager: true,
-  })
+export const validLocale = ['zh-CN', 'en-US']
 
-  const messages: Record<string, any> = {}
-
-  Object.keys(locales).forEach((key) => {
-    const matched = key.match(/([A-Za-z0-9-_]+)\./i)
-    if (matched && matched.length > 1) {
-      const locale = matched[1]
-      // 使用 JSON5 解析（这里简化处理，实际可能需要 json5 库）
-      try {
-        const content = locales[key] as string
-        // 简单的 JSON5 解析（移除注释和尾随逗号）
-        const jsonStr = content
-          .replace(/\/\*[\s\S]*?\*\//g, '') // 移除块注释
-          .replace(/\/\/.*$/gm, '') // 移除行注释
-          .replace(/,\s*([}\]])/g, '$1') // 移除尾随逗号
-        messages[locale] = JSON.parse(jsonStr)
-      } catch (e) {
-        // 如果解析失败，尝试使用 eval
-        try {
-          messages[locale] = eval('(' + locales[key] + ')')
-        } catch (_e) {
-          console.error(`Failed to parse locale file: ${key}`)
-        }
-      }
-    }
-  })
-
-  return messages
+// 从 cookie 读取初始语言（与 storeModule 保持一致）
+export const getInitLocale = () => {
+  const cookieLocale = (Cookie.get('Culture') || '').replace('lang=', '')
+  return validLocale.includes(cookieLocale) ? cookieLocale : 'zh-CN'
 }
+
+// vite 原生支持 json 模块，eager 直接拿到解析后的对象
+const locales = import.meta.glob<{ default: Record<string, string> }>(
+  './locales/*.json',
+  { eager: true },
+)
+
+const messages: Record<string, Record<string, string>> = {}
+Object.keys(locales).forEach((key) => {
+  const matched = key.match(/([A-Za-z0-9-_]+)\./i)
+  if (matched && matched.length > 1) {
+    messages[matched[1]] = locales[key].default
+  }
+})
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'zh-CN',
+  // 允许模板中直接使用 $t（不强制 useI18n）
+  globalInjection: true,
+  locale: getInitLocale(),
   fallbackLocale: 'en-US',
-  messages: loadLocaleMessages(),
+  messages,
 })
 
 export default i18n
