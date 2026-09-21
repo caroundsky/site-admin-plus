@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { isPlainObject } from 'is-what'
+import isPlainObject from 'lodash/isPlainObject'
 import { isVNode as vueIsVNode } from 'vue'
 
 export function sleep(time: number) {

@@ -51,6 +51,7 @@
 
 <script lang="tsx" setup>
 import { ref, computed, watch } from 'vue'
+import { Close } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useMenuViewsStore } from '@/stores/menuViews'
 import { VueDraggable } from 'vue-draggable-plus'
@@ -236,7 +237,7 @@ const sortMenuViews = computed<MenuView[]>({
 })
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .smooth-dnd-ghost {
   // 拖拽中的悬浮克隆体不拦截鼠标事件，保证 elementFromPoint 能穿透检测下方区域
   pointer-events: none;
@@ -266,7 +267,7 @@ const sortMenuViews = computed<MenuView[]>({
   position: relative;
   display: inline-block;
   margin-right: -1px;
-  line-height: @menu-view-bar-height;
+  line-height: $menu-view-bar-height;
   cursor: pointer;
   background-color: #fff;
   user-select: none;
@@ -366,7 +367,7 @@ const sortMenuViews = computed<MenuView[]>({
 
 .view-tab--horizon {
   font-size: 12px;
-  line-height: @menu-view-bar-height - 10px;
+  line-height: $menu-view-bar-height - 10px;
   border-radius: 3px 3px 0px 0px;
 }
 

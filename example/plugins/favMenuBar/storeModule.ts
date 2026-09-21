@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia'
 import keyBy from 'lodash/keyBy'
 import intersection from 'lodash/intersection'
-import type { MenuView, FavNavMenuItem } from '~/types/interfaces'
-
-import bus from '@/bus'
-import removeBy from '@/utils/removeBy'
+import { bus } from '@caroundsky/lemon-admin'
+import type { MenuView, FavNavMenuItem } from '@caroundsky/lemon-admin'
 
 interface State {
   favMenu: FavNavMenuItem[]
@@ -40,7 +38,7 @@ export const useFavMenuStore = defineStore('favMenu', {
     },
 
     delFav(view: MenuView) {
-      this.favMenu = removeBy(this.favMenu, (item) => item.id === view.id)
+      this.favMenu = this.favMenu.filter((item) => item.id !== view.id)
       this.unsetDefaultOpen(view.id)
       this.unsetDefaultHome(view.id)
     },
@@ -51,7 +49,7 @@ export const useFavMenuStore = defineStore('favMenu', {
     },
 
     unsetDefaultOpen(menuId: FavNavMenuItem['id']) {
-      this.defaultOpen = removeBy(this.defaultOpen, (id) => id === menuId)
+      this.defaultOpen = this.defaultOpen.filter((id) => id !== menuId)
     },
 
     setDefaultHome(menuId: FavNavMenuItem['id']) {

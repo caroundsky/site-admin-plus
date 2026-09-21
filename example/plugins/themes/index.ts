@@ -1,4 +1,4 @@
-import type { Plugin } from '~/types'
+import type { Plugin } from '@caroundsky/lemon-admin'
 import { useThemesStore } from './storeModule'
 import ThemeSwitchController from './ThemeSwitchController.vue'
 

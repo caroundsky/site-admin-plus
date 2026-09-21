@@ -1,0 +1,50 @@
+/**
+ * Element Plus 私有命名空间（lemon-）+ 按需样式入口
+ *
+ * 关键约束：`mixins/config` 必须在本编译单元内「第一次」被加载时就完成配置，
+ * 因此下面这条 `@use ... with` 必须排在最前面，且全项目只能有这一个 EP SCSS 入口。
+ * 任何第二个入口（如直接 import element-plus/theme-chalk/src/xxx.scss）都是新的
+ * 编译单元，$namespace 会退回 'el'，产出 el- 前缀的类名。
+ *
+ * 运行期必须与 src/import-element-ui.ts 里的 provideGlobalConfig 保持一致，缺一不可。
+ *
+ * 收录范围 = 已注册组件（含服务式）的样式依赖闭包，依据 element-plus 各组件
+ * `es/components/<name>/style/index.mjs` 的声明推导，因此 input / button /
+ * button-group / badge 等虽未直接使用，但被 autocomplete / dropdown / message-box /
+ * message 间接依赖，必须保留。
+ */
+@use 'element-plus/theme-chalk/src/mixins/config' with (
+  $namespace: 'lemon'
+);
+
+/* base：:root CSS 变量 + common/transition（过渡动画类）+ icon */
+@use 'element-plus/theme-chalk/src/base.scss';
+
+/* ---- 按需组件（顺序沿用 element-plus 官方 index.scss）---- */
+
+/* 基础/容器 */
+@use 'element-plus/theme-chalk/src/overlay.scss';
+@use 'element-plus/theme-chalk/src/scrollbar.scss';
+
+/* 表单类 */
+@use 'element-plus/theme-chalk/src/input.scss';
+@use 'element-plus/theme-chalk/src/switch.scss';
+@use 'element-plus/theme-chalk/src/autocomplete.scss';
+
+/* 按钮与下拉 */
+@use 'element-plus/theme-chalk/src/button.scss';
+@use 'element-plus/theme-chalk/src/button-group.scss';
+@use 'element-plus/theme-chalk/src/dropdown.scss';
+@use 'element-plus/theme-chalk/src/dropdown-menu.scss';
+@use 'element-plus/theme-chalk/src/dropdown-item.scss';
+
+/* 浮层 */
+@use 'element-plus/theme-chalk/src/popper.scss';
+@use 'element-plus/theme-chalk/src/popover.scss';
+
+/* 服务式组件（badge 是 message 分组计数时的内部依赖，必须带上） */
+@use 'element-plus/theme-chalk/src/badge.scss';
+@use 'element-plus/theme-chalk/src/loading.scss';
+@use 'element-plus/theme-chalk/src/message.scss';
+@use 'element-plus/theme-chalk/src/message-box.scss';
+@use 'element-plus/theme-chalk/src/notification.scss';

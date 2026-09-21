@@ -4,7 +4,7 @@
 <template>
   <li
     :class="[
-      'bg-submenu nav-menu__item',
+      'lemon-submenu nav-menu__item',
       `nav-menu__item-lv${level}`,
       { 'is-flat-menu': isFlatMenu },
     ]"
@@ -15,7 +15,7 @@
       <el-popover
         placement="right-start"
         trigger="hover"
-        transition="bg-pop"
+        transition="lemon-pop"
         popper-class="nav-menu__submenu--pop nav-menu__submenu--close"
         width="auto"
         :hide-after="0"
@@ -99,11 +99,11 @@ const onContextmenu = (event: Event) => {
     definedBtn: definedBtn(view),
     setOffset: isFlatMenu.value ? { x: 30, y: 30 } : { x: 20, y: 0 },
     queryClass: isFlatMenu.value
-      ? 'bg-submenu__title-txt'
-      : 'bg-submenu__title',
+      ? 'lemon-submenu__title-txt'
+      : 'lemon-submenu__title',
     appendToBody: !isFlatMenu.value,
     reference: rootMenu.value.horizon
-      ? 'el-scrollbar__wrap'
+      ? 'lemon-scrollbar__wrap'
       : 'nav-menu__submenu--pop__container',
   })
 }

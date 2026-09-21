@@ -104,7 +104,7 @@ const iframeLoad = (view: MenuView) => {
 }
 </script>
 
-<style lang="less">
+<style lang="scss">
 .main-content {
   position: relative;
   width: 100%;

@@ -5,12 +5,12 @@
   <transition :name="transitionName">
     <div
       v-show="state.visible"
-      :class="['bgcb-contextmenu', { contrast: state.contrast }]"
+      :class="['lemon-contextmenu', { contrast: state.contrast }]"
       :style="{ left: `${state.style.left}px`, top: `${state.style.top}px` }"
       @mouseleave="destroy"
     >
       <li
-        class="bgcb-contextmenu-item"
+        class="lemon-contextmenu-item"
         v-for="(item, index) in buttons"
         :key="index"
         @click="itemClick(item)"
@@ -59,12 +59,14 @@ const state = reactive({
 })
 
 const transitionName = computed(() => {
-  return state.contrast ? 'bgcb__dropdown-trans-bottom' : 'bgcb__dropdown-trans'
+  return state.contrast
+    ? 'lemon-contextmenu__dropdown-trans-bottom'
+    : 'lemon-contextmenu__dropdown-trans'
 })
 
 const mouseDownListener = (event: Event) => {
   let el: any = event.target
-  const menuBox = getElementsByClassName('bgcb-contextmenu')
+  const menuBox = getElementsByClassName('lemon-contextmenu')
 
   // 用while向上循环节点找到menuBox的类，并赋值
   while (!menuBox.find((menu) => menu === el) && el.parentElement) {
@@ -111,8 +113,8 @@ onUnmounted(() => {
 defineExpose({ state })
 </script>
 
-<style lang="less" scoped>
-.bgcb-contextmenu {
+<style lang="scss" scoped>
+.lemon-contextmenu {
   position: absolute;
   z-index: 9999;
   max-width: 450px;
@@ -169,7 +171,7 @@ defineExpose({ state })
   }
 }
 
-.bgcb__dropdown {
+.lemon-contextmenu__dropdown {
   overflow: hidden;
   position: absolute;
   width: 100%;
@@ -180,8 +182,8 @@ defineExpose({ state })
   box-sizing: border-box;
   margin: 5px 0 0;
 }
-.bgcb__dropdown-trans-enter-active,
-.bgcb__dropdown-trans-leave-active {
+.lemon-contextmenu__dropdown-trans-enter-active,
+.lemon-contextmenu__dropdown-trans-leave-active {
   opacity: 1;
   transform: scaleY(1);
   transition:
@@ -189,14 +191,14 @@ defineExpose({ state })
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: center top;
 }
-.bgcb__dropdown-trans-enter-from,
-.bgcb__dropdown-trans-leave-to {
+.lemon-contextmenu__dropdown-trans-enter-from,
+.lemon-contextmenu__dropdown-trans-leave-to {
   opacity: 0;
   transform: scaleY(0);
 }
 
-.bgcb__dropdown-trans-bottom-enter-active,
-.bgcb__dropdown-trans-bottom-leave-active {
+.lemon-contextmenu__dropdown-trans-bottom-enter-active,
+.lemon-contextmenu__dropdown-trans-bottom-leave-active {
   opacity: 1;
   transform: scaleY(1);
   transition:
@@ -204,8 +206,8 @@ defineExpose({ state })
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: center bottom;
 }
-.bgcb__dropdown-trans-bottom-enter-from,
-.bgcb__dropdown-trans-bottom-leave-to {
+.lemon-contextmenu__dropdown-trans-bottom-enter-from,
+.lemon-contextmenu__dropdown-trans-bottom-leave-to {
   opacity: 0;
   transform: scaleY(0);
 }

@@ -9,14 +9,14 @@
         href: 'https://juejin.im/',
       })
     "
-    style="text-align: center"
+    style="width: 40px; text-align: center; cursor: pointer"
   >
     <MonitorIcon style="height: 40px" />
   </div>
 </template>
 
 <script setup lang="tsx">
-import { useMenuViewsStore } from '@/stores/menuViews'
+import { useMenuViewsStore } from '@caroundsky/lemon-admin'
 import MonitorIcon from './svg-icons/monitor.svg'
 
 const menuViewsStore = useMenuViewsStore()

@@ -87,7 +87,7 @@ const logOut = () => {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .app-act {
   display: flex;
   height: 100%;
@@ -112,7 +112,7 @@ const logOut = () => {
     color: #333;
     cursor: pointer;
     padding: 0;
-    width: @menu-view-bar-height + 6px;
+    width: $menu-view-bar-height + 6px;
   }
 
   &__notice {
@@ -137,7 +137,7 @@ const logOut = () => {
 
 .user-act {
   display: flex;
-  height: @menu-view-bar-height;
+  height: $menu-view-bar-height;
   align-items: center;
   cursor: pointer;
   padding: 0 10px;
@@ -147,8 +147,8 @@ const logOut = () => {
     padding-right: 5px;
 
     img {
-      width: @menu-view-bar-height - 10px;
-      height: @menu-view-bar-height - 10px;
+      width: $menu-view-bar-height - 10px;
+      height: $menu-view-bar-height - 10px;
       vertical-align: top;
       border-radius: 50%;
     }
@@ -167,8 +167,8 @@ const logOut = () => {
 
 .sys-act {
   display: flex;
-  height: @menu-view-bar-height;
-  width: @menu-view-bar-height + 6px;
+  height: $menu-view-bar-height;
+  width: $menu-view-bar-height + 6px;
   align-items: center;
   justify-content: center;
   cursor: pointer;

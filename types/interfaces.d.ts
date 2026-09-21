@@ -26,7 +26,10 @@ export interface NavMenuItem {
   /** 帮助地址 */
   helpUrl?: string
 
-  /** 菜单图标 */
+  /**
+   * 菜单图标：作为 class 渲染到 `<i :class="icon" />`。
+   * 库不内置图标字体，对应字形需由使用方自行提供样式。
+   */
   icon: string
 
   /** 是否显示新菜单标识 */
@@ -74,7 +77,7 @@ export interface Theme {
 
 export interface ContextButton {
   label: string
-  /** 图标：iconfont 类名（如 'icbg-menu'）或 Element Plus 图标组件 */
+  /** 图标：class 类名（字形由使用方提供）或 Element Plus 图标组件 */
   icon?: string | Component
   onClick: (this: ContextButton, view: MenuView) => void
 }

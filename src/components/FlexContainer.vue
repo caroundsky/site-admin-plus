@@ -19,7 +19,7 @@ withDefaults(defineProps<Props>(), {
 })
 </script>
 
-<style lang="less">
+<style lang="scss">
 .flex-container {
   display: flex;
 }

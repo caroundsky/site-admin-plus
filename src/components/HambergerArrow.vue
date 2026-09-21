@@ -23,7 +23,7 @@ defineEmits<{
 }>()
 </script>
 
-<style lang="less">
+<style lang="scss">
 .hamburger {
   display: inline-block;
 

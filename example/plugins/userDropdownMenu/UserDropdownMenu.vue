@@ -18,7 +18,7 @@ import UpdateIcon from './svg-icons/update.svg'
 
 import MenuData from '../../mock/menu'
 import { useI18nStore } from '../i18n/storeModule'
-import bus from '@/bus'
+import { bus } from '@caroundsky/lemon-admin'
 
 const i18nStore = useI18nStore()
 

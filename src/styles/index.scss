@@ -1,10 +1,10 @@
-@import './themes.less';
+@use './themes';
 
 *, :before, :after {
   box-sizing: border-box;
 }
 
-.bg-message {
+.lemon-site-message {
   min-width: 220px;
   &--info p {
     padding-left: 10px;
@@ -12,7 +12,7 @@
 }
 
 // 写一些通用类
-.bgcb-flex-between {
+.lemon-flex-between {
   display: flex;
   justify-content: space-between;
   align-items: center;

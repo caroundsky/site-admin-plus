@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "paths": {
       "~/*": ["./*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@caroundsky/lemon-admin": ["./src/main.ts"]
     },
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "useDefineForClassFields": true,

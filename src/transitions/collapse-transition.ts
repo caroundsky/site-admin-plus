@@ -11,7 +11,7 @@ export default defineComponent({
     const onData = {
       onBeforeEnter(el: Element) {
         const htmlEl = el as HTMLElement
-        htmlEl.classList.add('bg-menu--collapse')
+        htmlEl.classList.add('lemon-menu-list--collapse')
         htmlEl.style.height = '0'
       },
 
@@ -27,7 +27,7 @@ export default defineComponent({
 
       onAfterEnter(el: Element) {
         const htmlEl = el as HTMLElement
-        htmlEl.classList.remove('bg-menu--collapse')
+        htmlEl.classList.remove('lemon-menu-list--collapse')
         htmlEl.style.height = ''
         htmlEl.style.overflow = ''
       },
@@ -41,14 +41,14 @@ export default defineComponent({
       onLeave(el: Element) {
         const htmlEl = el as HTMLElement
         if (htmlEl.scrollHeight !== 0) {
-          htmlEl.classList.add('bg-menu--collapse')
+          htmlEl.classList.add('lemon-menu-list--collapse')
           htmlEl.style.height = '0'
         }
       },
 
       onAfterLeave(el: Element) {
         const htmlEl = el as HTMLElement
-        htmlEl.classList.remove('bg-menu--collapse')
+        htmlEl.classList.remove('lemon-menu-list--collapse')
         htmlEl.style.height = ''
         htmlEl.style.overflow = ''
       },
@@ -58,7 +58,7 @@ export default defineComponent({
       h(
         Transition,
         {
-          name: 'bg-collapse',
+          name: 'lemon-collapse-transition',
           ...onData,
         },
         { default: slots.default },

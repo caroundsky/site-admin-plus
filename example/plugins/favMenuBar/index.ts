@@ -1,4 +1,4 @@
-import type { Plugin } from '~/types'
+import type { Plugin } from '@caroundsky/lemon-admin'
 import { useFavMenuStore } from './storeModule'
 import FavMenuBar from './FavMenuBar.vue'
 

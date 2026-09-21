@@ -4,8 +4,10 @@
  * （旧版 Vue.extend + 实例属性读写 → createApp + defineExpose 的 state）
  */
 import { createApp, nextTick, type App } from 'vue'
+import { provideGlobalConfig } from 'element-plus'
 import ContextMenuComponent from './main.vue'
 
+import { ELEMENT_NAMESPACE } from '@/import-element-ui'
 import { getOffset, queryDom, getOffsetWithDom } from '@/utils/tools'
 
 let lastApp: App | null = null
@@ -116,7 +118,7 @@ const ContextmenuProxy = function (options: ContextMenuOptions) {
     onMounted: () => {
       // 再等一个 tick，确保 visible=true 的渲染已刷新（display:none 下测不到高度）
       nextTick(() => {
-        const menuEl = container.querySelector('.bgcb-contextmenu')
+        const menuEl = container.querySelector('.lemon-contextmenu')
         if (!menuEl) return
 
         const $elHeight = menuEl.clientHeight
@@ -152,6 +154,10 @@ const ContextmenuProxy = function (options: ContextMenuOptions) {
       })
     },
   })
+
+  // 右键菜单是独立的 Vue 应用（不入 RootContainer 组件树），
+  // 需单独提供私有命名空间，否则内部 el-* 组件拿不到 lemon- 前缀的样式
+  provideGlobalConfig({ namespace: ELEMENT_NAMESPACE }, app)
 
   lastApp = app
   lastContainer = container

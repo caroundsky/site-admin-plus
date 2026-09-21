@@ -83,15 +83,15 @@ defineExpose({
 })
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .scroll-container {
-  :deep(.el-scrollbar__bar.is-horizontal) {
+  :deep(.lemon-scrollbar__bar.is-horizontal) {
     bottom: 0;
   }
-  :deep(.el-scrollbar__bar.is-vertical) {
+  :deep(.lemon-scrollbar__bar.is-vertical) {
     display: none;
   }
-  :deep(.el-scrollbar__wrap) {
+  :deep(.lemon-scrollbar__wrap) {
     height: 50px;
   }
 }

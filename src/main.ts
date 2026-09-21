@@ -6,7 +6,7 @@ import isPlainObject from 'lodash/isPlainObject'
 /* Styles */
 import 'normalize.css'
 import { setupElementPlus } from '@/import-element-ui'
-import '@/styles/index.less'
+import '@/styles/index.scss'
 
 /* Internal components */
 import FlexContainer from '@/components/FlexContainer.vue'
@@ -21,8 +21,7 @@ import '@/components/ContextMenu'
 import bus, { type BusConfig } from '@/bus'
 import * as tools from '@/tools'
 import { ensureArray } from '@/utils/tools'
-import { warn } from '@/utils/debug'
-import type { Plugin, PluginCtx, PluginBase, PluginHasStore } from '~/types'
+import type { Plugin, PluginCtx, PluginBase } from '~/types'
 import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import { useMenuViewsStore } from '@/stores/menuViews'
@@ -46,11 +45,6 @@ export interface RawInputOptions {
 }
 
 let instance: AppInstance
-
-function _isPluginHasStore(plugin: PluginBase): plugin is PluginHasStore {
-  const store = (plugin as PluginHasStore).storeModule
-  return store && isPlainObject(store)
-}
 
 function _isPluginBase(plugin: Plugin): plugin is PluginBase {
   return isPlainObject(plugin)
@@ -105,11 +99,7 @@ export function create(rawInputOptions: RawInputOptions): AppInstance {
         }
       }
       if (_isPluginBase(plugin)) {
-        if (_isPluginHasStore(plugin) && !plugin.name) {
-          warn("包含 'storeModule' 的插件需提供 'name' 属性用于注册命名空间。")
-        } else {
-          validPlugin.push(plugin)
-        }
+        validPlugin.push(plugin)
       }
     })
     return validPlugin
@@ -204,11 +194,7 @@ export function createLibrary(
         }
       }
       if (_isPluginBase(plugin)) {
-        if (_isPluginHasStore(plugin) && !plugin.name) {
-          warn("包含 'storeModule' 的插件需提供 'name' 属性用于注册命名空间。")
-        } else {
-          validPlugin.push(plugin)
-        }
+        validPlugin.push(plugin)
       }
     })
     return validPlugin
@@ -253,4 +239,15 @@ export function createLibrary(
 }
 
 export { bus, tools, RootContainer as SiteContainer }
+/* 三个 store 是插件的公共状态入口；其余库内部实现（滚动容器、指令、工具）不进公共 API */
+export { useAppStore, useMenuStore, useMenuViewsStore }
+export { registerIcons, ELEMENT_NAMESPACE } from '@/import-element-ui'
+export type {
+  SimpleMap,
+  NavMenuItem,
+  MenuView,
+  FavNavMenuItem,
+  Theme,
+  ContextButton,
+} from '~/types/interfaces'
 export type { BusConfig, Plugin, PluginCtx }

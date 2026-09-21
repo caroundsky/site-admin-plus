@@ -1,0 +1,181 @@
+/**
+ * 主题样式生成器
+ *
+ * $theme-color 既可能是纯色，也可能是渐变（如 linear-gradient(...)）；
+ * $pure-color 是可选的「纯净色」，渐变主题才会传（用于渐变无法参与运算的场合）。
+ * 因此每逢需要做颜色运算时就先判断类型，等价于原 Less 版的 `& when (iscolor(...))`。
+ */
+@use 'sass:color';
+@use 'sass:meta';
+@use './variables' as *;
+
+@mixin theme-generator($name, $theme-color, $pure-color: null) {
+  $has-pure: meta.type-of($pure-color) == color;
+  $has-theme: meta.type-of($theme-color) == color;
+
+  body.theme-#{$name} {
+    @if $has-pure {
+      --theme-color: #{$pure-color};
+    } @else if $has-theme {
+      --theme-color: #{$theme-color};
+    }
+  }
+  .lemon-theme-#{$name} {
+    background: $theme-color;
+  }
+  .site-container--theme-#{$name} {
+    // 整体侧栏颜色
+    .aside-nav-menu {
+      background: $theme-color;
+    }
+    .nav-menu--horizon {
+      @if $has-pure {
+        background: $theme-color;
+      } @else if $has-theme {
+        background-color: color.adjust($theme-color, $lightness: 8%);
+      }
+      .menu__logo {
+        box-shadow: 1px 0px 4px 0px rgba(0, 0, 0, 0.2);
+      }
+    }
+    // logo背景色
+    .menu__logo {
+      height: $menu-view-bar-height;
+      // background: $logo-property;
+      cursor: pointer;
+      @if $has-theme and not $has-pure {
+        background-color: color.adjust($theme-color, $lightness: 8%);
+      }
+    }
+    &.site-container--menu-close,
+    &.site-container--menu-horizon {
+      .menu__logo {
+        // background: $logo-property-sm;
+        @if $has-theme and not $has-pure {
+          background-color: color.adjust($theme-color, $lightness: 8%);
+        }
+      }
+    }
+    // 设置鼠标当前hover列的颜色
+    .nav-menu__item {
+      &.is-pop {
+        &:hover {
+          color: #fff;
+        }
+      }
+      &:hover {
+        @if $has-pure {
+          background-color: color.adjust($pure-color, $lightness: -1%);
+          & > .lemon-submenu__title {
+            color: #fff;
+          }
+        } @else if $has-theme {
+          background-color: color.adjust($theme-color, $lightness: -1%);
+          & > .lemon-submenu__title {
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    // 用户操作栏
+    .app-act {
+      .user-act:hover {
+        @if $has-pure {
+          background-color: rgba($pure-color, 0.08);
+        } @else if $has-theme {
+          background-color: rgba($theme-color, 0.2);
+        }
+      }
+      &__link:hover {
+        @if $has-pure {
+          background-color: rgba($pure-color, 0.08);
+        } @else if $has-theme {
+          background-color: rgba($theme-color, 0.2);
+        }
+      }
+
+      &--invert {
+        .user-act:hover {
+          @if $has-pure {
+            background-color: color.adjust($pure-color, $lightness: -8%);
+          } @else if $has-theme {
+            background-color: color.adjust($theme-color, $lightness: -8%);
+          }
+        }
+        .app-act__link:hover {
+          @if $has-pure {
+            background-color: color.adjust($pure-color, $lightness: -8%);
+          } @else if $has-theme {
+            background-color: color.adjust($theme-color, $lightness: -8%);
+          }
+        }
+      }
+    }
+  }
+  body.theme-#{$name}
+    .nav-menu__submenu--pop
+    .nav-menu__item:not(.nav-menu__item--has-child) {
+    @if $has-pure {
+      color: $pure-color;
+      .hightlight {
+        @include set-hight-light();
+      }
+    } @else if $has-theme {
+      color: color.adjust($theme-color, $lightness: 10%);
+      .hightlight {
+        @include set-hight-light();
+      }
+    }
+    &:hover {
+      .help-icon {
+        display: block;
+      }
+      @if $has-pure {
+        background-color: rgba($pure-color, 0.12);
+      } @else if $has-theme {
+        background-color: rgba($theme-color, 0.12);
+      }
+    }
+  }
+}
+
+// 主题名统一加引号：gray / red 等是 CSS 颜色关键字，
+// 不加引号会被 Sass 解析成颜色值，插值时产生 "gray" is a color 的警告。
+@include theme-generator('default', #0070b2);
+@include theme-generator('primary', #3f6ad8);
+@include theme-generator('gray', #6c757d);
+@include theme-generator('red', #c0415f);
+@include theme-generator('eggplant', #794c8a);
+
+// Gradient theme
+@include theme-generator(
+  'grow-early',
+  linear-gradient(to top, #0ba360 0%, #3cba92 100%),
+  #3cba92
+);
+@include theme-generator(
+  'plum-plate',
+  linear-gradient(135deg, #667eea 0%, #764ba2 100%),
+  #667eea
+);
+@include theme-generator(
+  'midnight-bloom',
+  linear-gradient(-20deg, #2b5876 0%, #4e4376 100%),
+  #2b5876
+);
+@include theme-generator(
+  'night-sky',
+  linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%),
+  #1e3c72
+);
+@include theme-generator(
+  'slick-carbon',
+  linear-gradient(to bottom, #323232 0%, #3f3f3f 40%, #1c1c1c 150%),
+  #323232
+);
+@include theme-generator(
+  'royal',
+  linear-gradient(to right, #141e30, #243b55),
+  #141e30
+);

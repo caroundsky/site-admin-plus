@@ -3,13 +3,13 @@ import localforage from 'localforage'
 import App from './app.vue'
 
 import i18n from './plugins/i18n/main'
-import getMainDomain from '@/utils/getMainDomain'
 
 import MenuData from './mock/menu'
 
-import { createLibrary } from '~/src/main'
-// import { createLibrary } from '~/lib'
-// import '../lib/index.css'
+// 与真实消费方写法一致：从包名导入。
+// 改测构建产物时，把 vite.config.ts 里该别名指向 lib/index.js 即可。
+import { createLibrary } from '@caroundsky/lemon-admin'
+// import '@caroundsky/lemon-admin/lib/index.css'
 
 import userDropdownMenuPlugin from './plugins/userDropdownMenu'
 import netTestBtnPlugin from './plugins/netTestBtn'
@@ -21,6 +21,12 @@ import I18n from './plugins/i18n'
 
 import _logo from './logo.png'
 import _logoSmall from './logo-sm.png'
+
+// 主域（iframe 场景下设置 document.domain 用）——属于宿主应用的职责，示例自行实现
+const getMainDomain = () => {
+  const match = window.location.hostname.match(/\w+\.\w+$/)
+  return match ? match[0] : window.location.hostname
+}
 
 try {
   document.domain = getMainDomain()
@@ -69,7 +75,7 @@ library.bus.on('appCreateStart', () => {
 
   const msg = library.$tools.message({
     message: '站点容器初始化中...',
-    customClass: 'bg-message bg-message--info',
+    customClass: 'lemon-site-message lemon-site-message--info',
     duration: 0,
   })
 

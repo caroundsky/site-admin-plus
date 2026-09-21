@@ -1,4 +1,4 @@
-import type { Plugin } from '~/types'
+import type { Plugin } from '@caroundsky/lemon-admin'
 
 import { useUserStore } from './storeModule'
 import UserDropdownMenu from './UserDropdownMenu.vue'

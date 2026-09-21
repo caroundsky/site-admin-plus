@@ -40,9 +40,9 @@ const sidebarClick = () => {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .menu-view-bar {
-  height: @menu-view-bar-height;
+  height: $menu-view-bar-height;
   border-bottom: 1px solid #e1e1e1;
   box-shadow: 0 0 10px #ddd;
   box-sizing: border-box;
@@ -50,7 +50,7 @@ const sidebarClick = () => {
   .sidebar-folder {
     padding: 0 2px;
     position: relative;
-    width: @menu-view-bar-height;
+    width: $menu-view-bar-height;
     cursor: pointer;
 
     &:hover {
@@ -67,7 +67,7 @@ const sidebarClick = () => {
 }
 
 .menu-view-bar__vertical {
-  height: @menu-view-bar-height - 4px;
+  height: $menu-view-bar-height - 4px;
   padding-top: 5px;
   padding-left: 20px;
 }

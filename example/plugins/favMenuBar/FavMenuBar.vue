@@ -24,7 +24,11 @@
     <FlexMain class="fav-menu__main">
       <FlexContainer>
         <FlexMain>
-          <ScrollPane ref="scrollPaneRef" class="view-tabs-scroll">
+          <el-scrollbar
+            ref="scrollPaneRef"
+            class="view-tabs-scroll"
+            @wheel.prevent="handleWheel"
+          >
             <VueDraggable
               v-model="favMenu"
               class="view-tabs-wrap"
@@ -43,7 +47,7 @@
                 {{ item.text }}
               </span>
             </VueDraggable>
-          </ScrollPane>
+          </el-scrollbar>
         </FlexMain>
       </FlexContainer>
     </FlexMain>
@@ -69,19 +73,24 @@ import {
   CaretTop,
   CaretBottom,
 } from '@element-plus/icons-vue'
-import ScrollPane from '@/layouts/components/MenuViewBar/ScrollPane.vue'
-
-import type { FavNavMenuItem, MenuView } from '~/types/interfaces'
+import { bus, useMenuViewsStore } from '@caroundsky/lemon-admin'
+import type { MenuView } from '@caroundsky/lemon-admin'
 
 import buttons from '../contextMenu/buttons'
-import bus from '@/bus'
 import { useFavMenuStore } from '../favMenuBar/storeModule'
-import { useMenuViewsStore } from '@/stores/menuViews'
 
 const favMenuStore = useFavMenuStore()
 const menuViewsStore = useMenuViewsStore()
 
 const scrollPaneRef = ref<any>(null)
+
+// 滚轮转为横向滚动（库内部的 ScrollPane 不再对外导出，插件自带这份行为）
+const handleWheel = (e: WheelEvent) => {
+  const wrap = scrollPaneRef.value?.wrap
+  if (!wrap) return
+  const delta = (e as any).wheelDelta || -e.deltaY * 40
+  wrap.scrollLeft = wrap.scrollLeft - delta / 4
+}
 const hoverIndex = ref(-1)
 const collapse = ref(false)
 
@@ -131,7 +140,20 @@ const onContextmenu = (event: MouseEvent, view: MenuView, index: number) => {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
+// 横向滚动容器：只留横向滚动条，隐藏纵向
+.view-tabs-scroll {
+  :deep(.lemon-scrollbar__bar.is-horizontal) {
+    bottom: 0;
+  }
+  :deep(.lemon-scrollbar__bar.is-vertical) {
+    display: none;
+  }
+  :deep(.lemon-scrollbar__wrap) {
+    height: 50px;
+  }
+}
+
 .fav-menu-bar {
   height: 28px;
   line-height: 28px;

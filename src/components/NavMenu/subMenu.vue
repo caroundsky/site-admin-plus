@@ -4,7 +4,7 @@
 <template>
   <li
     :class="[
-      'bg-submenu nav-menu__item',
+      'lemon-submenu nav-menu__item',
       `nav-menu__item-lv${level}`,
       {
         'is-opened': !isMenuPopup && opened,
@@ -20,7 +20,7 @@
         v-if="!rootMenu?.horizon"
         placement="right-start"
         trigger="hover"
-        transition="bg-pop"
+        transition="lemon-pop"
         popper-class="nav-menu__submenu--pop"
         width="auto"
         :hide-after="100"
@@ -37,7 +37,7 @@
         v-else
         placement="bottom-start"
         trigger="hover"
-        transition="bg-pop-horizon"
+        transition="lemon-pop-horizon"
         popper-class="nav-menu__submenu--pop nav-menu__submenu--pop-horizon"
         :width="horizonPopWidth"
         :show-after="0"
@@ -72,11 +72,11 @@
     <template v-else>
       <slot name="title" />
       <BgCollapseTransition v-if="!isFlatMenu">
-        <ul v-if="opened" class="bg-menu">
+        <ul v-if="opened" class="lemon-menu-list">
           <slot />
         </ul>
       </BgCollapseTransition>
-      <ul v-else class="bg-menu">
+      <ul v-else class="lemon-menu-list">
         <slot />
       </ul>
     </template>
@@ -197,7 +197,7 @@ const subMenuEnter = (e: Event) => {
 }
 
 // 统计一个菜单节点可见后代的数量（含自身），与旧版按 innerHTML 中
-// bg-submenu__title-txt 出现次数统计的逻辑等价
+// lemon-submenu__title-txt 出现次数统计的逻辑等价
 const countVisibleNodes = (menu: NavMenuItem): number => {
   let count = 1
   menu.children?.forEach((child) => {

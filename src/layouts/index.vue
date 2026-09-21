@@ -62,7 +62,7 @@ const isMenuMaskOpen = computed(() => appStore.isMenuMaskOpen)
 const theme = computed(() => bus.getState('theme') || 'default')
 </script>
 
-<style lang="less">
+<style lang="scss">
 .site-container {
   height: 100%;
   width: 100%;
@@ -70,13 +70,13 @@ const theme = computed(() => bus.getState('theme') || 'default')
 }
 
 .site-container__aside {
-  width: @aside-menu-width;
+  width: $aside-menu-width;
   transition: width ease 0.4s;
 }
 
 .site-container--menu-close {
   .site-container__aside {
-    width: @aside-menu-close-width;
+    width: $aside-menu-close-width;
   }
   & > .flex-main {
     width: 80%;

@@ -206,7 +206,7 @@ const handleClear = async () => {
 }
 </script>
 
-<style lang="less">
+<style lang="scss">
 .site-container--menu-close .nav-menu-search--open .nav-menu-search__input {
   position: relative;
   width: 200px;
@@ -216,7 +216,7 @@ const handleClear = async () => {
   position: absolute;
   z-index: 1;
   width: 98%;
-  height: @menu-view-bar-height;
+  height: $menu-view-bar-height;
   top: 0;
   padding: 4px 0;
   box-sizing: border-box;
@@ -302,14 +302,14 @@ const handleClear = async () => {
 .nav-menu-suggestions {
   width: auto !important;
 
-  .el-scrollbar__view li {
+  .lemon-scrollbar__view li {
     padding: 0 15px;
     line-height: 2.4em;
     font-size: 12px;
   }
 
   .hightlight {
-    .setHightLight();
+    @include set-hight-light();
   }
 }
 </style>

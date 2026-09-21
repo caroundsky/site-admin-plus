@@ -3,14 +3,14 @@
 -->
 <template>
   <div
-    :class="{ 'bgcb-menu-mask': true, 'bgcb-menu-mask__open': isMenuMaskOpen }"
+    :class="{ 'lemon-menu-mask': true, 'lemon-menu-mask__open': isMenuMaskOpen }"
   >
-    <div class="bgcb-menu-mask-warpper" v-clickoutside:menu__logo="close">
-      <el-icon class="bgcb-menu-mask-close" @click="toggleMaskMenu">
+    <div class="lemon-menu-mask-warpper" v-clickoutside:menu__logo="close">
+      <el-icon class="lemon-menu-mask-close" @click="toggleMaskMenu">
         <Close />
       </el-icon>
 
-      <div class="bgcb-flex-between" style="margin-bottom: 10px">
+      <div class="lemon-flex-between" style="margin-bottom: 10px">
         <h3>请根据您的需要进行选择，所选的系统同时显示在左侧主菜单中！</h3>
         <el-switch
           v-model="selectAll"
@@ -21,7 +21,7 @@
         />
       </div>
 
-      <ul class="bgcb-menu-mask-list">
+      <ul class="lemon-menu-mask-list">
         <li
           v-for="menu in filterMenuData"
           :key="menu.id"
@@ -40,14 +40,57 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { Close, Document } from '@element-plus/icons-vue'
-import { useAppStore } from '@/stores/app'
-import { useMenuStore } from '@/stores/menu'
-import type { NavMenuItem } from '~/types/interfaces'
+import { bus, useAppStore, useMenuStore } from '@caroundsky/lemon-admin'
+import type { NavMenuItem } from '@caroundsky/lemon-admin'
 
-import Clickoutside from '@/utils/clickoutside'
-import bus from '@/bus'
+// 库内部的 Clickoutside 指令不再对外导出，插件自带一份等价实现。
+// 语义：mousedown 与 mouseup 都落在元素外才触发；指令参数是白名单元素的 id（此处放过 logo）。
+interface ClickoutsideHandler {
+  onMouseDown: (e: Event) => void
+  onMouseUp: (e: Event) => void
+}
 
-const vClickoutside = Clickoutside
+const vClickoutside = {
+  mounted(el: HTMLElement, binding: { arg?: string; value?: () => void }) {
+    let startTarget: Node | null = null
+    const onMouseDown = (e: Event) => {
+      startTarget = e.target as Node
+    }
+    const onMouseUp = (e: Event) => {
+      const target = e.target as Node
+      const include = binding.arg ? document.getElementById(binding.arg) : null
+      const inside =
+        !target ||
+        !startTarget ||
+        el.contains(target) ||
+        el.contains(startTarget) ||
+        el === target ||
+        (include &&
+          (include.contains(target) ||
+            include === target ||
+            include.contains(startTarget)))
+      if (inside) return
+      binding.value?.()
+    }
+    const handlers: ClickoutsideHandler = { onMouseDown, onMouseUp }
+    ;(el as HTMLElement & { __clickoutside__?: ClickoutsideHandler })[
+      '__clickoutside__'
+    ] = handlers
+    document.addEventListener('mousedown', onMouseDown)
+    document.addEventListener('mouseup', onMouseUp)
+  },
+  unmounted(el: HTMLElement) {
+    const handlers = (
+      el as HTMLElement & { __clickoutside__?: ClickoutsideHandler }
+    ).__clickoutside__
+    if (!handlers) return
+    document.removeEventListener('mousedown', handlers.onMouseDown)
+    document.removeEventListener('mouseup', handlers.onMouseUp)
+    delete (el as HTMLElement & { __clickoutside__?: ClickoutsideHandler })[
+      '__clickoutside__'
+    ]
+  },
+}
 
 const appStore = useAppStore()
 const menuStore = useMenuStore()
@@ -100,8 +143,8 @@ onMounted(() => {
 })
 </script>
 
-<style lang="less" scoped>
-.bgcb-menu-mask {
+<style lang="scss" scoped>
+.lemon-menu-mask {
   visibility: hidden;
   box-sizing: border-box;
 
@@ -162,12 +205,12 @@ onMounted(() => {
     }
   }
 
-  :deep(.el-switch__label) {
+  :deep(.lemon-switch__label) {
     color: #fff;
   }
 }
 
-.bgcb-menu-mask-warpper {
+.lemon-menu-mask-warpper {
   position: relative;
   width: 772px;
   padding: 20px 20px 0;
@@ -178,7 +221,7 @@ onMounted(() => {
   }
 }
 
-.bgcb-menu-mask-list {
+.lemon-menu-mask-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;

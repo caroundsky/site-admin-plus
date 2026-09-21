@@ -39,7 +39,7 @@ const navMenuConfig = computed(() => {
 })
 </script>
 
-<style lang="less">
+<style lang="scss">
 .nav-menu--horizon {
   position: relative;
   display: flex;
@@ -62,7 +62,7 @@ const navMenuConfig = computed(() => {
     display: inline-block;
     vertical-align: middle;
 
-    .el-dropdown {
+    .lemon-dropdown {
       color: #fff;
     }
     .app-act {

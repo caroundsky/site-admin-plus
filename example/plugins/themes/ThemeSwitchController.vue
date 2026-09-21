@@ -6,7 +6,7 @@
         v-for="theme in allThemes"
         :key="theme.name"
         :class="{
-          [`bg-theme-${theme.name}`]: true,
+          [`lemon-theme-${theme.name}`]: true,
           'cur-theme': theme.name === currentTheme,
         }"
         @click="changeTheme(theme)"
@@ -30,7 +30,7 @@ const changeTheme = (theme: Theme) => {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .sys-themes {
   margin: -5px 0 0;
   padding: 0;
@@ -58,7 +58,7 @@ const changeTheme = (theme: Theme) => {
       font-size: 12px;
     }
 
-    &.bg-dark-text-theme {
+    &.lemon-dark-text-theme {
       color: #333;
     }
   }

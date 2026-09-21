@@ -9,11 +9,17 @@ import {
   Star,
   Check,
 } from '@element-plus/icons-vue'
-import type { MenuView, ContextButton, SimpleMap } from '~/types/interfaces'
-import { useMenuViewsStore } from '@/stores/menuViews'
+import {
+  bus,
+  useMenuStore,
+  useMenuViewsStore,
+} from '@caroundsky/lemon-admin'
+import type {
+  MenuView,
+  ContextButton,
+  SimpleMap,
+} from '@caroundsky/lemon-admin'
 import { useFavMenuStore } from '../favMenuBar/storeModule'
-import { useMenuStore } from '@/stores/menu'
-import bus from '@/bus'
 
 const AllButtonsMap: SimpleMap<ContextButton> = {
   refresh: {

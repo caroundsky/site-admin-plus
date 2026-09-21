@@ -31,6 +31,7 @@
 
 <script lang="tsx" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import debounce from 'lodash/debounce'
 
 interface Props {
@@ -132,7 +133,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .horizon-swiper {
   display: inline-block;
   width: 100%;
@@ -143,7 +144,7 @@ onUnmounted(() => {
   & > div {
     display: inline-block;
     vertical-align: middle;
-    height: @menu-view-bar-height;
+    height: $menu-view-bar-height;
   }
 
   &-warp {

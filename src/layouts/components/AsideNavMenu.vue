@@ -55,20 +55,20 @@ const popoverLevel = computed(() => {
 })
 </script>
 
-<style lang="less">
+<style lang="scss">
 .aside-nav-menu {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  color: @sidebar-text-color;
-  background-color: @sidebar-background-color;
+  color: $sidebar-text-color;
+  background-color: $sidebar-background-color;
   transition:
     width 0.2s,
     background 0.2s;
 
   a {
-    color: @sidebar-text-color;
+    color: $sidebar-text-color;
     text-decoration: none;
   }
 

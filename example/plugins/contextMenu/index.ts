@@ -1,4 +1,4 @@
-import { Plugin } from '~/types'
+import { Plugin } from '@caroundsky/lemon-admin'
 import buttons from './buttons'
 
 export default function (): Plugin {

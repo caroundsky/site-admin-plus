@@ -2,11 +2,11 @@
   <div
     :key="menuKey"
     :class="[
-      'bg-nav-menu',
+      'lemon-nav-menu',
       {
-        'bg-nav-menu--horizon': isHorizon,
-        'bg-nav-menu--close': !asideMenuOpen,
-        'bg-nav-menu--nosearch': !navMenuConfig.search,
+        'lemon-nav-menu--horizon': isHorizon,
+        'lemon-nav-menu--close': !asideMenuOpen,
+        'lemon-nav-menu--nosearch': !navMenuConfig.search,
       },
     ]"
     :style="
@@ -15,14 +15,14 @@
         : undefined
     "
   >
-    <HorizonSwiper v-if="isHorizon" class="bg-menu nav-menu__menu">
+    <HorizonSwiper v-if="isHorizon" class="lemon-menu-list nav-menu__menu">
       <component
         v-for="menu in menuData"
         :is="renderMenuItem(menu)"
         :key="menu.id"
       />
     </HorizonSwiper>
-    <ul v-else class="bg-menu nav-menu__menu">
+    <ul v-else class="lemon-menu-list nav-menu__menu">
       <component
         v-for="menu in menuData"
         :is="renderMenuItem(menu)"
@@ -289,8 +289,8 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="less">
-@import './navMenu.less';
+<style lang="scss">
+@use './navMenu';
 </style>
 <!--
  * menu

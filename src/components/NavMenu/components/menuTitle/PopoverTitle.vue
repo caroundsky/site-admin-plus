@@ -1,5 +1,5 @@
 <template>
-  <span :class="['bg-submenu__title-txt', { 'is-new': menu.isNew }]">
+  <span :class="['lemon-submenu__title-txt', { 'is-new': menu.isNew }]">
     <span v-html="replaceHtml" />
     <el-icon
       v-if="menu.help && menu.helpUrl"

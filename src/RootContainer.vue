@@ -13,7 +13,6 @@ import { useMenuStore } from '@/stores/menu'
 import MainContainer from '@/layouts/index.vue'
 import bus from '@/bus'
 import * as tools from '@/tools'
-import '@/assets/icbg/css/icbg-font.css'
 
 // 提供全局 bus
 provide('bus', bus)

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import keyBy from 'lodash/keyBy'
 import type { Theme } from './types'
-import bus from '@/bus'
+import { bus } from '@caroundsky/lemon-admin'
 
 interface State {
   allThemes: readonly Theme[]

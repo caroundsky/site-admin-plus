@@ -1,4 +1,4 @@
-import { Plugin } from '~/types'
+import { Plugin } from '@caroundsky/lemon-admin'
 import NetTest from './NetTest.vue'
 
 export default function (): Plugin {

@@ -72,11 +72,11 @@ const handleClick = () => {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .menu__logo {
   position: relative;
   z-index: 1000;
-  height: @menu-view-bar-height;
+  height: $menu-view-bar-height;
   text-align: center;
 
   &--clickable {
