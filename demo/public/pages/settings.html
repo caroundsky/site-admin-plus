@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>系统设置</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: -apple-system, 'Microsoft YaHei', sans-serif;
+        color: #303133;
+        background: #f5f7fa;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 20px;
+      }
+      p.sub {
+        margin: 0 0 24px;
+        font-size: 13px;
+        color: #909399;
+      }
+      .panel {
+        max-width: 520px;
+        padding: 20px 24px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        font-size: 13px;
+        border-bottom: 1px solid #ebeef5;
+      }
+      .row:last-child {
+        border-bottom: none;
+      }
+      .row span {
+        color: #909399;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>系统设置</h1>
+    <p class="sub">
+      这是 demo/public/pages/settings.html，由站点容器以 iframe 加载
+    </p>
+    <div class="panel">
+      <div class="row"><b>站点名称</b><span>站点容器 Demo</span></div>
+      <div class="row"><b>默认首页</b><span>dashboard</span></div>
+      <div class="row"><b>菜单布局</b><span>侧边栏 / 顶部（运行时可切换）</span></div>
+      <div class="row"><b>主题</b><span>内置多套，运行时可切换</span></div>
+    </div>
+  </body>
+</html>

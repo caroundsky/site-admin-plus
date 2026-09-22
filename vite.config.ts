@@ -72,7 +72,11 @@ export default defineConfig(({ command }) => ({
       // element-plus / lodash 用前缀正则而非精确字符串：
       // 否则 element-plus/es/... 这类深路径导入不会被外置，会把库内部模块打进产物。
       // lodash 是逐函数导入（lodash/debounce 等），同理。
-      external: ['vue', /^element-plus(\/|$)/, /^lodash(\/|$)/],
+      //
+      // pinia 必须外置：它是「单例」依赖，内部有模块级的 activePinia 与 piniaSymbol。
+      // 一旦被打包进产物，库与宿主就各持一份 pinia 模块，宿主自己的 useXxxStore()
+      // 会因查不到 activePinia 而抛错（详见 README 的依赖说明）。
+      external: ['vue', 'pinia', /^element-plus(\/|$)/, /^lodash(\/|$)/],
     },
     sourcemap: true,
     outDir: 'lib',

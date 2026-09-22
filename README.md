@@ -61,13 +61,15 @@ yarn add @caroundsky/lemon-admin
 
 依赖情况：
 
-- **peerDependencies（需与宿主应用共用同一份）**：`vue@^3.5.11`、`element-plus@^2.14`
-- **随包自动安装**：`lodash`
-- **已打进产物，无需关心**：`pinia`、`vue-draggable-plus`、`js-cookie`、`localforage`、`mitt`、`normalize.css`
+- **peerDependencies（需与宿主应用共用同一份）**：`vue@^3.5.11`、`element-plus@^2.14`、`vue-i18n@^11`
+- **随包自动安装**：`lodash`、`pinia`
+- **已打进产物，无需关心**：`vue-draggable-plus`、`js-cookie`、`localforage`、`mitt`、`normalize.css`
 
-> `vue` 和 `element-plus` 都是**单例**：装成两份会导致库的组件跑在另一个实例上，`provide`/`inject` 与命名空间上下文全部失效。npm 7+ 会自动安装 peerDependencies，yarn classic 需要你手动装。
+> `vue` / `element-plus` / `pinia` 都是**单例**依赖：装成两份会导致库的组件跑在另一个实例上，`provide`/`inject`、命名空间上下文、Pinia store 全部失效。npm 7+ 会自动安装 peerDependencies，yarn classic 需要你手动装。
 >
 > `element-plus` 是库的**运行时必需依赖**，不能不用。但样式已私有化（库渲染出的是 `.lemon-*`），所以它与你自己的 Element Plus 完全隔离：你不需要引入 `element-plus/dist/index.css`，除非自己的代码也用 `el-*` 组件。
+>
+> `vue-i18n` 不是被库 import 的，而是**库的模板里用了 `$t`**（见 `src/layouts/components/AppActionBar.vue`）。宿主需要 `app.use(i18n)` 把 `$t` 注入全局，否则容器渲染时会报 `Property "$t" was accessed during render but is not defined on instance`。普通组件渲染不需要它，但容器挂了就得补。
 
 ### 快速开始
 

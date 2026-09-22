@@ -1,0 +1,48 @@
+.exception {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 600px;
+
+  .imgBlock {
+    padding-right: 100px;
+  }
+
+  .content {
+    h1 {
+      margin-bottom: 24px;
+      font-size: 72px;
+      font-weight: 600;
+      line-height: 72px;
+      color: #434e59;
+    }
+
+    .desc {
+      margin-bottom: 16px;
+      font-size: 20px;
+      line-height: 28px;
+      color: #8c8c8c;
+    }
+
+    .actions {
+      button:not(:last-child) {
+        margin-right: 8px;
+      }
+
+      .button {
+        padding: 12px 20px;
+        font-size: 14px;
+        color: #fff;
+        cursor: pointer;
+        background-color: #409eff;
+        border: 1px solid #409eff;
+        border-radius: 4px;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+}

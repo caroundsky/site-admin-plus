@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>数据看板</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: -apple-system, 'Microsoft YaHei', sans-serif;
+        color: #303133;
+        background: #f5f7fa;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 20px;
+      }
+      p.sub {
+        margin: 0 0 24px;
+        font-size: 13px;
+        color: #909399;
+      }
+      .cards {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .card {
+        flex: 1 1 160px;
+        padding: 18px 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+      }
+      .card b {
+        display: block;
+        font-size: 24px;
+        color: #0070b2;
+      }
+      .card span {
+        font-size: 12px;
+        color: #909399;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>数据看板</h1>
+    <p class="sub">
+      这是 demo/public/pages/dashboard.html，由站点容器以 iframe 加载
+    </p>
+    <div class="cards">
+      <div class="card"><b>1,286</b><span>今日访问</span></div>
+      <div class="card"><b>342</b><span>新增订单</span></div>
+      <div class="card"><b>98.2%</b><span>履约率</span></div>
+      <div class="card"><b>17</b><span>待处理工单</span></div>
+    </div>
+  </body>
+</html>
