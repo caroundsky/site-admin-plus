@@ -18,7 +18,7 @@
 
 <script lang="tsx" setup>
 import { computed, inject } from 'vue'
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 import NormalTitle from './NormalTitle.vue'
 import PopoverTitle from './PopoverTitle.vue'
 

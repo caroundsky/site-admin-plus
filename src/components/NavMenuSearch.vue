@@ -48,7 +48,7 @@ import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import { useMenuViewsStore } from '@/stores/menuViews'
 import highlight from '@/utils/highlight'
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 import { ConvertPinyin } from '@/utils/filterPinyin'
 
 const appStore = useAppStore()

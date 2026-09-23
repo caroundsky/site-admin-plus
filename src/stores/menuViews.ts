@@ -8,7 +8,7 @@ import bus from '@/bus'
 
 import { useMenuStore } from './menu'
 
-import type { NavMenuItem, MenuView } from '~/types/interfaces'
+import type { NavMenuItem, MenuView } from '@/types/interfaces'
 
 interface MenuViewsState {
   views: MenuView[]

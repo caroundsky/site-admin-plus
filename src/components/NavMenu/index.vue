@@ -46,7 +46,7 @@ import {
 import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import { useMenuViewsStore } from '@/stores/menuViews'
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 
 import SubMenu from './subMenu.vue'
 import MenuItem from './menuItem.vue'

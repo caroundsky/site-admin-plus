@@ -15,7 +15,7 @@
 <script lang="tsx" setup>
 import { QuestionFilled } from '@element-plus/icons-vue'
 
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 
 interface Props {
   menu: NavMenuItem

@@ -85,7 +85,7 @@
 
 <script lang="tsx" setup>
 import { ref, computed, watch, inject, useSlots } from 'vue'
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 
 import BgCollapseTransition from '@/transitions/collapse-transition'
 

@@ -21,7 +21,5 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# 构建期生成的类型声明（与源码同名，仅 build 时产出）
-/src/**/*.d.ts
-!/src/env.d.ts
-!/src/shims-tsx.d.ts
+# 构建期生成的类型声明（由 yarn build:types 产出到 types/）
+/types

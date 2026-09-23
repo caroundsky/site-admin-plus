@@ -4,6 +4,7 @@ import mitt from 'mitt'
 // bus 只保存一个不透明的 store 引用，使用 unknown 即可
 import get from 'lodash/get'
 import { ensureArray } from '@/utils/tools'
+import { getStorageUserKey, setStorageUserKey } from '@/utils/storage'
 
 type ContextMenuFn = (view: any) => Array<{
   label: string
@@ -87,6 +88,16 @@ const setConfig = (config: Partial<BusConfig>) => {
   busState.config = { ...busState.config, ...config }
 }
 
+/**
+ * 设置当前登录用户标识（用于给本地缓存加命名空间）。
+ * 传 `null`/空串表示退出登录，会清掉该用户命名空间下的全部缓存。
+ */
+const setUserKey = (key: string | null) => setStorageUserKey(key)
+
+// 退出登录时自动清掉当前用户的本地缓存。
+// 库自身在 AppActionBar 里 emit('logout')，宿主自行 emit 也能覆盖。
+emitter.on('logout', () => setUserKey(null))
+
 const bus = {
   ...emitter,
   addSlot,
@@ -96,6 +107,7 @@ const bus = {
   getState,
   setState,
   setConfig,
+  setUserKey,
   // 兼容 Vue 2 风格的访问方式
   get config() {
     return busState.config
@@ -115,7 +127,19 @@ const bus = {
   get setContextMenu() {
     return busState.setContextMenu
   },
+  get userKey() {
+    return getStorageUserKey()
+  },
 }
 
 export default bus
-export { bus, setConfig, setStore, addSlot, getSlots, getState, setState }
+export {
+  bus,
+  setConfig,
+  setStore,
+  addSlot,
+  getSlots,
+  getState,
+  setState,
+  setUserKey,
+}

@@ -24,6 +24,9 @@ export default function user(): Plugin {
           userStore.initUserInfo(data)
           $bus.setState('avatar', data.avatar)
           $bus.setState('username', data.username)
+          // 设置缓存命名空间：此后库写入的本地缓存都会带上该前缀，
+          // 换账号登录不会读到上一个账号的数据；退出登录时自动清除。
+          $bus.setUserKey(data.username)
         })
       })
     },

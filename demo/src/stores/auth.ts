@@ -5,6 +5,7 @@
  * `src/api/` 那套请求封装保留但不再参与登录流程。
  */
 import { defineStore } from 'pinia'
+import { bus } from '@caroundsky/lemon-admin'
 
 /** 演示账号 */
 export const MOCK_ACCOUNT = {
@@ -50,6 +51,9 @@ export const authStore = defineStore('authInfo', {
         }
         this.currentUser = { name: username }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.currentUser))
+        // 告诉站点容器当前用户是谁：此后它写入的本地缓存都会带 `<用户名>/` 前缀，
+        // 换账号登录不会串数据
+        bus.setUserKey(username)
       } finally {
         this.loading = false
       }
@@ -58,6 +62,8 @@ export const authStore = defineStore('authInfo', {
     logout() {
       this.currentUser = {}
       localStorage.removeItem(STORAGE_KEY)
+      // 库收到 logout 会清掉该用户命名空间下的全部缓存
+      bus.emit('logout')
     },
   },
 })

@@ -20,6 +20,8 @@ export const library = createLibrary({
     navMenu: {
       search: true,
       popoverLevel: 2,
+      popoverColumnMaxWidth: 230,
+      maxDepartNum: 3,
       popoverTrigger: 'click',
       defaultAside: true,
     },

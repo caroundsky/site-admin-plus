@@ -21,7 +21,7 @@ import '@/components/ContextMenu'
 import bus, { type BusConfig } from '@/bus'
 import * as tools from '@/tools'
 import { ensureArray } from '@/utils/tools'
-import type { Plugin, PluginCtx, PluginBase } from '~/types'
+import type { Plugin, PluginCtx, PluginBase } from '@/types'
 import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import { useMenuViewsStore } from '@/stores/menuViews'
@@ -249,5 +249,5 @@ export type {
   FavNavMenuItem,
   Theme,
   ContextButton,
-} from '~/types/interfaces'
+} from '@/types/interfaces'
 export type { BusConfig, Plugin, PluginCtx }

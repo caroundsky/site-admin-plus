@@ -18,6 +18,26 @@ import * as tools from '@/tools'
 provide('bus', bus)
 provide('$tools', tools)
 
+/**
+ * 默认主题
+ *
+ * themes.scss 把 `--theme-color` 定义在 `body.theme-{name}` 选择器下，容器本身不会去落地
+ * 这个 class（主题由消费方的主题插件驱动，见 src/layouts/index.vue）。但那样一来
+ * 未装主题插件时 `--theme-color` 就是空值，所有引用它的样式都拿不到颜色。
+ * 这里兜一个默认主题：body 上已有 `theme-*` 就不动，让主题插件照常覆盖。
+ */
+const DEFAULT_THEME = 'default'
+
+const ensureDefaultTheme = () => {
+  const body = document.body
+  for (let i = body.classList.length - 1; i >= 0; i--) {
+    if (body.classList.item(i)?.startsWith('theme-')) return
+  }
+  body.classList.add(`theme-${DEFAULT_THEME}`)
+}
+
+ensureDefaultTheme()
+
 const appStore = useAppStore()
 const menuStore = useMenuStore()
 

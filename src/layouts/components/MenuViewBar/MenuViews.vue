@@ -58,7 +58,7 @@ import { VueDraggable } from 'vue-draggable-plus'
 import ScrollPane from './ScrollPane.vue'
 import applyDrag from '@/utils/applyDrag'
 
-import type { MenuView } from '~/types/interfaces'
+import type { MenuView } from '@/types/interfaces'
 
 import sortBy from 'lodash/sortBy'
 import bus from '@/bus'

@@ -39,7 +39,7 @@ import { computed, inject } from 'vue'
 import highlight from '@/utils/highlight'
 import bus from '@/bus'
 import { useContextMenu } from '@/components/ContextMenu'
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 
 const contextMenu = useContextMenu()
 

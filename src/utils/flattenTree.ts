@@ -1,4 +1,4 @@
-import { NavMenuItem } from '~/types/interfaces'
+import { NavMenuItem } from '@/types/interfaces'
 // import { pinyin } from 'pinyin-pro'
 // import { convertPY } from './filterPinyin'
 

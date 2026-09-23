@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import localforage from 'localforage'
 import App from './app.vue'
 
 import i18n from './plugins/i18n/main'
@@ -100,8 +99,8 @@ library.bus.on('setMenusCompelet', () => {
   menuViewsStore.addViewById(HOME_PAGE)
 })
 
-library.bus.on('logout', async () => {
-  await localforage.removeItem('SiteContainer/MenuLocalCache')
+// 退出登录：库在收到该事件时会自动清掉当前用户命名空间下的本地缓存
+library.bus.on('logout', () => {
   alert('logout success')
 })
 

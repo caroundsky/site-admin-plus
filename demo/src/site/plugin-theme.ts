@@ -1,13 +1,12 @@
 /**
- * 示例插件：主题
+ * 示例插件：主题切换
  *
- * 库把主题色变量定义在 `body.theme-{name}` 选择器下（见库的 src/styles/themes.scss），
- * 但**库自身不会去加这个 class** —— 按设计由主题插件负责，见库的
- * src/layouts/index.vue 注释「主题由主题插件通过 bus.setState('theme', ...) 同步」。
- *
- * 这里做两件事：
+ * 库自身已保证容器启动时 body 上会带 `theme-default`（见库的 RootContainer），
+ * 所以 `--theme-color` 不会再是空值。这里的职责是**运行时切换**：
  *  1. 把当前主题名同步到 bus（容器据此渲染 `site-container--theme-{name}`）
- *  2. 给 <body> 加 `theme-{name}`，让 `--theme-color` 真正有值
+ *  2. 换主题时同步更新 <body> 上的 `theme-{name}`，让 `--theme-color` 跟着变
+ *
+ * 主题色变量定义见库的 src/styles/themes.scss。
  */
 import { watch } from 'vue'
 import type { Plugin, PluginCtx } from '@caroundsky/lemon-admin'

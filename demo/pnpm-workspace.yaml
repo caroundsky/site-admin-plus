@@ -6,4 +6,4 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - less@4.9.1
   - '@caroundsky/free-roam@0.1.0 || 0.1.1'
-  - '@caroundsky/lemon-admin@1.0.0-alpha.0'
+  - '@caroundsky/lemon-admin@1.0.0-alpha.0 || 1.0.0-alpha.1'

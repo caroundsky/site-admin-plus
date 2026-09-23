@@ -26,8 +26,7 @@
     "src/**/*.vue",
     "example/**/*.ts",
     "example/**/*.tsx",
-    "example/**/*.vue",
-    "types/**/*.d.ts"
+    "example/**/*.vue"
   ],
   "exclude": ["node_modules"]
 }

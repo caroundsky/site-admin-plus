@@ -16,7 +16,7 @@ import {
   getCurrentInstance,
   onMounted,
 } from 'vue'
-import type { NavMenuItem } from '~/types/interfaces'
+import type { NavMenuItem } from '@/types/interfaces'
 
 interface RootMenu {
   popoverLevel: number

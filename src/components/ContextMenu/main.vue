@@ -31,7 +31,7 @@
 import { reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElIcon } from 'element-plus'
 import { getElementsByClassName } from '@/utils/tools'
-import type { MenuView, ContextButton } from '~/types/interfaces'
+import type { MenuView, ContextButton } from '@/types/interfaces'
 
 interface Props {
   view?: MenuView | MenuView[]

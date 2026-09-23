@@ -6,7 +6,8 @@
     "emitDeclarationOnly": true,
     "declarationMap": false,
     "skipLibCheck": true,
-    "outDir": "src"
+    "rootDir": "src",
+    "outDir": "types"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "types/**/*.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

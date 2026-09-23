@@ -1,4 +1,4 @@
-import { NavMenuItem } from '~/types/interfaces'
+import { NavMenuItem } from '@/types/interfaces'
 import { warn } from '@/utils/debug'
 import bus from '@/bus'
 

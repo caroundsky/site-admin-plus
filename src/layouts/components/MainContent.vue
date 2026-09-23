@@ -31,7 +31,7 @@
 import { ref, watch, computed, type ComponentPublicInstance } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useMenuViewsStore } from '@/stores/menuViews'
-import type { MenuView } from '~/types/interfaces'
+import type { MenuView } from '@/types/interfaces'
 
 import xorBy from 'lodash/xorBy'
 import intersectionBy from 'lodash/intersectionBy'

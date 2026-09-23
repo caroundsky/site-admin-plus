@@ -9,8 +9,7 @@ import type { NavMenuItem } from '@caroundsky/lemon-admin'
 /** 默认打开的首页菜单 id */
 export const HOME_PAGE = 'dashboard'
 
-const page = (name: string) =>
-  `${import.meta.env.BASE_URL}pages/${name}.html`
+const page = (name: string) => `${import.meta.env.BASE_URL}pages/${name}.html`
 
 const menus: NavMenuItem[] = [
   {
