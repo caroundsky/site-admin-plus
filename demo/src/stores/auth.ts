@@ -54,16 +54,24 @@ export const authStore = defineStore('authInfo', {
         // 告诉站点容器当前用户是谁：此后它写入的本地缓存都会带 `<用户名>/` 前缀，
         // 换账号登录不会串数据
         bus.setUserKey(username)
+        // 容器操作栏从 bus 读用户名，登录后要同步过去
+        bus.setState('username', username)
       } finally {
         this.loading = false
       }
     },
 
+    /**
+     * 清空本地登录态。
+     *
+     * 注意这里**不 emit('logout')** —— 退出登录由站点容器的钩子发起
+     * （see plugin-user.ts 里的 bus.on('logout')），本方法只负责清理自身状态。
+     * 若在这里再 emit 一次，钩子处理器回调本方法就会无限循环。
+     */
     logout() {
       this.currentUser = {}
       localStorage.removeItem(STORAGE_KEY)
-      // 库收到 logout 会清掉该用户命名空间下的全部缓存
-      bus.emit('logout')
+      bus.setState('username', '')
     },
   },
 })

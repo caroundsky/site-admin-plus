@@ -214,6 +214,19 @@
     }
   }
 
+  /* 主题相关：弹出菜单的文字色与 hover 背景（值来自 src/styles/themes.scss） */
+  .nav-menu__item:not(.nav-menu__item--has-child) {
+    color: var(--site-color-pop-text, inherit);
+
+    &:hover {
+      background-color: var(--site-color-pop-hover);
+
+      .help-icon {
+        display: block;
+      }
+    }
+  }
+
   .lemon-submenu__title-txt {
     box-sizing: border-box;
     position: relative;
@@ -463,5 +476,20 @@
   to {
     transform: scale(1);
     opacity: 0;
+  }
+}
+
+/* 主题相关：菜单项 hover 背景与文字色（值来自 src/styles/themes.scss） */
+.nav-menu__item {
+  &:hover {
+    background-color: var(--site-color-item-hover);
+
+    & > .lemon-submenu__title {
+      color: #fff;
+    }
+  }
+
+  &.is-pop:hover {
+    color: #fff;
   }
 }

@@ -7,7 +7,6 @@
  */
 import { createLibrary } from '@caroundsky/lemon-admin'
 import menus, { HOME_PAGE } from '@/mock/menu'
-import themePlugin from './plugin-theme'
 import userMenuPlugin from './plugin-user'
 
 export const library = createLibrary({
@@ -28,7 +27,7 @@ export const library = createLibrary({
     HOME_PAGE,
     FIXED_DRAG: [HOME_PAGE],
   },
-  plugins: [themePlugin(), userMenuPlugin()],
+  plugins: [userMenuPlugin()],
 })
 
 // 容器开始初始化时注入菜单数据

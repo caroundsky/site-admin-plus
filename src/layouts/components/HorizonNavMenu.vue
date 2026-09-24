@@ -43,6 +43,13 @@ const navMenuConfig = computed(() => {
 .nav-menu--horizon {
   position: relative;
   display: flex;
+  /* 主题色由 body.theme-* 提供（见 src/styles/themes.scss） */
+  background: var(--site-color-nav);
+
+  .menu__logo {
+    box-shadow: 1px 0 4px 0 rgba(0, 0, 0, 0.2);
+  }
+
   .nav-menu-search {
     position: initial;
     &__icon {

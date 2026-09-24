@@ -146,6 +146,56 @@ app.mount('#app')
 | `HOME_PAGE` | `string` | 首页菜单 id |
 | `FIXED_DRAG` | `string[]` | 固定页签的菜单 id（不可拖拽、不可关闭） |
 
+### 主题定制
+
+内置 11 套主题（5 纯色 + 6 渐变）。**组件样式里不写死任何主题色**——每个主题只产出一组 CSS 变量，变量挂在 `body.theme-{name}` 上。所以定制主题有两种方式。
+
+#### 方式一：覆盖 CSS 变量（纯 CSS，无需 Sass）
+
+```css
+body.theme-mybrand {
+  --site-color: #ff6b00; /* 侧栏背景；渐变主题填 linear-gradient(...) */
+  --site-color-nav: #ff7f1f; /* 横版导航背景 */
+  --site-color-logo: #ff7f1f; /* logo 背景；渐变主题填 transparent */
+  --site-color-item-hover: #ff5c00; /* 菜单项 hover 背景 */
+  --site-color-act-hover: #ff6b0033; /* 操作栏 hover 背景 */
+  --site-color-act-invert-hover: #f05e00; /* 操作栏 --invert 时的 hover 背景 */
+  --site-color-pop-text: #ff7f1f; /* 弹出菜单文字色 */
+  --site-color-pop-hover: #ff6b001f; /* 弹出菜单项 hover 背景 */
+  --theme-color: #ff6b00; /* 纯色主题色：页签栏、加载动画等只接受颜色的场合 */
+}
+```
+
+#### 方式二：用 Sass 生成（派生色自动算）
+
+`src/styles/themes.scss` 随包发布，内置的 `theme-generator` 会按内置主题同样的规则算出全套变量：
+
+```scss
+@use '@caroundsky/lemon-admin/src/styles/themes.scss' as *;
+
+// 纯色主题
+@include theme-generator('mybrand', #ff6b00);
+
+// 渐变主题：第三个参数传一个可参与颜色运算的纯净色
+@include theme-generator(
+  'mygrad',
+  linear-gradient(135deg, #ff6b00 0%, #ff2d55 100%),
+  #ff6b00
+);
+```
+
+#### 运行时切换
+
+改 bus 上的主题名即可，`body` 上的主题 class 与容器的 `site-container--theme-{name}` 都会自动跟随：
+
+```ts
+import { bus } from '@caroundsky/lemon-admin'
+
+bus.setState('theme', 'mybrand')
+```
+
+不做任何设置时容器会兜底 `theme-default`，保证变量不为空。
+
 ### 菜单数据格式
 
 ```ts

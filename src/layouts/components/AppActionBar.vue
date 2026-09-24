@@ -133,6 +133,20 @@ const logOut = () => {
     background-color: transparent;
     color: #fff;
   }
+
+  /* 主题相关：hover 背景（值来自 src/styles/themes.scss）
+     __link 可能由插件通过插槽渲染，故用 :deep 让样式能作用到它们 */
+  .user-act:hover,
+  & :deep(.app-act__link):hover {
+    background-color: var(--site-color-act-hover);
+  }
+
+  &--invert {
+    .user-act:hover,
+    & :deep(.app-act__link):hover {
+      background-color: var(--site-color-act-invert-hover);
+    }
+  }
 }
 
 .user-act {

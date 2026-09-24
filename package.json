@@ -1,6 +1,6 @@
 {
   "name": "@caroundsky/lemon-admin",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.3",
   "type": "module",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -8,6 +8,7 @@
   "files": [
     "lib",
     "types",
+    "src/styles/themes.scss",
     "README.md",
     "MIGRATION.md"
   ],

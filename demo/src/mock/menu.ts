@@ -61,6 +61,15 @@ const menus: NavMenuItem[] = [
     helpUrl: 'https://element-plus.org/zh-CN/',
   },
   {
+    // 与上面几个静态页对照：这一项指向 SPA 自己的路由，容器同样用 iframe 承载
+    id: 'embed',
+    text: '路由打开页',
+    href: `${import.meta.env.BASE_URL}#/embed`,
+    icon: '',
+    show: true,
+    isNew: true,
+  },
+  {
     id: 'system',
     text: '系统设置',
     href: '',

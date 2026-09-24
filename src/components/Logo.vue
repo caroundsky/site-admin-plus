@@ -78,6 +78,8 @@ const handleClick = () => {
   z-index: 1000;
   height: $menu-view-bar-height;
   text-align: center;
+  /* 主题色由 body.theme-* 提供（见 src/styles/themes.scss）；渐变主题为 transparent */
+  background: var(--site-color-logo, transparent);
 
   &--clickable {
     cursor: pointer;

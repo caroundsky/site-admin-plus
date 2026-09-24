@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="tsx">
-import { provide, onMounted, ref, watch } from 'vue'
+import { computed, provide, onMounted, ref, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useMenuStore } from '@/stores/menu'
 import MainContainer from '@/layouts/index.vue'
@@ -19,24 +19,29 @@ provide('bus', bus)
 provide('$tools', tools)
 
 /**
- * 默认主题
+ * 主题
  *
- * themes.scss 把 `--theme-color` 定义在 `body.theme-{name}` 选择器下，容器本身不会去落地
- * 这个 class（主题由消费方的主题插件驱动，见 src/layouts/index.vue）。但那样一来
- * 未装主题插件时 `--theme-color` 就是空值，所有引用它的样式都拿不到颜色。
- * 这里兜一个默认主题：body 上已有 `theme-*` 就不动，让主题插件照常覆盖。
+ * themes.scss 把主题色变量定义在 `body.theme-{name}` 选择器下（见 src/styles/themes.scss），
+ * 这里负责把当前主题落地到 body：
+ *  - 未接主题时兜底 `theme-default`，保证 `--theme-color` 等变量不为空；
+ *  - 跟随 `bus.setState('theme', ...)` 自动切换，消费方无需再写主题插件。
  */
 const DEFAULT_THEME = 'default'
 
-const ensureDefaultTheme = () => {
+const applyBodyTheme = (name: string) => {
   const body = document.body
+  // 倒序遍历：边删边遍历时不会漏项
   for (let i = body.classList.length - 1; i >= 0; i--) {
-    if (body.classList.item(i)?.startsWith('theme-')) return
+    const cls = body.classList.item(i)
+    if (cls?.startsWith('theme-')) body.classList.remove(cls)
   }
-  body.classList.add(`theme-${DEFAULT_THEME}`)
+  body.classList.add(`theme-${name || DEFAULT_THEME}`)
 }
 
-ensureDefaultTheme()
+const currentTheme = computed(
+  () => (bus.getState('theme') as string) || DEFAULT_THEME,
+)
+watch(currentTheme, applyBodyTheme, { immediate: true })
 
 const appStore = useAppStore()
 const menuStore = useMenuStore()
@@ -59,11 +64,15 @@ bus.on('setMenus', handleSetMenus)
 watch(
   () => menuStore.navMenu,
   (navMenu) => {
-    console.log('[RootContainer] navMenu changed:', navMenu?.length)
     if (navMenu && navMenu.length > 0) {
       isReady.value = true
     }
   },
+  // immediate 必须加：容器可能被卸载后重新挂载（典型场景是「退出登录 → 再次登录」，
+  // 中间路由切到登录页导致容器销毁）。重新挂载时 isReady 重置为 false，而 store 里
+  // 已有菜单数据，再次 setNavMenu 赋的是同一个数组引用、不会触发 watch，
+  // 于是页面永远停在「加载中」。
+  { immediate: true },
 )
 
 // 组件挂载后触发事件

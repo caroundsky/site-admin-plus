@@ -1,142 +1,79 @@
 /**
- * 主题样式生成器
+ * 主题变量生成器
  *
- * $theme-color 既可能是纯色，也可能是渐变（如 linear-gradient(...)）；
- * $pure-color 是可选的「纯净色」，渐变主题才会传（用于渐变无法参与运算的场合）。
- * 因此每逢需要做颜色运算时就先判断类型，等价于原 Less 版的 `& when (iscolor(...))`。
+ * 只为每个主题产出一组 **CSS 变量**，具体样式在各自的组件样式里用 `var()` 引用——
+ * 同一个选择器不再每套主题复制一份规则。
+ *
+ * 这样做的好处：
+ *   - 新增主题的边际成本是「几个变量」而不是「一整套规则」，CSS 体积不随主题数线性增长；
+ *   - 消费方可以用**纯 CSS 覆盖变量**来定制主题，无需拿到库的样式源码；
+ *   - 用 Sass 的消费方也可以 `@use` 本文件、`@include theme-generator('mybrand', #ff6b00)`
+ *     直接生成带精确派生色的主题。
+ *
+ * 参与运算的颜色：`$theme-color` 可能是渐变（如 linear-gradient(...)），此时传 `$pure-color`
+ * 作为可参与颜色运算的纯净色；纯色主题只用 `$theme-color`。
+ *
+ * @example 消费方新增主题
+ * ```scss
+ * @use '@caroundsky/lemon-admin/src/styles/themes.scss' as *;
+ * @include theme-generator('mybrand', #ff6b00);
+ * ```
  */
 @use 'sass:color';
 @use 'sass:meta';
-@use './variables' as *;
 
 @mixin theme-generator($name, $theme-color, $pure-color: null) {
   $has-pure: meta.type-of($pure-color) == color;
   $has-theme: meta.type-of($theme-color) == color;
 
+  // 这里刻意用 @if/@else 而不是 `if()` 函数：后者在 Sass 1.104 起已废弃
+  // （让位给现代 CSS 的 if() 语法），用了会给每个消费方的构建刷弃用警告。
+
+  // 可参与颜色运算的基准色：渐变主题用纯净色，纯色主题用主题色本身
+  $base: $theme-color;
+  @if $has-pure {
+    $base: $pure-color;
+  }
+
+  // 横版导航 / logo 的底色：渐变主题直接用渐变本身，纯色主题取浅 8%
+  $nav: $theme-color;
+  @if $has-pure == false and $has-theme {
+    $nav: color.adjust($theme-color, $lightness: 8%);
+  }
+
   body.theme-#{$name} {
+    /* 纯色主题色：只接受颜色的场合（页签栏、加载动画）用它 */
+    --theme-color: #{$base};
+    /* 侧栏背景：渐变主题是渐变，纯色主题是纯色 */
+    --site-color: #{$theme-color};
+    /* 横版导航背景 */
+    --site-color-nav: #{$nav};
+    /* 菜单项 hover 背景（深 1%） */
+    --site-color-item-hover: #{color.adjust($base, $lightness: -1%)};
+    /* 操作栏 --invert 时的 hover 背景（深 8%） */
+    --site-color-act-invert-hover: #{color.adjust($base, $lightness: -8%)};
+
+    /* 以下三项渐变主题与纯色主题取值不同，故分支 */
     @if $has-pure {
-      --theme-color: #{$pure-color};
-    } @else if $has-theme {
-      --theme-color: #{$theme-color};
+      /* logo 背景：渐变主题不设（保持透明） */
+      --site-color-logo: transparent;
+      /* 操作栏 hover 背景（渐变主题用更淡的一层） */
+      --site-color-act-hover: #{rgba($pure-color, 0.08)};
+      /* 弹出菜单文字色 */
+      --site-color-pop-text: #{$pure-color};
+      /* 弹出菜单项 hover 背景 */
+      --site-color-pop-hover: #{rgba($pure-color, 0.12)};
+    } @else {
+      --site-color-logo: #{$nav};
+      --site-color-act-hover: #{rgba($theme-color, 0.2)};
+      --site-color-pop-text: #{color.adjust($theme-color, $lightness: 10%)};
+      --site-color-pop-hover: #{rgba($theme-color, 0.12)};
     }
   }
+
+  /* 主题列表示意色块：该类挂在列表项上，不在容器子树内，需独立规则 */
   .lemon-theme-#{$name} {
     background: $theme-color;
-  }
-  .site-container--theme-#{$name} {
-    // 整体侧栏颜色
-    .aside-nav-menu {
-      background: $theme-color;
-    }
-    .nav-menu--horizon {
-      @if $has-pure {
-        background: $theme-color;
-      } @else if $has-theme {
-        background-color: color.adjust($theme-color, $lightness: 8%);
-      }
-      .menu__logo {
-        box-shadow: 1px 0px 4px 0px rgba(0, 0, 0, 0.2);
-      }
-    }
-    // logo背景色
-    .menu__logo {
-      height: $menu-view-bar-height;
-      // background: $logo-property;
-      cursor: pointer;
-      @if $has-theme and not $has-pure {
-        background-color: color.adjust($theme-color, $lightness: 8%);
-      }
-    }
-    &.site-container--menu-close,
-    &.site-container--menu-horizon {
-      .menu__logo {
-        // background: $logo-property-sm;
-        @if $has-theme and not $has-pure {
-          background-color: color.adjust($theme-color, $lightness: 8%);
-        }
-      }
-    }
-    // 设置鼠标当前hover列的颜色
-    .nav-menu__item {
-      &.is-pop {
-        &:hover {
-          color: #fff;
-        }
-      }
-      &:hover {
-        @if $has-pure {
-          background-color: color.adjust($pure-color, $lightness: -1%);
-          & > .lemon-submenu__title {
-            color: #fff;
-          }
-        } @else if $has-theme {
-          background-color: color.adjust($theme-color, $lightness: -1%);
-          & > .lemon-submenu__title {
-            color: #fff;
-          }
-        }
-      }
-    }
-
-    // 用户操作栏
-    .app-act {
-      .user-act:hover {
-        @if $has-pure {
-          background-color: rgba($pure-color, 0.08);
-        } @else if $has-theme {
-          background-color: rgba($theme-color, 0.2);
-        }
-      }
-      &__link:hover {
-        @if $has-pure {
-          background-color: rgba($pure-color, 0.08);
-        } @else if $has-theme {
-          background-color: rgba($theme-color, 0.2);
-        }
-      }
-
-      &--invert {
-        .user-act:hover {
-          @if $has-pure {
-            background-color: color.adjust($pure-color, $lightness: -8%);
-          } @else if $has-theme {
-            background-color: color.adjust($theme-color, $lightness: -8%);
-          }
-        }
-        .app-act__link:hover {
-          @if $has-pure {
-            background-color: color.adjust($pure-color, $lightness: -8%);
-          } @else if $has-theme {
-            background-color: color.adjust($theme-color, $lightness: -8%);
-          }
-        }
-      }
-    }
-  }
-  body.theme-#{$name}
-    .nav-menu__submenu--pop
-    .nav-menu__item:not(.nav-menu__item--has-child) {
-    @if $has-pure {
-      color: $pure-color;
-      .hightlight {
-        @include set-hight-light();
-      }
-    } @else if $has-theme {
-      color: color.adjust($theme-color, $lightness: 10%);
-      .hightlight {
-        @include set-hight-light();
-      }
-    }
-    &:hover {
-      .help-icon {
-        display: block;
-      }
-      @if $has-pure {
-        background-color: rgba($pure-color, 0.12);
-      } @else if $has-theme {
-        background-color: rgba($theme-color, 0.12);
-      }
-    }
   }
 }
 
