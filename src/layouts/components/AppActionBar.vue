@@ -103,11 +103,14 @@ const logOut = () => {
     align-items: center;
   }
 
-  :deep(&__item) {
+  // 注意：这里不能写 `:deep(&__item)`——`:deep()` 的括号是伪类参数位置，
+  // Sass 不会在那里展开 `&`，而是用 `:scope` 顶替，产物会变成无效的
+  // `:scope__item`，整条规则被浏览器丢弃。必须把类名写全。
+  :deep(.app-act__item) {
     color: #333;
   }
 
-  :deep(&__link) {
+  :deep(.app-act__link) {
     position: relative;
     color: #333;
     cursor: pointer;

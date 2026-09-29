@@ -63,7 +63,7 @@ const popoverLevel = computed(() => {
   flex-direction: column;
   color: $sidebar-text-color;
   /* 主题色由 body.theme-* 提供（见 src/styles/themes.scss） */
-  background-color: var(--site-color, #{$sidebar-background-color});
+  background: var(--site-color, #{$sidebar-background-color});
   transition:
     width 0.2s,
     background 0.2s;

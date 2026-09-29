@@ -1,6 +1,6 @@
 {
   "name": "@caroundsky/lemon-admin",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "type": "module",
   "main": "lib/index.js",
   "module": "lib/index.js",

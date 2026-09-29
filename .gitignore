@@ -20,6 +20,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+*.tgz
 
 # 构建期生成的类型声明（由 yarn build:types 产出到 types/）
 /types

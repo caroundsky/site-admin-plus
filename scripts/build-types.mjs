@@ -22,6 +22,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = path.join(ROOT, 'types')
 
 /* ---------- 1. 用 vue-tsc 产出声明（.vue 也能处理） ---------- */
+// 先清空产物目录：vue-tsc 只覆盖同名文件、不会删除已消失的旧产物，
+// 残留的历史声明会被一起打进发布包（消费方随后解析到不该存在的文件）。
+fs.rmSync(OUT, { recursive: true, force: true })
+
 console.log('[build-types] vue-tsc --emitDeclarationOnly ...')
 // 注意用 shell 执行：Windows 上 Node 不允许直接 spawn .cmd
 // （node_modules/.bin 里的 vue-tsc 在 Windows 下是 .cmd）
