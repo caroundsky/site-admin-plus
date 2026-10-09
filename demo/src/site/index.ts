@@ -8,6 +8,8 @@
 import { createLibrary } from '@caroundsky/lemon-admin'
 import menus, { HOME_PAGE } from '@/mock/menu'
 import userMenuPlugin from './plugin-user'
+import contextMenuPlugin from './plugin-context-menu'
+import footerPlugin from './plugin-footer'
 
 export const library = createLibrary({
   config: {
@@ -26,8 +28,11 @@ export const library = createLibrary({
     },
     HOME_PAGE,
     FIXED_DRAG: [HOME_PAGE],
+    // 跨 iframe 桥接：true = 开启且不限制来源（默认）。
+    // 需要收紧时传对象，如 { origins: ['self'], methods: ['addTab'] }
+    bridge: true,
   },
-  plugins: [userMenuPlugin()],
+  plugins: [userMenuPlugin(), contextMenuPlugin(), footerPlugin()],
 })
 
 // 容器开始初始化时注入菜单数据

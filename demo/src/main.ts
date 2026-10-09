@@ -10,6 +10,8 @@ import { createI18n } from 'vue-i18n'
 import '@/utils/nprogress'
 // 站点容器样式（库内的 Element Plus 样式已私有化为 lemon- 前缀）
 import '@caroundsky/lemon-admin/lib/index.css'
+// 自定义主题「品牌橙」：必须在库样式之后引入，才能覆盖同名 CSS 变量
+import '@/site/theme-brand.scss'
 import router from './router'
 import dialogService from '@caroundsky/el-plus-dialog-service'
 

@@ -4,9 +4,9 @@
       <span class="embed__kind">路由页面</span>
       <h1 class="embed__title">这是一个 Vue 路由</h1>
       <p class="embed__lede">
-        站点容器的「路由打开页」菜单项指向 <code>#/embed</code>，容器用
-        iframe 加载它。与 <code>public/pages/*.html</code> 那些静态页不同，这一页是
-        真正的 Vue 路由——有响应式状态、能调接口、能复用项目里的组件。
+        站点容器的「路由打开页」菜单项指向 <code>#/embed</code>，容器用 iframe 加载它。与
+        <code>public/pages/*.html</code> 那些静态页不同，这一页是 真正的 Vue
+        路由——有响应式状态、能调接口、能复用项目里的组件。
       </p>
     </header>
 
@@ -150,9 +150,7 @@ const href = window.location.href
   background: #fff;
   border: 1px solid #dcdfe6;
   border-radius: 6px;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
     color: #0070b2;

@@ -1,0 +1,18 @@
+/**
+ * 自定义主题案例：库内置 11 套主题之外的「品牌橙」
+ *
+ * 演示消费方定制主题的 Sass 路径 —— 库只发布主题生成器（mixin），
+ * 颜色由消费方给，派生色（hover 背景、弹出菜单文字色、logo 底色等）由 mixin 现算。
+ * 生成结果全部是 CSS 变量，落在 `body.theme-brand-orange` 上。
+ *
+ * 只用 CSS 也能定制（把下面生成的几个变量手写进自己的样式表即可），
+ * 见库 README 的「主题定制」一节。
+ *
+ * 注意：
+ *  1. 本文件需在库样式 `@caroundsky/lemon-admin/lib/index.css` 之后引入，
+ *     否则同名变量的优先级会被库内置主题覆盖；
+ *  2. 主题名要和 themes.ts 里的 name 一致，ThemeSwitch 才能切到它。
+ */
+@use '@caroundsky/lemon-admin/src/styles/themes.scss' as *;
+
+@include theme-generator('brand-orange', #ff6b00);

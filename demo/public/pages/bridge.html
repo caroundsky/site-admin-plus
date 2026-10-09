@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>跨 iframe 调用</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px 32px;
+        font-family: ui-sans-serif, system-ui, 'Microsoft YaHei', sans-serif;
+        color: #1f2937;
+        background: #f8fafc;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 20px;
+      }
+      .lede {
+        max-width: 780px;
+        margin: 0 0 18px;
+        font-size: 13px;
+        line-height: 1.8;
+        color: #6b7280;
+      }
+      code {
+        padding: 1px 5px;
+        font-size: 12px;
+        background: #eef2f7;
+        border-radius: 3px;
+      }
+      pre.snippet {
+        max-width: 780px;
+        padding: 12px 14px;
+        margin: 0 0 20px;
+        overflow: auto;
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #334155;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+      }
+      .btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 7px 14px;
+        font-size: 13px;
+        color: #334155;
+        cursor: pointer;
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 5px;
+      }
+      button:hover {
+        color: var(--theme-color, #0070b2);
+        border-color: var(--theme-color, #0070b2);
+      }
+      button.danger {
+        color: #b91c1c;
+        border-color: #fca5a5;
+      }
+      #log {
+        height: 260px;
+        padding: 12px 14px;
+        overflow: auto;
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #475569;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        white-space: pre-wrap;
+      }
+      #log .req {
+        color: #0369a1;
+      }
+      #log .ok {
+        color: #15803d;
+      }
+      #log .err {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>跨 iframe 调用</h1>
+    <p class="lede">
+      这个页面跑在 iframe 里，与站点容器是两个文档。它不加载 vue / pinia /
+      element-plus，只发一条消息就能指挥容器开页签、查菜单 —— 协议只有
+      <code>method</code> 和 <code>payload</code> 两个字段。
+    </p>
+
+    <pre class="snippet">
+// 最简：一行。不带 id，响应只能按 method 认领
+window.parent.postMessage({ method: 'addTab', payload: { text: '报表中心', href: '/pages/reports.html' } }, '*')
+
+// 带上 id，容器会原样回填 —— 并发请求可以按 id 精确配对
+window.parent.postMessage({ method: 'queryMenu', payload: { name: '订单管理' }, id: 'my-1' }, '*')
+
+// 容器配了 bridge.origins 时，第二参换成容器 origin
+window.parent.postMessage({ method: 'closeTab', id: 'my-2' }, 'https://container.example.com')
+
+// 收响应
+window.addEventListener('message', (e) =&gt; {
+  if (!e.data || typeof e.data.ok !== 'boolean') return
+  console.log(e.data.id, e.data.method, e.data.result, e.data.error)
+})</pre
+    >
+
+    <div class="btns">
+      <button data-act="addTab">打开「报表中心」页签</button>
+      <button data-act="queryMenu">查询「订单管理」菜单</button>
+      <button data-act="setTabTitle">改本页签标题</button>
+      <button data-act="refreshTab">刷新本页签</button>
+      <button class="danger" data-act="closeOther">越权：关掉「数据看板」</button>
+    </div>
+
+    <pre id="log"></pre>
+
+    <script>
+      // 容器默认不限制来源，用 '*' 即可；容器配了 bridge.origins 就换成它的 origin
+      const CONTAINER_ORIGIN = '*'
+
+      const logEl = document.getElementById('log')
+      let seq = 0
+
+      const log = (text, cls = '') => {
+        const line = document.createElement('div')
+        if (cls) line.className = cls
+        line.textContent = text
+        logEl.appendChild(line)
+        logEl.scrollTop = logEl.scrollHeight
+      }
+
+      // 每个请求带一个 id，响应原样回填，按 id 配对
+      const waiters = new Map()
+
+      window.addEventListener('message', (event) => {
+        const data = event.data
+        if (!data || typeof data.method !== 'string' || typeof data.ok !== 'boolean') return
+
+        const waiter = waiters.get(data.id)
+        if (!waiter) return
+        waiters.delete(data.id)
+        clearTimeout(waiter.timer)
+
+        if (data.ok) {
+          log('← ok ' + JSON.stringify(data.result ?? null), 'ok')
+        } else {
+          log('← ' + data.error, 'err')
+        }
+        waiter.resolve(data)
+      })
+
+      /** 发一次请求；调用方拿到的是容器的响应对象 */
+      const call = (method, payload) => {
+        const id = 'page-' + ++seq
+
+        return new Promise((resolve) => {
+          if (window.parent === window) {
+            log('← 当前不在容器里打开，请从左侧菜单进入', 'err')
+            resolve({ ok: false })
+            return
+          }
+
+          const timer = setTimeout(() => {
+            waiters.delete(id)
+            log('← 超时：容器未响应', 'err')
+            resolve({ ok: false })
+          }, 5000)
+
+          waiters.set(id, { timer, resolve })
+          window.parent.postMessage({ method, payload, id }, CONTAINER_ORIGIN)
+        })
+      }
+
+      const Actions = {
+        async addTab() {
+          // 两个方法配合：先查菜单拿 href，再打开
+          const found = await call('queryMenu', { name: '报表中心' })
+          if (!found.ok || !found.result.length) return
+          const menu = found.result[0]
+          return call('addTab', { id: menu.id, text: menu.text, href: menu.href })
+        },
+        queryMenu() {
+          return call('queryMenu', { name: '订单管理' })
+        },
+        setTabTitle() {
+          return call('setTabTitle', { text: '跨 iframe 调用 #' + ++seq })
+        },
+        refreshTab() {
+          return call('refreshTab')
+        },
+        closeOther() {
+          // 故意操作别的页签：容器应拒绝（只能操作自己）
+          return call('closeTab', { id: 'dashboard' })
+        },
+      }
+
+      document.querySelectorAll('button[data-act]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const act = btn.dataset.act
+          log('→ ' + act, 'req')
+          await Actions[act]()
+        })
+      })
+
+      log('页面就绪')
+    </script>
+  </body>
+</html>

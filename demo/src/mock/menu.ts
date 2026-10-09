@@ -70,6 +70,13 @@ const menus: NavMenuItem[] = [
     isNew: true,
   },
   {
+    id: 'bridge',
+    text: '跨 iframe 调用',
+    href: page('bridge'),
+    icon: '',
+    show: true,
+  },
+  {
     id: 'system',
     text: '系统设置',
     href: '',
