@@ -15,14 +15,17 @@ const isBridgeEntry = process.env.LEMON_ENTRY === 'bridge'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
-  base: './',
+  base: process.env.VITE_BASE ?? '/',
   plugins: [vue(), vueJsx(), svgLoader()],
 
   resolve: {
     alias: {
       // 让 example 用真实包名导入，与消费方写法完全一致；
       // 要改成构建产物，只需把这里指向 lib/index.js。
-      '@caroundsky/lemon-admin': path.resolve(import.meta.dirname, 'src/main.ts'),
+      '@caroundsky/lemon-admin': path.resolve(
+        import.meta.dirname,
+        'src/main.ts',
+      ),
       '@': '/src',
       '~': '',
     },
