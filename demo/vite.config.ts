@@ -10,6 +10,9 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // GitHub Pages 部署在仓库子路径 /<repo>/ 下，CI 通过 VITE_BASE 注入；
+  // 本地 dev 不设就是根路径。菜单里 iframe 的地址读的是 BASE_URL，会跟着一起走。
+  base: process.env.VITE_BASE ?? '/',
   plugins: [
     vue(),
     vueJsx(),
