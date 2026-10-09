@@ -75,7 +75,7 @@ jobs:
         env:
           # Pages 的访问路径就是 /<仓库名>/：直接取实际仓库名，
           # 这样仓库改名后不用回来改这里（demo/vite.config.ts 读它作为 base）
-          VITE_BASE: /${{ github.event.repository.name }}/
+          VITE_BASE: /site-admin-plus/
         run: pnpm build
 
       - uses: actions/configure-pages@v5
