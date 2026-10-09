@@ -1,0 +1,97 @@
+name: Deploy demo to GitHub Pages
+
+# 访问地址：https://caroundsky.github.io/lemon-admin/
+# 前置条件：仓库 Settings → Pages → Build and deployment → Source 选「GitHub Actions」
+#
+# 这个仓库有两层：根目录是库本体（yarn），demo/ 是消费方示例（pnpm）——
+# 两个包管理器都得装，所以下面会 setup-node 两次，各自带各自的缓存。
+
+on:
+  push:
+    # 两种默认分支约定都支持
+    branches: [main, master]
+  # 允许在 Actions 页面手动触发
+  workflow_dispatch:
+
+# GitHub Pages 部署所需的最小权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一次部署，新的推送取消排队中的旧任务
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- 库本体：根目录用 yarn ----------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install library dependencies
+        run: yarn install --frozen-lockfile
+
+      # 产出 lib/（index.js + bridge.js + index.css）与 types/
+      - name: Build library
+        run: yarn build
+
+      # ---------- demo：demo/ 用 pnpm ----------
+      # demo/package.json 没有 packageManager 字段，这里显式钉版本
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: demo/pnpm-lock.yaml
+
+      - name: Install demo dependencies
+        working-directory: demo
+        run: pnpm install --frozen-lockfile
+
+      # demo 的 package.json 依赖的是 npm 上已发布的版本。用刚构建的产物覆盖掉，
+      # 保证 Pages 上演示的是当前代码，而不是上一次发布的版本。
+      # （demo 的 pnpm 配了 nodeLinker: hoisted，node_modules 下是真实目录，可直接替换）
+      - name: Use freshly built library in demo
+        working-directory: demo
+        run: |
+          rm -rf node_modules/@caroundsky/lemon-admin/lib node_modules/@caroundsky/lemon-admin/types
+          cp -r ../lib node_modules/@caroundsky/lemon-admin/lib
+          cp -r ../types node_modules/@caroundsky/lemon-admin/types
+
+      # 构建脚本里含 vue-tsc --noEmit，类型不对会在这里失败
+      - name: Build demo
+        working-directory: demo
+        env:
+          # Pages 的访问路径就是 /<仓库名>/：直接取实际仓库名，
+          # 这样仓库改名后不用回来改这里（demo/vite.config.ts 读它作为 base）
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: pnpm build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          # 站点内容是 **demo 的** 构建产物（base 已在 demo/vite.config.ts 里设为 /lemon-admin/）
+          path: demo/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
