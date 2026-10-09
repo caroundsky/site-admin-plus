@@ -133,7 +133,8 @@ export const useMenuViewsStore = defineStore('menuViews', {
       bus.emit('close-menu-view', view)
     },
 
-    closeViewById(viewId: string) {
+    /** @param viewId 为空时只告警不动作（跨 iframe 桥接会传发起方自己的 id） */
+    closeViewById(viewId?: string) {
       if (!viewId) {
         debug.warn(`${JSON.stringify(viewId)} 未提供 'id' 属性`)
         return
@@ -178,6 +179,16 @@ export const useMenuViewsStore = defineStore('menuViews', {
         return item
       })
       this.views = refreshViews
+    },
+
+    /** 改页签标题：业务页通过跨 iframe 桥接改自己标题时用 */
+    setViewText(viewId: string, text: string) {
+      const view = this.views.find((item) => item.id === viewId)
+      if (!view) {
+        debug.warn(`页签 ${JSON.stringify(viewId)} 不存在，无法改标题`)
+        return
+      }
+      view.text = text
     },
 
     setRefreshId(viewId: string | null) {

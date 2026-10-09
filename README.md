@@ -145,6 +145,7 @@ app.mount('#app')
 | `navMenu.popoverTrigger` | `'hover'` \| `'click'` | popover 触发方式 |
 | `HOME_PAGE` | `string` | 首页菜单 id |
 | `FIXED_DRAG` | `string[]` | 固定页签的菜单 id（不可拖拽、不可关闭） |
+| `bridge` | `boolean \| { origins?, methods? }` | 跨 iframe 桥接。不配置 = 不开启；`true` = 开启且来源/方法都不限制；传对象可收紧 |
 
 ### 主题定制
 
@@ -284,3 +285,92 @@ export default function myPlugin(): Plugin {
 库的**其它内部实现不对外暴露**——插件是自包含的，需要滚动容器、点外关闭这类能力时请自带实现（`example/` 的收藏栏与遮罩菜单就是这么做的）。
 
 完整示例见 `example/` 目录（含用户下拉、主题切换、收藏栏、右键菜单、遮罩菜单、i18n 等插件实现），其中的插件全部按上述方式编写，可直接作为模板。
+
+### 跨 iframe 调用
+
+容器里的业务页跑在 iframe 中，与容器是两个文档；而「打开页签」「改页签标题」这类能力只有容器有。库为此提供了一条基于 `postMessage` 的通道，**不要求同源**。协议就三个字段：`method`、`payload`，以及可选的 `id`。
+
+#### 1. 容器侧：开启桥接
+
+```ts
+createLibrary({
+  config: {
+    // true = 开启，来源与可调方法都不限制
+    bridge: true,
+
+    // 需要收紧时传对象：
+    // bridge: {
+    //   origins: ['self', 'https://order.example.com'], // 'self' = 容器自身 origin
+    //   methods: ['addTab', 'queryMenu'],
+    // },
+  },
+  plugins: [...],
+})
+```
+
+不配置 `bridge` 就不注册消息监听，外部请求一律不受理。
+
+容器只做两条校验：
+
+| 校验 | 失败时的行为 |
+| --- | --- |
+| 方法在 `bridge.methods` 内 | 回 `{ method, ok: false, error: '方法 xxx 未开放' }` |
+| 发起方是本容器渲染的 iframe | 回 `{ method, ok: false, error: '发起方不是本容器实例管理的 iframe' }` |
+
+第二条不能少：页面上任何第三方 iframe 都能发 `postMessage`，靠 `event.source` 反查（容器渲染 iframe 时把 `name` 设成了页签 id）把范围限死在本容器渲染的页面内。身份同时也用于鉴权 —— `closeTab` / `refreshTab` / `setTabTitle` **只能作用于发起方自己**的页签，传别人的 id 会被拒。
+
+`bridge.origins` 默认**不限制**；配上白名单后，白名单外的请求不回信、只打一条 warning。
+
+#### 2. 业务页侧
+
+不引入任何依赖，一行就够：
+
+```js
+window.parent.postMessage(
+  { method: 'addTab', payload: { text: '订单详情', href: '/order/123' } },
+  '*', // 容器配了 bridge.origins 时，这里换成容器的 origin
+)
+```
+
+带上 `id`，响应会原样回填，并发也不会串：
+
+```js
+window.parent.postMessage({ method: 'queryMenu', payload: { name: '订单管理' }, id: 'my-1' }, '*')
+
+window.addEventListener('message', (e) => {
+  if (!e.data || typeof e.data.ok !== 'boolean') return
+  console.log(e.data.id, e.data.method, e.data.result, e.data.error)
+})
+```
+
+也可以用 SDK —— 独立入口 `lib/bridge.js`，**零运行时依赖**，不会把 vue / pinia / element-plus 拉进业务页：
+
+```ts
+import { createBridge } from '@caroundsky/lemon-admin/lib/bridge.js'
+
+const bridge = createBridge() // 容器配了白名单就传 { origin: 'https://container.example.com' }
+
+await bridge.addTab({ text: '订单详情', href: '/order/123' })
+await bridge.closeTab()                 // 关自己
+await bridge.setTabTitle('订单 #123')    // 改自己的页签标题
+await bridge.refreshTab()
+const menus = await bridge.queryMenu({ name: '订单管理' })
+```
+
+#### 方法一览
+
+| 方法 | payload | 说明 |
+| --- | --- | --- |
+| `addTab` | `{ text, href, id?, closable? }` | 打开页签，已存在则激活 |
+| `closeTab` | `{ id? }` | 关闭页签，缺省为发起方自己 |
+| `setTabTitle` | `{ text, id? }` | 改页签标题 |
+| `refreshTab` | `{ id? }` | 刷新页签 |
+| `queryMenu` | `{ id?, name? }` | 查菜单，返回**扁平**的精简字段（`id` / `text` / `href` / `icon` / `show`） |
+
+响应形如 `{ method, ok, result?, error?, id? }`，其中 `id` 就是请求里带的那个（没带就没有）。
+
+> `id` 是**可选**的：不带时响应只能按 `method` 认领，并发发两个同 method 的请求会按先后顺序配对；带上则容器原样回填。SDK 会自动生成，手写调用时建议也带上。
+
+> `queryMenu` 只回精简字段是有原因的：容器内部的菜单对象带 `parents`（父级链）等扁平化辅助字段，既冗余又会构成循环引用，过不了 `postMessage` 的结构化克隆。
+
+演示见 `demo/public/pages/bridge.html`（纯静态页，手写 `postMessage`，不依赖任何框架）。

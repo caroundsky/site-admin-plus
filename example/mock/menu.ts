@@ -553,7 +553,7 @@ const mockData: MockData = {
       help: true,
       icon: 'icbg-systemconfig',
       show: true,
-      isNew: false,
+      isNew: true,
       children: [
         {
           id: '11aaa09a96b7f6493bcfc9617ea999e7f',

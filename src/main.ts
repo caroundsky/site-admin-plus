@@ -18,8 +18,9 @@ import PluginSlot from '@/PluginSlot.vue'
 import '@/components/ContextMenu'
 
 /* Tools & types */
-import bus, { type BusConfig } from '@/bus'
+import bus, { type BusConfig, setStore } from '@/bus'
 import * as tools from '@/tools'
+import { createBridgeServer, type BridgeServerOptions } from '@/bridge/server'
 import { ensureArray } from '@/utils/tools'
 import type { Plugin, PluginCtx, PluginBase } from '@/types'
 import { useAppStore } from '@/stores/app'
@@ -46,6 +47,11 @@ export interface RawInputOptions {
 
 let instance: AppInstance
 
+/** `bridge: true` 等价于 `bridge: {}` —— 开启且不限制来源与可调方法 */
+const normalizeBridgeOptions = (
+  value: NonNullable<BusConfig['bridge']>,
+): BridgeServerOptions => (typeof value === 'object' ? value : {})
+
 function _isPluginBase(plugin: Plugin): plugin is PluginBase {
   return isPlainObject(plugin)
 }
@@ -70,6 +76,14 @@ export function create(rawInputOptions: RawInputOptions): AppInstance {
   /** Pinia init */
   const pinia = createPinia()
   app.use(pinia)
+
+  // 登记实例 pinia，供 bus.getStore() 读取（容器内部直接用 store 即可）
+  setStore(pinia)
+
+  // 跨 iframe 桥接：配了 bridge 才开启；来源默认不限制，需要收紧见 bridge.origins
+  if (bus.config.bridge) {
+    createBridgeServer(pinia, normalizeBridgeOptions(bus.config.bridge))
+  }
 
   /** Register global components */
   app.component('FlexContainer', FlexContainer)
@@ -170,6 +184,12 @@ export function createLibrary(
 
   /** Create Pinia */
   const pinia = createPinia()
+
+  // 同 create()：登记实例 pinia，并按配置开启跨 iframe 桥接
+  setStore(pinia)
+  if (bus.config.bridge) {
+    createBridgeServer(pinia, normalizeBridgeOptions(bus.config.bridge))
+  }
 
   /** Apply plugins */
   const pluginCtx: PluginCtx = {

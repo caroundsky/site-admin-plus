@@ -10,6 +10,9 @@ const variablesPath = path
   .resolve(import.meta.dirname, 'src/styles/variables.scss')
   .replace(/\\/g, '/')
 
+// 本次构建的目标：容器本体（默认）还是跨 iframe 的业务页 SDK
+const isBridgeEntry = process.env.LEMON_ENTRY === 'bridge'
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
   base: './',
@@ -80,10 +83,19 @@ export default defineConfig(({ command }) => ({
     },
     sourcemap: true,
     outDir: 'lib',
+    // 第二次构建（bridge）不能清空 lib，否则会把容器产物抹掉
+    emptyOutDir: !isBridgeEntry,
     lib: {
-      entry: './src/main.ts',
+      // 入口由 LEMON_ENTRY 决定，两次单入口构建，见 scripts/build-lib.mjs。
+      // 不用 Vite 的多入口：多入口会把共享模块抽成**带 hash 的公共 chunk**
+      // （实测生成了 protocol-XXXX.js），bridge.js 就不再自包含、文件名也不稳定，
+      // 而它是要被任意技术栈的 iframe 页面单独引入的。
+      entry: isBridgeEntry ? './src/bridge.ts' : './src/main.ts',
       name: 'lemonAdmin',
-      fileName: 'index',
+      fileName: isBridgeEntry ? 'bridge' : 'index',
+      // 多入口时 CSS 会按 lib.name 命名（lemon-admin.css），
+      // 而消费方一直 import 的是 lib/index.css，这里固定住不变
+      cssFileName: 'index',
       formats: ['es'],
     },
   },

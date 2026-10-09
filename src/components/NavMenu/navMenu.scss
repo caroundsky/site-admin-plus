@@ -378,6 +378,12 @@
       &-txt {
         width: auto;
       }
+
+    }
+    .is-new .lemon-submenu__title-txt::before {
+      font-size: 12px;
+      left: 0;
+      top: 10px;
     }
   }
 

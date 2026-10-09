@@ -112,7 +112,6 @@ const logOut = () => {
 
   :deep(.app-act__link) {
     position: relative;
-    color: #333;
     cursor: pointer;
     padding: 0;
     width: $menu-view-bar-height + 6px;

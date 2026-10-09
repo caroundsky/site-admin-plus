@@ -1,29 +1,43 @@
-import isFunction from 'lodash/isFunction'
+import { useMenuViewsStore } from '@/stores/menuViews'
 import { queryMenu } from './queryMenu'
-import bus from '@/bus'
 
-interface tabConfig {
-  text: string // 标签名
-  href: string // url地址
-  id?: string // id, 不携带则取text，href
-  closable?: boolean // 是否可关闭
+import type { MenuView } from '@/types/interfaces'
+
+export interface TabConfig {
+  /** 标签名 */
+  text: string
+  /** url地址 */
+  href: string
+  /** id，不携带则取 text / href */
+  id?: string
+  /** 是否可关闭 */
+  closable?: boolean
 }
 
-export function addTab(config: tabConfig, callback?: Function) {
-  const { id, text: name } = config
-  const store = bus.getStore()
-  const targetMenu = queryMenu({ id, name })
-  if (targetMenu.length !== 0) {
-    config.id = targetMenu[0].id
+/**
+ * 打开（已在页签栏则激活）一个页签
+ *
+ * 同 queryMenu，需在容器安装之后调用。
+ */
+export function addTab(config: TabConfig) {
+  const menuViewsStore = useMenuViewsStore()
+
+  // 能按 id / name 匹配到菜单时以菜单 id 为准：页签 id 与菜单 id 不一致的话，
+  // 「打开已存在的页签」会退化成再开一个。
+  const matched = queryMenu({ id: config.id, name: config.text })
+
+  // 不复用入参对象：就地改写 config.id 会让复用同一个 config 的调用方串
+  const view: MenuView = {
+    ...config,
+    id: matched.length
+      ? matched[0].id
+      : config.id || config.text || config.href,
   }
-  store.dispatch('menuViews/addView', config).then(() => {
-    isFunction(callback) && callback()
-  })
+
+  menuViewsStore.addView(view)
 }
 
-export function closeTab(id: tabConfig['id'], callback?: Function) {
-  const store = bus.getStore()
-  store.dispatch('menuViews/closeViewById', id).then(() => {
-    isFunction(callback) && callback()
-  })
+/** 关闭页签 */
+export function closeTab(id?: string) {
+  useMenuViewsStore().closeViewById(id)
 }

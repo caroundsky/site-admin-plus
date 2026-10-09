@@ -80,6 +80,7 @@ const handleClick = () => {
   text-align: center;
   /* 主题色由 body.theme-* 提供（见 src/styles/themes.scss）；渐变主题为 transparent */
   background: var(--site-color-logo, transparent);
+  color: #fff;
 
   &--clickable {
     cursor: pointer;

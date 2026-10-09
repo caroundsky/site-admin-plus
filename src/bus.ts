@@ -5,6 +5,7 @@ import mitt from 'mitt'
 import get from 'lodash/get'
 import { ensureArray } from '@/utils/tools'
 import { getStorageUserKey, setStorageUserKey } from '@/utils/storage'
+import type { BridgeMethod } from '@/bridge/protocol'
 
 type ContextMenuFn = (view: any) => Array<{
   label: string
@@ -27,6 +28,24 @@ export interface BusConfig {
   }>
   HOME_PAGE: string
   FIXED_DRAG: string[]
+  /**
+   * 跨 iframe 桥接。
+   *
+   * - 不配置 → 不注册消息监听，外部请求一律不受理
+   * - `true` → 开启，来源与可调方法都不限制
+   * - 对象 → 开启并收紧：`origins` 列来源白名单、`methods` 列可调方法
+   */
+  bridge?:
+    | boolean
+    | {
+        /**
+         * 允许的调用方 origin；特殊值 `'self'` 表示容器自身 origin。
+         * 不配置 = 不限制。
+         */
+        origins?: string[]
+        /** 允许调用的方法，默认 BRIDGE_METHODS 全部开放 */
+        methods?: BridgeMethod[]
+      }
 }
 
 interface BusState {

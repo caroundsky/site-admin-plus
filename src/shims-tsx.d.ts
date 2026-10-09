@@ -20,7 +20,6 @@ declare global {
   }
 
   interface Window {
-    $tools: any
     tab: any
     newsInstantMessaging: any
     instantMessaging_Search: any
@@ -30,7 +29,6 @@ declare global {
 // Vue 3 全局属性声明
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
-    $tools: any
     $contextmenu: any
     $dialogServe: any
     $appConfig: any

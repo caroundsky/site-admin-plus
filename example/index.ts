@@ -113,10 +113,6 @@ library.install(app)
 // 使用 i18n
 app.use(i18n)
 
-// 挂载全局 tools
-app.config.globalProperties.$tools = library.$tools
-window.$tools = { ...library.$tools }
-
 // 挂载应用到 DOM
 app.mount('#app')
 
