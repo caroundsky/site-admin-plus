@@ -1,6 +1,6 @@
 name: Deploy demo to GitHub Pages
 
-# 访问地址：https://caroundsky.github.io/site-admin-plus/
+# 访问地址：https://caroundsky.github.io/lemon-admin/
 # 前置条件：仓库 Settings → Pages → Build and deployment → Source 选「GitHub Actions」
 #
 # 这个仓库有两层：根目录是库本体（yarn），demo/ 是消费方示例（pnpm）——
@@ -75,7 +75,7 @@ jobs:
         env:
           # Pages 的访问路径就是 /<仓库名>/，仓库改名后要同步改这里。
           # demo/vite.config.ts 会读它作为 base（菜单里 iframe 的 BASE_URL 也跟着走）
-          VITE_BASE: /site-admin-plus/
+          VITE_BASE: /lemon-admin/
         run: pnpm build
 
       - uses: actions/configure-pages@v5
